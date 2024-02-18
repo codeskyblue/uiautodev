@@ -6,10 +6,12 @@
 
 
 import io
+from pathlib import Path
 import platform
 from typing import List
 
 from fastapi import FastAPI, Response
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app_inspector.model import DeviceInfo, Hierarchy, ShellResponse
@@ -35,6 +37,13 @@ def info() -> InfoResponse:
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
     )
+
+@app.get("/demo")
+def demo() -> str:
+    """Demo endpoint"""
+    static_dir = Path(__file__).parent / "static"
+    print(static_dir / "demo.html")
+    return FileResponse(static_dir / "demo.html")
 
 
 android_provider = AndroidProvider()

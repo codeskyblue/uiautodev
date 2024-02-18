@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppInspector Demo</title>
+</head>
+<body>
+    <h1>App Inspector</h1>
+    <div id="message"></div>
+    <button id="test">Test</button>
+    <script>
+        window.onload = function() {
+            let message = "<span style='color: green'>App Inspector is installed.</span>"
+            if (chrome.runtime === undefined) {
+                message = "Please install the App Inspector Chrome Extension to use this feature.";
+            }
+            document.getElementById('message').innerHTML = `<span>${message}</span>`;
+        }
+
+        document.getElementById('test').addEventListener('click', function() {
+            const extensionId = "fjbboaelofjaabjmlphndicacmapbalm"
+            chrome.runtime.sendMessage(extensionId, {url: "/info"}, function(response) {
+                console.log(response);
+                if (response.error) {
+                    console.error(response.error)
+                } else {
+                    document.getElementById('message').innerHTML = response.data.description
+                }
+            });
+        });
+    </script>
+</body>
+</html>

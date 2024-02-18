@@ -1,0 +1,40 @@
+{
+    "name": "App Inspector Extension",
+    "short_name": "App Inspector",
+    "author": "codeskyblue",
+    "description": "AppInspector Extension helps the website app-inspector.devsleep.com communicate with the client.",
+    "version": "0.1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://app-inspector.devsleep.com/*", "*://localhost/*"],
+        "js": ["d.js"]
+      }
+    ],
+    "options_page": "options.html",
+    "permissions": ["storage", "activeTab", "scripting"],
+    "host_permissions": ["http://localhost/*"],
+    "externally_connectable": {
+      "matches": ["*://app-inspector.devsleep.com/*", "*://localhost/*"]
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "image/get_started16.png",
+        "32": "image/get_started32.png",
+        "48": "image/get_started48.png",
+        "128": "image/get_started128.png"
+      }
+    },
+    "icons": {
+      "16": "image/get_started16.png",
+      "32": "image/get_started32.png",
+      "48": "image/get_started48.png",
+      "128": "image/get_started128.png"
+    }
+  }
+  
