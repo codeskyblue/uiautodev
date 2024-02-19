@@ -17,7 +17,6 @@
     ],
     "options_page": "options.html",
     "permissions": ["storage", "activeTab", "scripting"],
-    "host_permissions": ["http://localhost/*"],
     "externally_connectable": {
       "matches": ["*://app-inspector.devsleep.com/*", "*://localhost/*"]
     },
