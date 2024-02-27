@@ -1,1 +1,1 @@
-uvicorn app_inspector.app:app --reload --port 20242
+uvicorn appinspector.app:app --reload --port 20242

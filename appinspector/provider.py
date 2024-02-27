@@ -6,8 +6,8 @@
 from __future__ import annotations
 import adbutils
 
-from app_inspector.device_driver import AndroidDriver
-from app_inspector.model import DeviceInfo
+from appinspector.device_driver import AndroidDriver
+from appinspector.model import DeviceInfo
 
 
 class BaseProvider:

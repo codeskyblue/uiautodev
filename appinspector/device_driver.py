@@ -12,7 +12,7 @@ import adbutils
 from xml.etree import ElementTree
 import json
 
-from app_inspector.model import Hierarchy, ShellResponse
+from appinspector.model import Hierarchy, ShellResponse
 
 class BaseDriver:
     def __init__(self, serial: str):

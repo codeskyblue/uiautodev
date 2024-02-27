@@ -6,19 +6,16 @@
 
 
 import io
-from pathlib import Path
-import platform
 from typing import List
 
-from fastapi import FastAPI, Response
-from fastapi.responses import FileResponse
+from fastapi import Response
+from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app_inspector.model import DeviceInfo, Hierarchy, ShellResponse
-from app_inspector.provider import AndroidProvider
+from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
+from appinspector.provider import AndroidProvider
 
-
-app = FastAPI()
+router = APIRouter()
 
 
 class InfoResponse(BaseModel):
@@ -28,41 +25,23 @@ class InfoResponse(BaseModel):
     code_language: str
 
 
-@app.get("/info")
-def info() -> InfoResponse:
-    """Information about the application"""
-    return InfoResponse(
-        version="0.0.1",
-        description="This is a simple FastAPI application",
-        platform=platform.system(),  # Linux | Darwin | Windows
-        code_language="Python",
-    )
-
-@app.get("/demo")
-def demo() -> str:
-    """Demo endpoint"""
-    static_dir = Path(__file__).parent / "static"
-    print(static_dir / "demo.html")
-    return FileResponse(static_dir / "demo.html")
-
-
 android_provider = AndroidProvider()
 
 
-@app.get("/list/android")
+@router.get("/list")
 def android_list() -> List[DeviceInfo]:
     """List of Android devices"""
     try:
         return android_provider.list_devices()
     except Exception as e:
         return Response(content=str(e), media_type="text/plain", status_code=500)
-    
+
 
 class AndroidShellPayload(BaseModel):
     command: str
 
 
-@app.post("/android/{serial}/shell")
+@router.post("/{serial}/shell")
 def android_shell(serial: str, payload: AndroidShellPayload) -> ShellResponse:
     """Run a shell command on an Android device"""
     try:
@@ -72,13 +51,13 @@ def android_shell(serial: str, payload: AndroidShellPayload) -> ShellResponse:
         return ShellResponse(output="", error=str(e))
 
 
-@app.get(
-    "/android/{serial}/screenshot/{id}",
+@router.get(
+    "/{serial}/screenshot/{id}",
     responses={200: {"content": {"image/png": {}}}},
     response_class=Response,
 )
 def android_screenshot(serial: str, id: int) -> Response:
-    """Take a screenshot of an Android device """
+    """Take a screenshot of an Android device"""
     try:
         driver = android_provider.get_device_driver(serial)
         pil_img = driver.screenshot(id)
@@ -90,7 +69,7 @@ def android_screenshot(serial: str, id: int) -> Response:
         return Response(content=str(e), media_type="text/plain", status_code=500)
 
 
-@app.get("/android/{serial}/hierarchy")
+@router.get("/{serial}/hierarchy")
 def android_hierarchy(serial: str) -> Hierarchy:
     """Dump the view hierarchy of an Android device"""
     try:

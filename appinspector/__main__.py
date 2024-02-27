@@ -7,5 +7,9 @@
 import uvicorn
 
 
+def main():
+    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=20242)
+
+
 if __name__ == "__main__":
-    uvicorn.run("app_inspector.app:app", host="0.0.0.0", port=20242)
+    main()
