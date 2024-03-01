@@ -4,11 +4,11 @@
 """Created on Sun Feb 18 2024 14:20:15 by codeskyblue
 """
 
-import uvicorn
+from appinspector.app import run_server
 
 
 def main():
-    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=20242)
+    run_server()
 
 
 if __name__ == "__main__":

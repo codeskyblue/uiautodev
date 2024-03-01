@@ -5,14 +5,16 @@
 """
 
 import os
-from pathlib import Path
 import platform
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-from appinspector.router.android import router as android_router
+
+from appinspector.provider import AndroidProvider, IOSProvider
+from appinspector.router.device import make_router
 
 app = FastAPI()
 
@@ -24,8 +26,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+android_router = make_router(AndroidProvider())
 app.include_router(android_router, prefix="/api/android", tags=["android"])
 
+ios_router = make_router(IOSProvider())
+app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
 
 class InfoResponse(BaseModel):
     version: str
@@ -34,7 +39,7 @@ class InfoResponse(BaseModel):
     code_language: str
 
 
-@app.get("/info")
+@app.get("/api/info")
 def info() -> InfoResponse:
     """Information about the application"""
     return InfoResponse(
@@ -52,3 +57,8 @@ def demo() -> str:
     static_dir = Path(__file__).parent / "static"
     print(static_dir / "demo.html")
     return FileResponse(static_dir / "demo.html")
+
+
+def run_server():
+    import uvicorn
+    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=20242)

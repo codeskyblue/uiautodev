@@ -4,14 +4,23 @@
 """Created on Sun Feb 18 2024 11:10:58 by codeskyblue
 """
 from __future__ import annotations
+
+import abc
+
 import adbutils
 
-from appinspector.device_driver import AndroidDriver
+from appinspector.driver.android import AndroidDriver
+from appinspector.driver.base import BaseDriver
 from appinspector.model import DeviceInfo
 
 
-class BaseProvider:
+class BaseProvider(abc.ABC):
+    @abc.abstractmethod
     def list_devices(self) -> list[DeviceInfo]:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_device_driver(self, serial: str) -> BaseDriver:
         raise NotImplementedError()
 
 
@@ -28,3 +37,12 @@ class AndroidProvider(BaseProvider):
 
     def get_device_driver(self, serial: str) -> AndroidDriver:
         return AndroidDriver(serial)
+
+
+class IOSProvider(BaseProvider):
+    def list_devices(self) -> list[DeviceInfo]:
+        # from tidevice3.api import list_devices
+        raise NotImplementedError()
+
+    def get_device_driver(self, serial: str) -> BaseDriver:
+        raise NotImplementedError()

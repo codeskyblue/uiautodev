@@ -18,6 +18,7 @@ appinspector = "appinspector.__main__:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core"]

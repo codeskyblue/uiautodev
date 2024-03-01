@@ -1,1 +1,0 @@
-uvicorn appinspector.app:app --reload --port 20242

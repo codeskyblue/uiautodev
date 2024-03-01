@@ -5,7 +5,9 @@
 """
 from __future__ import annotations
 
+import typing
 from typing import Dict, List, Optional, Tuple, Union
+
 from pydantic import BaseModel
 
 
@@ -25,3 +27,8 @@ class Hierarchy(BaseModel):
     bounds: Optional[Tuple[float, float, float, float]] = None
     properties: Dict[str, Union[str, bool]] = []
     children: List[Hierarchy] = []
+
+
+class WindowSize(typing.NamedTuple):
+    width: int
+    height: int
