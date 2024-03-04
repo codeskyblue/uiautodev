@@ -23,6 +23,7 @@ class ShellResponse(BaseModel):
 
 
 class Hierarchy(BaseModel):
+    key: str
     name: str
     bounds: Optional[Tuple[float, float, float, float]] = None
     properties: Dict[str, Union[str, bool]] = []

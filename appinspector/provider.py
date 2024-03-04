@@ -11,6 +11,7 @@ import adbutils
 
 from appinspector.driver.android import AndroidDriver
 from appinspector.driver.base import BaseDriver
+from appinspector.driver.mock import MockDriver
 from appinspector.model import DeviceInfo
 
 
@@ -46,3 +47,11 @@ class IOSProvider(BaseProvider):
 
     def get_device_driver(self, serial: str) -> BaseDriver:
         raise NotImplementedError()
+    
+
+class MockProvider(BaseProvider):
+    def list_devices(self) -> list[DeviceInfo]:
+        return [DeviceInfo(serial="mock-serial", model="mock-model", name="mock-name")]
+
+    def get_device_driver(self, serial: str) -> BaseDriver:
+        return MockDriver(serial)

@@ -13,7 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from appinspector.provider import AndroidProvider, IOSProvider
+from appinspector import __version__
+from appinspector.provider import AndroidProvider, IOSProvider, MockProvider
 from appinspector.router.device import make_router
 
 app = FastAPI()
@@ -32,19 +33,23 @@ app.include_router(android_router, prefix="/api/android", tags=["android"])
 ios_router = make_router(IOSProvider())
 app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
 
+mock_router = make_router(MockProvider())
+app.include_router(mock_router, prefix="/api/mock", tags=["mock"])
+
 class InfoResponse(BaseModel):
     version: str
     description: str
     platform: str
     code_language: str
+    cwd: str
 
 
 @app.get("/api/info")
 def info() -> InfoResponse:
     """Information about the application"""
     return InfoResponse(
-        version="0.0.1",
-        description="This is a simple FastAPI application",
+        version=__version__,
+        description="client for appinspector.devsleep.com",
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
         cwd=os.getcwd(),
@@ -60,5 +65,11 @@ def demo() -> str:
 
 
 def run_server():
+    import argparse
+
     import uvicorn
-    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=20242)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, default=20242)
+    args = parser.parse_args()
+
+    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=args.port)
