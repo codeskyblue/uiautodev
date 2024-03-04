@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "appinspector"
-version = "0.1.0"
+version = "0.0.0"
 description = "client for app-inspector.devsleep.com"
 homepage = "https://github.com/codeskyblue/appinspector"
 authors = ["codeskyblue <codeskyblue@gmail.com>"]
