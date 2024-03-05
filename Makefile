@@ -8,4 +8,4 @@ cov:
 	poetry run pytest --cov=. --cov-report xml --cov-report term
 
 dev: format
-	uvicorn appinspector.app:app --reload --port 20242
+	poetry run appinspector --reload --port 20242 --mock

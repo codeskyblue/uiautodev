@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XCUIElementTypeApplication type="XCUIElementTypeApplication" name="设置" label="设置" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+  <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+        <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+          <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+            <XCUIElementTypeNavigationBar type="XCUIElementTypeNavigationBar" name="设置" enabled="true" visible="true" accessible="false" x="0" y="48" width="414" height="44" index="0">
+              <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="设置" name="设置" label="设置" enabled="true" visible="true" accessible="true" x="189" y="60" width="36" height="21" index="0"/>
+            </XCUIElementTypeNavigationBar>
+            <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="1">
+              <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+                <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+                  <XCUIElementTypeTable type="XCUIElementTypeTable" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
+                    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="414" height="33" index="0">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="414" height="33" index="0"/>
+                    </XCUIElementTypeOther>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="APPLE_ACCOUNT" enabled="true" visible="false" accessible="false" x="20" y="-477" width="374" height="71" index="1">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="278" height="1" index="1"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="60" height="60" index="2"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="陈晓飞" name="陈晓飞" label="陈晓飞" enabled="true" visible="false" accessible="true" x="0" y="-527" width="67" height="27" index="3"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Apple ID、iCloud、媒体与购买项目" name="Apple ID、iCloud、媒体与购买项目" label="Apple ID、iCloud、媒体与购买项目" enabled="true" visible="false" accessible="true" x="0" y="-527" width="210" height="16" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="1个更新可用" name="开始使用iCloud" label="开始使用iCloud" enabled="true" visible="false" accessible="false" x="20" y="-407" width="374" height="45" index="2">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="开始使用iCloud" name="FollowUpList_com.apple.AAFollowUpIdentifier.StartUsing" label="开始使用iCloud" enabled="true" visible="false" accessible="true" x="0" y="-527" width="120" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" name="UnreadBubble" enabled="true" visible="false" accessible="false" x="0" y="-527" width="24" height="24" index="3"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="1" name="1" label="1" enabled="true" visible="false" accessible="true" x="0" y="-527" width="24" height="24" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="免费畅听 Apple Music 6 个月" label="免费畅听 Apple Music 6 个月" enabled="true" visible="false" accessible="false" x="20" y="-328" width="374" height="45" index="3">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="免费畅听 Apple Music 6 个月" name="FollowUpList_AMS_com.apple.AMSFollowUpIdentifier.HardwareOffer.Music++10276521475" label="免费畅听 Apple Music 6 个月" enabled="true" visible="false" accessible="true" x="0" y="-527" width="222" height="21" index="2"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="1个更新可用" name="现有iOS 17.3.1可用" label="现有iOS 17.3.1可用" enabled="true" visible="false" accessible="false" x="20" y="-249" width="374" height="45" index="4">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="354" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="现有iOS 17.3.1可用" name="FollowUpList_com.apple.SoftwareUpdateServices.followup.updateAvailable" label="现有iOS 17.3.1可用" enabled="true" visible="false" accessible="true" x="0" y="-527" width="145" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" name="UnreadBubble" enabled="true" visible="false" accessible="false" x="0" y="-527" width="24" height="24" index="3"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="1" name="1" label="1" enabled="true" visible="false" accessible="true" x="0" y="-527" width="24" height="24" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="1个更新可用" name="完成iPhone设置" label="完成iPhone设置" enabled="true" visible="false" accessible="false" x="20" y="-205" width="374" height="45" index="5">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="完成iPhone设置" name="FollowUpList_com.apple.purplebuddy.revisitSkippedSteps" label="完成iPhone设置" enabled="true" visible="false" accessible="true" x="0" y="-527" width="126" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" name="UnreadBubble" enabled="true" visible="false" accessible="false" x="0" y="-527" width="24" height="24" index="3"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="1" name="1" label="1" enabled="true" visible="false" accessible="true" x="0" y="-527" width="24" height="24" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="飞行模式" label="飞行模式" enabled="true" visible="false" accessible="true" x="20" y="-126" width="374" height="46" index="6">
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="飞行模式" name="AIRPLANE_MODE" label="飞行模式" enabled="true" visible="false" accessible="true" x="0" y="-527" width="70" height="21" index="0"/>
+                      <XCUIElementTypeSwitch type="XCUIElementTypeSwitch" value="0" name="飞行模式" label="飞行模式" enabled="true" visible="false" accessible="true" x="0" y="-527" width="51" height="31" index="1"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="alibaba-inc" name="无线局域网" label="无线局域网" enabled="true" visible="false" accessible="false" x="20" y="-81" width="374" height="46" index="7">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="40" y="-73" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="无线局域网" name="WIFI" label="无线局域网" enabled="true" visible="false" accessible="true" x="84" y="-68" width="87" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="84" y="-36" width="310" height="1" index="2"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="alibaba-inc" name="alibaba-inc" label="alibaba-inc" enabled="true" visible="false" accessible="true" x="271" y="-68" width="85" height="21" index="3"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="363" y="-65" width="11" height="14" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="打开" name="蓝牙" label="蓝牙" enabled="true" visible="false" accessible="false" x="20" y="-36" width="374" height="46" index="8">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="40" y="-28" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="蓝牙" name="Bluetooth" label="蓝牙" enabled="true" visible="false" accessible="true" x="84" y="-23" width="35" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="84" y="9" width="310" height="1" index="2"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="打开" name="打开" label="打开" enabled="true" visible="false" accessible="true" x="320" y="-23" width="36" height="21" index="3"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="363" y="-20" width="11" height="14" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="无SIM卡" name="蜂窝网络" label="蜂窝网络" enabled="false" visible="false" accessible="false" x="20" y="9" width="374" height="46" index="9">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="20" y="54" width="374" height="1" index="0"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="40" y="17" width="29" height="30" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="蜂窝网络" name="MOBILE_DATA_SETTINGS_ID" label="蜂窝网络" enabled="true" visible="false" accessible="true" x="84" y="22" width="70" height="21" index="2"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="无SIM卡" name="无SIM卡" label="无SIM卡" enabled="true" visible="false" accessible="true" x="287" y="22" width="69" height="21" index="3"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="363" y="25" width="11" height="14" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="通知" label="通知" enabled="true" visible="true" accessible="false" x="20" y="89" width="374" height="46" index="10">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="97" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="通知" name="NOTIFICATIONS_ID" label="通知" enabled="true" visible="true" accessible="true" x="84" y="102" width="35" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="134" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="105" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="声音与触感" label="声音与触感" enabled="true" visible="true" accessible="false" x="20" y="134" width="374" height="46" index="11">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="142" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="声音与触感" name="Sounds" label="声音与触感" enabled="true" visible="true" accessible="true" x="84" y="147" width="87" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="179" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="150" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="专注模式" label="专注模式" enabled="true" visible="true" accessible="false" x="20" y="179" width="374" height="46" index="12">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="187" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="专注模式" name="DO_NOT_DISTURB" label="专注模式" enabled="true" visible="true" accessible="true" x="84" y="192" width="70" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="224" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="195" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="屏幕使用时间" label="屏幕使用时间" enabled="true" visible="true" accessible="false" x="20" y="224" width="374" height="46" index="13">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="20" y="269" width="374" height="1" index="0"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="232" width="29" height="30" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="屏幕使用时间" name="SCREEN_TIME" label="屏幕使用时间" enabled="true" visible="true" accessible="true" x="84" y="237" width="104" height="21" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="240" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="通用" label="通用" enabled="true" visible="true" accessible="false" x="20" y="304" width="374" height="46" index="14">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="312" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="通用" name="General" label="通用" enabled="true" visible="true" accessible="true" x="84" y="317" width="35" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="349" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="320" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="控制中心" label="控制中心" enabled="true" visible="true" accessible="false" x="20" y="349" width="374" height="46" index="15">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="357" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="控制中心" name="ControlCenter" label="控制中心" enabled="true" visible="true" accessible="true" x="84" y="362" width="70" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="394" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="365" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="显示与亮度" label="显示与亮度" enabled="true" visible="true" accessible="false" x="20" y="394" width="374" height="46" index="16">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="402" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="显示与亮度" name="DISPLAY" label="显示与亮度" enabled="true" visible="true" accessible="true" x="84" y="407" width="87" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="439" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="410" width="11" height="14" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="HOME_SCREEN" enabled="true" visible="true" accessible="false" x="20" y="439" width="374" height="46" index="17">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="447" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="主屏幕" name="主屏幕" label="主屏幕" enabled="true" visible="true" accessible="true" x="85" y="451" width="52" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="85" y="483" width="309" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="454" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="辅助功能" label="辅助功能" enabled="true" visible="true" accessible="false" x="20" y="484" width="374" height="46" index="18">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="492" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="辅助功能" name="ACCESSIBILITY" label="辅助功能" enabled="true" visible="true" accessible="true" x="84" y="497" width="70" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="528" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="499" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="墙纸" label="墙纸" enabled="true" visible="true" accessible="false" x="20" y="529" width="374" height="46" index="19">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="537" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="墙纸" name="Wallpaper" label="墙纸" enabled="true" visible="true" accessible="true" x="84" y="542" width="35" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="573" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="544" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="Siri与搜索" label="Siri与搜索" enabled="true" visible="true" accessible="false" x="20" y="574" width="374" height="46" index="20">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="582" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Siri与搜索" name="SIRI" label="Siri与搜索" enabled="true" visible="true" accessible="true" x="84" y="587" width="79" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="618" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="589" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="面容ID与密码" label="面容ID与密码" enabled="true" visible="true" accessible="false" x="20" y="619" width="374" height="46" index="21">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="627" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="面容ID与密码" name="PASSCODE" label="面容ID与密码" enabled="true" visible="true" accessible="true" x="84" y="632" width="107" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="663" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="634" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="SOS紧急联络" label="SOS紧急联络" enabled="true" visible="true" accessible="false" x="20" y="664" width="374" height="46" index="22">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="672" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="SOS紧急联络" name="EMERGENCY_SOS" label="SOS紧急联络" enabled="true" visible="true" accessible="true" x="84" y="677" width="105" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="708" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="679" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="暴露通知" label="暴露通知" enabled="true" visible="true" accessible="false" x="20" y="709" width="374" height="46" index="23">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="717" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="暴露通知" name="EXPOSURE_NOTIFICATION" label="暴露通知" enabled="true" visible="true" accessible="true" x="84" y="722" width="70" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="753" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="724" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="电池" label="电池" enabled="true" visible="true" accessible="false" x="20" y="754" width="374" height="46" index="24">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="762" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="电池" name="BATTERY_USAGE" label="电池" enabled="true" visible="true" accessible="true" x="84" y="767" width="35" height="21" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="true" accessible="false" x="84" y="798" width="310" height="2" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="769" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="Privacy" enabled="true" visible="true" accessible="false" x="20" y="799" width="374" height="45" index="25">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="20" y="843" width="374" height="1" index="0"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="807" width="29" height="30" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="隐私与安全性" name="隐私与安全性" label="隐私与安全性" enabled="true" visible="true" accessible="true" x="85" y="811" width="104" height="21" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="814" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="App Store" label="App Store" enabled="true" visible="true" accessible="false" x="20" y="878" width="374" height="46" index="26">
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="true" accessible="false" x="40" y="886" width="29" height="30" index="0"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="App Store" name="STORE" label="App Store" enabled="true" visible="true" accessible="true" x="84" y="891" width="76" height="22" index="1"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="84" y="923" width="310" height="1" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="true" accessible="false" x="363" y="894" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="钱包与Apple Pay" label="钱包与Apple Pay" enabled="true" visible="false" accessible="false" x="20" y="923" width="374" height="46" index="27">
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="20" y="968" width="374" height="1" index="0"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="40" y="931" width="29" height="30" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="钱包与Apple Pay" name="PASSBOOK" label="钱包与Apple Pay" enabled="true" visible="false" accessible="true" x="84" y="936" width="130" height="22" index="2"/>
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="363" y="939" width="11" height="15" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="密码" label="密码" enabled="true" visible="false" accessible="false" x="20" y="1003" width="374" height="46" index="28">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="密码" name="PASSWORDS" label="密码" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="邮件" label="邮件" enabled="true" visible="false" accessible="false" x="20" y="1048" width="374" height="46" index="29">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="邮件" name="MAIL" label="邮件" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="通讯录" label="通讯录" enabled="true" visible="false" accessible="false" x="20" y="1093" width="374" height="46" index="30">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="通讯录" name="CONTACTS" label="通讯录" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="日历" label="日历" enabled="true" visible="false" accessible="false" x="20" y="1138" width="374" height="46" index="31">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="日历" name="CALENDAR" label="日历" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="备忘录" label="备忘录" enabled="true" visible="false" accessible="false" x="20" y="1183" width="374" height="46" index="32">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="备忘录" name="NOTES" label="备忘录" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="提醒事项" label="提醒事项" enabled="true" visible="false" accessible="false" x="20" y="1228" width="374" height="46" index="33">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="提醒事项" name="REMINDERS" label="提醒事项" enabled="true" visible="false" accessible="true" x="0" y="-527" width="70" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="无边记" label="无边记" enabled="true" visible="false" accessible="false" x="20" y="1273" width="374" height="46" index="34">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="无边记" name="FREEFORM" label="无边记" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="语音备忘录" label="语音备忘录" enabled="true" visible="false" accessible="false" x="20" y="1318" width="374" height="46" index="35">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="语音备忘录" name="VOICE_MEMOS" label="语音备忘录" enabled="true" visible="false" accessible="true" x="0" y="-527" width="87" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" value="无SIM卡" name="电话" label="电话" enabled="false" visible="false" accessible="false" x="20" y="1363" width="374" height="46" index="36">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="电话" name="Phone" label="电话" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="无SIM卡" name="无SIM卡" label="无SIM卡" enabled="true" visible="false" accessible="true" x="0" y="-527" width="68" height="21" index="3"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="4"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="信息" label="信息" enabled="true" visible="false" accessible="false" x="20" y="1408" width="374" height="46" index="37">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="信息" name="MESSAGES" label="信息" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="FaceTime通话" label="FaceTime通话" enabled="true" visible="false" accessible="false" x="20" y="1453" width="374" height="46" index="38">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="FaceTime通话" name="FACETIME" label="FaceTime通话" enabled="true" visible="false" accessible="true" x="0" y="-527" width="109" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="Safari浏览器" label="Safari浏览器" enabled="true" visible="false" accessible="false" x="20" y="1498" width="374" height="46" index="39">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Safari浏览器" name="SAFARI" label="Safari浏览器" enabled="true" visible="false" accessible="true" x="0" y="-527" width="98" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="股市" label="股市" enabled="true" visible="false" accessible="false" x="20" y="1543" width="374" height="46" index="40">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="股市" name="STOCKS" label="股市" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="天气" label="天气" enabled="true" visible="false" accessible="false" x="20" y="1588" width="374" height="46" index="41">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="天气" name="WEATHER" label="天气" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="翻译" label="翻译" enabled="true" visible="false" accessible="false" x="20" y="1633" width="374" height="46" index="42">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="翻译" name="TRANSLATE" label="翻译" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="地图" label="地图" enabled="true" visible="false" accessible="false" x="20" y="1678" width="374" height="46" index="43">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="地图" name="MAPS" label="地图" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="指南针" label="指南针" enabled="true" visible="false" accessible="false" x="20" y="1723" width="374" height="46" index="44">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="指南针" name="COMPASS" label="指南针" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="测距仪" label="测距仪" enabled="true" visible="false" accessible="false" x="20" y="1768" width="374" height="46" index="45">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="测距仪" name="MEASURE" label="测距仪" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="快捷指令" label="快捷指令" enabled="true" visible="false" accessible="false" x="20" y="1813" width="374" height="46" index="46">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="快捷指令" name="SHORTCUTS" label="快捷指令" enabled="true" visible="false" accessible="true" x="0" y="-527" width="70" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="健康" label="健康" enabled="true" visible="false" accessible="false" x="20" y="1858" width="374" height="46" index="47">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="健康" name="HEALTH" label="健康" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="音乐" label="音乐" enabled="true" visible="false" accessible="false" x="20" y="1938" width="374" height="46" index="48">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="音乐" name="MUSIC" label="音乐" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="视频" label="视频" enabled="true" visible="false" accessible="false" x="20" y="1983" width="374" height="46" index="49">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="视频" name="TVAPP" label="视频" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="照片" label="照片" enabled="true" visible="false" accessible="false" x="20" y="2028" width="374" height="46" index="50">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="照片" name="Photos" label="照片" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="相机" label="相机" enabled="true" visible="false" accessible="false" x="20" y="2073" width="374" height="46" index="51">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="相机" name="CAMERA" label="相机" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="图书" label="图书" enabled="true" visible="false" accessible="false" x="20" y="2118" width="374" height="46" index="52">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="图书" name="IBOOKS" label="图书" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="播客" label="播客" enabled="true" visible="false" accessible="false" x="20" y="2163" width="374" height="46" index="53">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="播客" name="PODCASTS" label="播客" enabled="true" visible="false" accessible="true" x="0" y="-527" width="35" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="Game Center" label="Game Center" enabled="true" visible="false" accessible="false" x="20" y="2208" width="374" height="46" index="54">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="Game Center" name="GAMECENTER" label="Game Center" enabled="true" visible="false" accessible="true" x="0" y="-527" width="101" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="电视提供商" label="电视提供商" enabled="true" visible="false" accessible="false" x="20" y="2288" width="374" height="46" index="55">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="电视提供商" name="VIDEO_SUBSCRIBER" label="电视提供商" enabled="true" visible="false" accessible="true" x="0" y="-527" width="87" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="开发者" label="开发者" enabled="true" visible="false" accessible="false" x="20" y="2368" width="374" height="46" index="56">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="开发者" name="DEVELOPER_SETTINGS" label="开发者" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="阿里钉" label="阿里钉" enabled="true" visible="false" accessible="false" x="20" y="2448" width="374" height="46" index="57">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="阿里钉" name="dd.work.exclusive4aliding" label="阿里钉" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="阿里郎" label="阿里郎" enabled="true" visible="false" accessible="false" x="20" y="2493" width="374" height="46" index="58">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="阿里郎" name="com.alibaba.alilang" label="阿里郎" enabled="true" visible="false" accessible="true" x="0" y="-527" width="52" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="AlibabaDevEnt" label="AlibabaDevEnt" enabled="true" visible="false" accessible="false" x="20" y="2538" width="374" height="46" index="59">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="AlibabaDevEnt" name="com.alibaba.sourcing.ent" label="AlibabaDevEnt" enabled="true" visible="false" accessible="true" x="0" y="-527" width="112" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="FMH" label="FMH" enabled="true" visible="false" accessible="false" x="20" y="2583" width="374" height="46" index="60">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="310" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="FMH" name="com.alibaba.fourier-healthcheck" label="FMH" enabled="true" visible="false" accessible="true" x="0" y="-527" width="36" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                    <XCUIElementTypeCell type="XCUIElementTypeCell" name="IRMA助手" label="IRMA助手" enabled="true" visible="false" accessible="false" x="20" y="2628" width="374" height="46" index="61">
+                      <XCUIElementTypeButton type="XCUIElementTypeButton" name="chevron" label="chevron" enabled="false" visible="false" accessible="false" x="0" y="-527" width="11" height="14" index="0"/>
+                      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="-527" width="374" height="1" index="1"/>
+                      <XCUIElementTypeStaticText type="XCUIElementTypeStaticText" value="IRMA助手" name="com.oo.IRMATouchRunner" label="IRMA助手" enabled="true" visible="false" accessible="true" x="0" y="-527" width="78" height="21" index="2"/>
+                      <XCUIElementTypeImage type="XCUIElementTypeImage" enabled="true" visible="false" accessible="false" x="0" y="-527" width="29" height="29" index="3"/>
+                    </XCUIElementTypeCell>
+                  </XCUIElementTypeTable>
+                </XCUIElementTypeOther>
+              </XCUIElementTypeOther>
+            </XCUIElementTypeOther>
+          </XCUIElementTypeOther>
+        </XCUIElementTypeOther>
+      </XCUIElementTypeOther>
+    </XCUIElementTypeOther>
+  </XCUIElementTypeWindow>
+  <XCUIElementTypeWindow type="XCUIElementTypeWindow" enabled="true" visible="false" accessible="false" x="0" y="0" width="414" height="896" index="1">
+    <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="0" width="414" height="896" index="0">
+      <XCUIElementTypeOther type="XCUIElementTypeOther" enabled="true" visible="false" accessible="false" x="0" y="0" width="414" height="896" index="0"/>
+    </XCUIElementTypeOther>
+  </XCUIElementTypeWindow>
+</XCUIElementTypeApplication>

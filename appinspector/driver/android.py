@@ -6,7 +6,7 @@
 
 import re
 from functools import partial
-from typing import List
+from typing import List, Tuple
 from xml.etree import ElementTree
 
 import adbutils
@@ -41,14 +41,15 @@ class AndroidDriver(BaseDriver):
         except Exception as e:
             return ShellResponse(output="", error=f"adb error: {str(e)}")
 
-    def dump_hierarchy(self) -> Hierarchy:
+    def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
+        """returns xml string and hierarchy object"""
         wsize = self.device.window_size()
         xml_data = self.device.dump_hierarchy()
         root = ElementTree.fromstring(xml_data)
-        return parse_xml_element(root, WindowSize(width=wsize[0], height=wsize[1]))
+        return xml_data, parse_xml_element(root, WindowSize(width=wsize[0], height=wsize[1]))
 
 
-def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[]) -> Hierarchy:
+def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:
     """
     Recursively parse an XML element into a dictionary format.
     """

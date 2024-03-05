@@ -11,8 +11,10 @@ readme = "README.md"
 python = "^3.8"
 fastapi = {extras = ["all"], version = "^0.109.2"}
 uvicorn = {extras = ["standard"], version = "^0.27.1"}
-pillow = "^10.2.0"
+pillow = "*"
 adbutils = "^2.2.1"
+construct = "*"
+lxml = "*"
 
 [tool.poetry.scripts]
 appinspector = "appinspector.__main__:main"

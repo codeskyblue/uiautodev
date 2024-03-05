@@ -11,8 +11,10 @@ import adbutils
 
 from appinspector.driver.android import AndroidDriver
 from appinspector.driver.base import BaseDriver
+from appinspector.driver.ios import IOSDriver
 from appinspector.driver.mock import MockDriver
 from appinspector.model import DeviceInfo
+from appinspector.utils.usbmux import MuxDevice, list_devices
 
 
 class BaseProvider(abc.ABC):
@@ -42,11 +44,11 @@ class AndroidProvider(BaseProvider):
 
 class IOSProvider(BaseProvider):
     def list_devices(self) -> list[DeviceInfo]:
-        # from tidevice3.api import list_devices
-        raise NotImplementedError()
+        devs = list_devices()
+        return [DeviceInfo(serial=d.serial, model="unknown", name="unknown") for d in devs]
 
     def get_device_driver(self, serial: str) -> BaseDriver:
-        raise NotImplementedError()
+        return IOSDriver(serial)
     
 
 class MockProvider(BaseProvider):

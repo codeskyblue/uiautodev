@@ -64,7 +64,8 @@ def make_router(provider: BaseProvider) -> APIRouter:
         """Dump the view hierarchy of an Android device"""
         try:
             driver = provider.get_device_driver(serial)
-            return driver.dump_hierarchy()
+            xml_data, hierarchy = driver.dump_hierarchy()
+            return hierarchy
         except Exception as e:
             return Response(content=str(e), media_type="text/plain", status_code=500)
 

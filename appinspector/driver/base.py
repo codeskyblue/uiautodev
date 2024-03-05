@@ -4,6 +4,7 @@
 """Created on Fri Mar 01 2024 14:18:30 by codeskyblue
 """
 import abc
+from typing import Tuple
 
 from PIL import Image
 
@@ -23,9 +24,9 @@ class BaseDriver(abc.ABC):
         raise NotImplementedError()
     
     @abc.abstractmethod
-    def dump_hierarchy(self) -> Hierarchy:
+    def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
         """Dump the view hierarchy of the device
-        :return: Hierarchy
+        :return: xml_source, Hierarchy
         """
         raise NotImplementedError()
     

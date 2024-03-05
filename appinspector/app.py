@@ -7,6 +7,7 @@
 import os
 import platform
 from pathlib import Path
+from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,7 @@ from pydantic import BaseModel
 from appinspector import __version__
 from appinspector.provider import AndroidProvider, IOSProvider, MockProvider
 from appinspector.router.device import make_router
+from appinspector.router.xml import router as xml_router
 
 app = FastAPI()
 
@@ -28,13 +30,18 @@ app.add_middleware(
 )
 
 android_router = make_router(AndroidProvider())
-app.include_router(android_router, prefix="/api/android", tags=["android"])
-
 ios_router = make_router(IOSProvider())
-app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
-
 mock_router = make_router(MockProvider())
-app.include_router(mock_router, prefix="/api/mock", tags=["mock"])
+
+if os.environ.get("APPINSPECTOR_MOCK"):
+    app.include_router(mock_router, prefix="/api/android", tags=["mock"])
+    app.include_router(mock_router, prefix="/api/ios", tags=["mock"])
+else:
+    app.include_router(android_router, prefix="/api/android", tags=["android"])
+    app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
+
+app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
+
 
 class InfoResponse(BaseModel):
     version: str
@@ -42,6 +49,7 @@ class InfoResponse(BaseModel):
     platform: str
     code_language: str
     cwd: str
+    drivers: List[str]
 
 
 @app.get("/api/info")
@@ -53,6 +61,7 @@ def info() -> InfoResponse:
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
         cwd=os.getcwd(),
+        drivers=["android", "ios"],
     )
 
 
@@ -70,6 +79,11 @@ def run_server():
     import uvicorn
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=20242)
+    parser.add_argument("--mock", action="store_true", help="Run with mock driver")
+    parser.add_argument("--reload", action="store_true", help="Run with auto reload")
     args = parser.parse_args()
 
-    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=args.port)
+    if args.mock:
+        os.environ["APPINSPECTOR_MOCK"] = "1"
+
+    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=args.port, reload=args.reload)
