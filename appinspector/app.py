@@ -33,6 +33,8 @@ android_router = make_router(AndroidProvider())
 ios_router = make_router(IOSProvider())
 mock_router = make_router(MockProvider())
 
+app.include_router(mock_router, prefix="/api/mock", tags=["mock"])
+
 if os.environ.get("APPINSPECTOR_MOCK"):
     app.include_router(mock_router, prefix="/api/android", tags=["mock"])
     app.include_router(mock_router, prefix="/api/ios", tags=["mock"])
@@ -61,7 +63,7 @@ def info() -> InfoResponse:
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
         cwd=os.getcwd(),
-        drivers=["android", "ios"],
+        drivers=["android"],
     )
 
 
