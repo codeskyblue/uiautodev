@@ -27,6 +27,10 @@ pytest-cov = "^4.1.0"
 [tool.poetry-dynamic-versioning] # 根据tag来动态配置版本号
 enable = true
 
+[[tool.poetry.source]]
+name = "doubanio"
+url = "https://pypi.doubanio.com/simple"
+
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
 build-backend = "poetry_dynamic_versioning.backend"

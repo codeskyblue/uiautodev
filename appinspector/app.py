@@ -102,4 +102,7 @@ def run_server():
     if args.mock:
         os.environ["APPINSPECTOR_MOCK"] = "1"
 
-    uvicorn.run("appinspector.app:app", host="127.0.0.1", port=args.port, reload=args.reload)
+    use_color = True
+    if platform.system() == 'Windows':
+        use_color = False
+    uvicorn.run("appinspector.app:app", host="127.0.0.1", port=args.port, reload=args.reload, use_colors=use_color)
