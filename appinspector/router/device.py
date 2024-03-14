@@ -10,7 +10,7 @@ from typing import List
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
-from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
+from appinspector.model import DeviceInfo, Hierarchy, ShellResponse, TapRequest
 from appinspector.provider import BaseProvider
 
 
@@ -68,5 +68,18 @@ def make_router(provider: BaseProvider) -> APIRouter:
             return hierarchy
         except Exception as e:
             return Response(content=str(e), media_type="text/plain", status_code=500)
+    
+    @router.post('/{serial}/command/tap')
+    def command_tap(serial: str, params: TapRequest):
+        """Run a command on the device"""
+        driver = provider.get_device_driver(serial)
+        x = params.x
+        y = params.y
+        if params.isPercent:
+            wsize = driver.window_size()
+            x = int(wsize[0] * params.x)
+            y = int(wsize[1] * params.y)
+        driver.tap(x, y)
+        return {"status": "ok"}
 
     return router

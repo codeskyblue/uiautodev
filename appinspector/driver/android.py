@@ -10,9 +10,11 @@ from typing import List, Tuple
 from xml.etree import ElementTree
 
 import adbutils
+import requests
 from PIL import Image
 
 from appinspector.driver.base import BaseDriver
+from appinspector.exceptions import AndroidDriverException
 from appinspector.model import Hierarchy, ShellResponse, WindowSize
 
 
@@ -44,9 +46,39 @@ class AndroidDriver(BaseDriver):
     def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
         """returns xml string and hierarchy object"""
         wsize = self.device.window_size()
-        xml_data = self.device.dump_hierarchy()
+        xml_data = self._dump_hierarchy_raw()
         root = ElementTree.fromstring(xml_data)
         return xml_data, parse_xml_element(root, WindowSize(width=wsize[0], height=wsize[1]))
+    
+    def _dump_hierarchy_raw(self) -> str:
+        """ 
+        appium.uiautomator2.server.test is conflict with "uiautomator dump" command.
+        """
+        try:
+            return self._get_appium_hierarchy()
+        except (requests.RequestException, AndroidDriverException):
+            # no appium server started, use uiautomator dump
+            return self.device.dump_hierarchy()
+    
+    def _get_appium_hierarchy(self) -> str:
+        
+        local_port = None
+        for f in self.device.forward_list():
+            if f.local.startswith("tcp:") and f.remote == "tcp:6790":
+                local_port = int(f.local.split(":")[-1])
+        if local_port is None:
+            raise AndroidDriverException("appium server not started")
+        
+        r = requests.get(f"http://127.0.0.1:{local_port}/wd/hub/session/0/source")
+        r.raise_for_status()
+        return r.json()['value']
+    
+    def tap(self, x: int, y: int):
+        self.device.click(x, y)
+
+    def window_size(self) -> Tuple[int, int]:
+        w, h = self.device.window_size()
+        return (w, h)
 
 
 def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:

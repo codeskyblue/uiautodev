@@ -4,9 +4,11 @@
 """Created on Fri Mar 01 2024 14:18:30 by codeskyblue
 """
 import abc
+import enum
 from typing import Tuple
 
 from PIL import Image
+from pydantic import BaseModel
 
 from appinspector.model import Hierarchy, ShellResponse
 
@@ -37,4 +39,14 @@ class BaseDriver(abc.ABC):
         """
         raise NotImplementedError()
     
-    
+    def tap(self, x: int, y: int):
+        """Tap on the screen
+        :param x: x coordinate
+        :param y: y coordinate
+        """
+        raise NotImplementedError()
+
+    def window_size(self) -> Tuple[int, int]:
+        """ get window UI size """
+        raise NotImplementedError()
+

@@ -6,12 +6,13 @@
 
 import os
 import platform
+import signal
 from pathlib import Path
 from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 
 from appinspector import __version__
@@ -67,12 +68,25 @@ def info() -> InfoResponse:
     )
 
 
+@app.get("/shutdown")
+def shutdown() -> str:
+    """Shutdown the server"""
+    os.kill(os.getpid(), signal.SIGINT)
+    return "Server shutting down..."
+
+
 @app.get("/demo")
 def demo() -> str:
     """Demo endpoint"""
     static_dir = Path(__file__).parent / "static"
     print(static_dir / "demo.html")
     return FileResponse(static_dir / "demo.html")
+
+
+@app.get("/")
+def index_redirect():
+    """ redirect to appinspector.devsleep.com """
+    return RedirectResponse("https://appinspector.devsleep.com")
 
 
 def run_server():
@@ -88,4 +102,4 @@ def run_server():
     if args.mock:
         os.environ["APPINSPECTOR_MOCK"] = "1"
 
-    uvicorn.run("appinspector.app:app", host="0.0.0.0", port=args.port, reload=args.reload)
+    uvicorn.run("appinspector.app:app", host="127.0.0.1", port=args.port, reload=args.reload)
