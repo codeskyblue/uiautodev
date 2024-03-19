@@ -11,8 +11,13 @@ from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
 from appinspector import command_proxy
+<<<<<<< HEAD
 from appinspector.command_types import CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
 from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
+=======
+from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
+from appinspector.command_types import CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
+>>>>>>> 61b3e92 (add appium support, add command_proxy)
 from appinspector.provider import BaseProvider
 
 

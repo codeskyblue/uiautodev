@@ -8,7 +8,6 @@
 # Request and Response
 import enum
 from typing import Optional, Union
-
 from pydantic import BaseModel
 
 

@@ -11,7 +11,6 @@ from typing import Optional, TypeVar, Union
 
 from pydantic import BaseModel
 
-
 class ColorizedJsonEncoder(sysjson.JSONEncoder):
     KEY_COLOR = "\033[1;34m"  # Bright Blue for keys
     VALUE_COLOR = "\033[0;32m"  # Green for values
@@ -71,7 +70,11 @@ def enable_windows_ansi_support():
 def print_json_with_color(data: BaseModel | None):
     enable_windows_ansi_support()
     json_data = data.model_dump() if data else None
+<<<<<<< HEAD
     print(sysjson.dumps(json_data, indent=4, cls=ColorizedJsonEncoder))
+=======
+    print(json.dumps(json_data, indent=4, cls=ColorizedJsonEncoder))
+>>>>>>> 61b3e92 (add appium support, add command_proxy)
 
 
 _T = TypeVar("_T")
@@ -118,6 +121,7 @@ def convert_params_to_model(params: list[str], model: BaseModel) -> BaseModel:
             print(f"unknown key: {k}")
             continue
         value[k] = convert_to_type(v, _type)
+<<<<<<< HEAD
     return model.model_validate(value)
 
 
@@ -157,3 +161,6 @@ def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", js
     finally:
         conn.close()
 
+=======
+    return model.model_validate(value)
+>>>>>>> 61b3e92 (add appium support, add command_proxy)

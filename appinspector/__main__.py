@@ -4,8 +4,6 @@
 """Created on Sun Feb 18 2024 14:20:15 by codeskyblue
 """
 
-import sys
-
 from appinspector.cli import main
 
 if __name__ == "__main__":
