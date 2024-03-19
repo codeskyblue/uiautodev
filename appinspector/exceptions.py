@@ -14,3 +14,7 @@ class IOSDriverException(AppInspectorException):
 
 class AndroidDriverException(AppInspectorException):
     pass
+
+
+class AppiumDriverException(AppInspectorException):
+    pass

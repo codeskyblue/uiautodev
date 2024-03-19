@@ -13,6 +13,7 @@ import adbutils
 import requests
 from PIL import Image
 
+from appinspector.command_types import CurrentAppResponse
 from appinspector.driver.base import BaseDriver
 from appinspector.exceptions import AndroidDriverException
 from appinspector.model import Hierarchy, ShellResponse, WindowSize
@@ -47,8 +48,7 @@ class AndroidDriver(BaseDriver):
         """returns xml string and hierarchy object"""
         wsize = self.device.window_size()
         xml_data = self._dump_hierarchy_raw()
-        root = ElementTree.fromstring(xml_data)
-        return xml_data, parse_xml_element(root, WindowSize(width=wsize[0], height=wsize[1]))
+        return xml_data, parse_xml(xml_data, WindowSize(width=wsize[0], height=wsize[1]))
     
     def _dump_hierarchy_raw(self) -> str:
         """ 
@@ -79,6 +79,24 @@ class AndroidDriver(BaseDriver):
     def window_size(self) -> Tuple[int, int]:
         w, h = self.device.window_size()
         return (w, h)
+
+    def app_install(self, app_path: str):
+        self.device.install(app_path)
+    
+    def app_current(self) -> CurrentAppResponse:
+        info = self.device.app_current()
+        return CurrentAppResponse(
+            package=info.package,
+            activity=info.activity,
+            pid=info.pid)
+
+    def home(self):
+        self.device.keyevent("HOME")
+        
+
+def parse_xml(xml_data: str, wsize: WindowSize) -> Hierarchy:
+    root = ElementTree.fromstring(xml_data)
+    return parse_xml_element(root, wsize)
 
 
 def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:

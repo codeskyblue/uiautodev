@@ -4,6 +4,7 @@
 """Created on Sun Feb 18 2024 13:48:55 by codeskyblue
 """
 
+import logging
 import os
 import platform
 import signal
@@ -19,6 +20,8 @@ from appinspector import __version__
 from appinspector.provider import AndroidProvider, IOSProvider, MockProvider
 from appinspector.router.device import make_router
 from appinspector.router.xml import router as xml_router
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -87,22 +90,3 @@ def demo() -> str:
 def index_redirect():
     """ redirect to appinspector.devsleep.com """
     return RedirectResponse("https://appinspector.devsleep.com")
-
-
-def run_server():
-    import argparse
-
-    import uvicorn
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=20242)
-    parser.add_argument("--mock", action="store_true", help="Run with mock driver")
-    parser.add_argument("--reload", action="store_true", help="Run with auto reload")
-    args = parser.parse_args()
-
-    if args.mock:
-        os.environ["APPINSPECTOR_MOCK"] = "1"
-
-    use_color = True
-    if platform.system() == 'Windows':
-        use_color = False
-    uvicorn.run("appinspector.app:app", host="127.0.0.1", port=args.port, reload=args.reload, use_colors=use_color)

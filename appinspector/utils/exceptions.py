@@ -7,16 +7,15 @@ Copy from https://github.com/doronz88/pymobiledevice3
 """
 
 
-class PyMobileDevice3Exception(Exception):
+from appinspector.exceptions import IOSDriverException
+
+
+class NotPairedError(IOSDriverException):
     pass
 
 
-class NotPairedError(PyMobileDevice3Exception):
-    pass
 
-
-
-class MuxException(PyMobileDevice3Exception):
+class MuxException(IOSDriverException):
     pass
 
 
@@ -40,5 +39,5 @@ class ConnectionFailedToUsbmuxdError(ConnectionFailedError):
     pass
 
 
-class ArgumentError(PyMobileDevice3Exception):
+class ArgumentError(IOSDriverException):
     pass

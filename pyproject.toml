@@ -15,6 +15,9 @@ pillow = "*"
 adbutils = "^2.2.1"
 construct = "*"
 lxml = "*"
+click = "^8.1.7"
+appium-python-client = ">=3,<4"
+httpretty = "^1.1.4"
 
 [tool.poetry.scripts]
 appinspector = "appinspector.__main__:main"
