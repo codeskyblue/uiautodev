@@ -11,21 +11,22 @@ import json
 import logging
 from pprint import pprint
 from typing import Tuple
-from PIL import Image
+
+import httpretty
+import httpx
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
 from appium.options.ios import XCUITestOptions
 from appium.webdriver.common.appiumby import AppiumBy as By
+from PIL import Image
 from selenium.webdriver.common.proxy import Proxy, ProxyType
-import httpx
 
 from appinspector.command_types import CurrentAppResponse
+from appinspector.driver.android import parse_xml
 from appinspector.driver.base import BaseDriver
 from appinspector.exceptions import AppiumDriverException
 from appinspector.model import DeviceInfo, Hierarchy, ShellResponse, WindowSize
 from appinspector.provider import BaseProvider
-from appinspector.driver.android import parse_xml
-import httpretty
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class AppiumProvider(BaseProvider):
     sessions = []
 
     def __init__(self, command_executor: str = "http://localhost:4723/wd/hub"):
-        command_executor = "http://localhost:4700"
+        # command_executor = "http://localhost:4700"
         # command_executor = "http://localhost:4720/wd/hub"
         self.command_executor = command_executor.rstrip('/')
         self.sessions.clear()

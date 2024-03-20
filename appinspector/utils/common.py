@@ -1,15 +1,18 @@
 from __future__ import annotations
 
-import json
-import re
-import sys
+import json as sysjson
 import platform
-from typing import TypeVar, Union
+import re
+import socket
+import sys
 import typing
+from http.client import HTTPConnection, HTTPResponse
+from typing import Optional, TypeVar, Union
+
 from pydantic import BaseModel
 
 
-class ColorizedJsonEncoder(json.JSONEncoder):
+class ColorizedJsonEncoder(sysjson.JSONEncoder):
     KEY_COLOR = "\033[1;34m"  # Bright Blue for keys
     VALUE_COLOR = "\033[0;32m"  # Green for values
     STRING_COLOR = "\033[0;33m"  # Yellow for strings
@@ -68,7 +71,7 @@ def enable_windows_ansi_support():
 def print_json_with_color(data: BaseModel | None):
     enable_windows_ansi_support()
     json_data = data.model_dump() if data else None
-    print(json.dumps(json_data, indent=4, cls=ColorizedJsonEncoder))
+    print(sysjson.dumps(json_data, indent=4, cls=ColorizedJsonEncoder))
 
 
 _T = TypeVar("_T")
@@ -116,3 +119,41 @@ def convert_params_to_model(params: list[str], model: BaseModel) -> BaseModel:
             continue
         value[k] = convert_to_type(v, _type)
     return model.model_validate(value)
+
+
+class SocketHTTPConnection(HTTPConnection):
+    def __init__(self, conn: socket.socket, timeout: float):
+        super().__init__("localhost", timeout=timeout)
+        self.__conn = conn
+        
+    def connect(self):
+        self.sock = self.__conn
+
+    def __enter__(self) -> HTTPConnection:
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+
+def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", json: Optional[dict] = None, timeout: float = 60) -> bytearray:
+    """ usage example:
+    with socket.create_connection((host, port)) as s:
+        request_through_socket(s, "GET", "/")
+    """
+    conn = SocketHTTPConnection(sock, timeout)
+    try:
+        if json is None:
+            conn.request(method, path)
+        else:
+            conn.request(method, path, body=sysjson.dumps(json), headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        if response.getcode() != 200:
+            raise RuntimeError(f"Failed request to device, status: {response.getcode()}")
+        content = bytearray()
+        while chunk := response.read(40960):
+            content.extend(chunk)
+        return content
+    finally:
+        conn.close()
+

@@ -8,11 +8,14 @@ from __future__ import annotations
 
 import logging
 import platform
-from pprint import pprint
 import sys
+from pprint import pprint
+
 import click
+import httpx
 import pydantic
 import uvicorn
+
 from appinspector import __version__, command_proxy
 from appinspector.command_types import Command
 from appinspector.driver.appium import AppiumProvider
@@ -90,11 +93,18 @@ def print_version():
 
 
 @cli.command()
-@click.option("--port", default=20242, help="port number")
-@click.option("--host", default="127.0.0.1", help="host")
-@click.option("--reload", default=False, help="auto reload, dev only")
-def server(port: int, host: str, reload: bool):
+@click.option("--port", default=20242, help="port number", show_default=True)
+@click.option("--host", default="127.0.0.1", help="host", show_default=True)
+@click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
+@click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
+def server(port: int, host: str, reload: bool, force: bool):
     logger.info("version: %s", __version__)
+    if force:
+        try:
+            httpx.get(f"http://{host}:{port}/shutdown", timeout=3)
+        except httpx.HTTPError:
+            pass
+
     # if args.mock:
     #     os.environ["APPINSPECTOR_MOCK"] = "1"
     use_color = True

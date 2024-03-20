@@ -4,6 +4,7 @@
 """Created on Fri Mar 01 2024 14:19:29 by codeskyblue
 """
 
+import json
 import re
 from functools import partial
 from typing import List, Tuple
@@ -17,6 +18,7 @@ from appinspector.command_types import CurrentAppResponse
 from appinspector.driver.base import BaseDriver
 from appinspector.exceptions import AndroidDriverException
 from appinspector.model import Hierarchy, ShellResponse, WindowSize
+from appinspector.utils.common import fetch_through_socket
 
 
 class AndroidDriver(BaseDriver):
@@ -47,31 +49,41 @@ class AndroidDriver(BaseDriver):
     def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
         """returns xml string and hierarchy object"""
         wsize = self.device.window_size()
+        self.shell("rm -f /sdcard/window_dump.xml")
         xml_data = self._dump_hierarchy_raw()
         return xml_data, parse_xml(xml_data, WindowSize(width=wsize[0], height=wsize[1]))
     
     def _dump_hierarchy_raw(self) -> str:
         """ 
-        appium.uiautomator2.server.test is conflict with "uiautomator dump" command.
+        uiautomator2 server is conflict with "uiautomator dump" command.
         """
-        try:
-            return self._get_appium_hierarchy()
-        except (requests.RequestException, AndroidDriverException):
-            # no appium server started, use uiautomator dump
-            return self.device.dump_hierarchy()
+        for dump_func in (self._get_u2_hierarchy, self.device.dump_hierarchy, self._get_appium_hierarchy):
+            try:
+                return dump_func()
+            except (requests.RequestException, AndroidDriverException, adbutils.AdbError):
+                continue
     
     def _get_appium_hierarchy(self) -> str:
-        
-        local_port = None
-        for f in self.device.forward_list():
-            if f.local.startswith("tcp:") and f.remote == "tcp:6790":
-                local_port = int(f.local.split(":")[-1])
-        if local_port is None:
-            raise AndroidDriverException("appium server not started")
-        
-        r = requests.get(f"http://127.0.0.1:{local_port}/wd/hub/session/0/source")
-        r.raise_for_status()
-        return r.json()['value']
+        c = self.device.create_connection(adbutils.Network.TCP, 6790)
+        try:
+            content = fetch_through_socket(c, "/wd/hub/session/0/source", timeout=10)
+            return json.loads(content)['value']
+        except adbutils.AdbError as e:
+            raise AndroidDriverException(f"Failed to get hierarchy from appium server: {str(e)}")
+        finally:
+            c.close()
+    
+    def _get_u2_hierarchy(self) -> str:
+        c = self.device.create_connection(adbutils.Network.TCP, 9008)
+        try:
+            compressed = False
+            payload = {"jsonrpc": "2.0", "method": "dumpWindowHierarchy", "params": [compressed], "id": 1}
+            content = fetch_through_socket(c, "/jsonrpc/0", method="POST", json=payload, timeout=10)
+            return json.loads(content)['result']
+        except adbutils.AdbError as e:
+            raise AndroidDriverException(f"Failed to get hierarchy from appium server: {str(e)}")
+        finally:
+            c.close()
     
     def tap(self, x: int, y: int):
         self.device.click(x, y)
@@ -92,7 +104,7 @@ class AndroidDriver(BaseDriver):
 
     def home(self):
         self.device.keyevent("HOME")
-        
+
 
 def parse_xml(xml_data: str, wsize: WindowSize) -> Hierarchy:
     root = ElementTree.fromstring(xml_data)

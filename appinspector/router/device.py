@@ -11,8 +11,8 @@ from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
 from appinspector import command_proxy
-from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
 from appinspector.command_types import CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
+from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
 from appinspector.provider import BaseProvider
 
 
