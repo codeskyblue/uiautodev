@@ -15,6 +15,9 @@ pillow = "*"
 adbutils = "^2.2.1"
 construct = "*"
 lxml = "*"
+click = "^8.1.7"
+appium-python-client = ">=3,<4"
+httpretty = "^1.1.4"
 
 [tool.poetry.scripts]
 appinspector = "appinspector.__main__:main"
@@ -27,37 +30,6 @@ pytest-cov = "^4.1.0"
 [tool.poetry-dynamic-versioning] # 根据tag来动态配置版本号
 enable = true
 
-[[tool.poetry.source]]
-name = "doubanio"
-url = "https://pypi.doubanio.com/simple"
-
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
 build-backend = "poetry_dynamic_versioning.backend"
-
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-# Regexes for lines to exclude from consideration
-exclude_also = [
-    # Don't complain about missing debug-only code:
-    "def __repr__",
-    "if self\\.debug",
-
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
-
-    # Don't complain if non-runnable code isn't run:
-    "if 0:",
-    "if __name__ == .__main__.:",
-
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
-    ]
-ignore_errors = true
-omit = [
-    "tests/*",
-    "docs/*"
-]

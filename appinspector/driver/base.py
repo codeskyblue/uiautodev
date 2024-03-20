@@ -10,7 +10,8 @@ from typing import Tuple
 from PIL import Image
 from pydantic import BaseModel
 
-from appinspector.model import Hierarchy, ShellResponse
+from appinspector.command_types import CurrentAppResponse
+from appinspector.model import Hierarchy, ShellResponse, WindowSize
 
 
 class BaseDriver(abc.ABC):
@@ -46,7 +47,18 @@ class BaseDriver(abc.ABC):
         """
         raise NotImplementedError()
 
-    def window_size(self) -> Tuple[int, int]:
+    def window_size(self) -> WindowSize:
         """ get window UI size """
         raise NotImplementedError()
 
+    def app_install(self, app_path: str):
+        """ install app """
+        raise NotImplementedError()
+    
+    def app_current(self) -> CurrentAppResponse:
+        """ get current app """
+        raise NotImplementedError()
+    
+    def home(self):
+        """ press home button """
+        raise NotImplementedError()

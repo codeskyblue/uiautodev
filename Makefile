@@ -8,7 +8,7 @@ cov:
 	poetry run pytest --cov=. --cov-report xml --cov-report term
 
 dev: format
-	poetry run appinspector --reload --port 20242
+	poetry run appinspector server --reload --port 20242
 
 mock:
-	poetry run appinspector --mock --port 20242 --reload
+	poetry run appinspector server --mock --port 20242 --reload

@@ -10,12 +10,12 @@ import io
 import json
 import re
 from functools import partial
-from http.client import HTTPConnection, HTTPResponse
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from xml.etree import ElementTree
 
 from PIL import Image
 
+from appinspector.command_types import CurrentAppResponse
 from appinspector.driver.base import BaseDriver
 from appinspector.exceptions import IOSDriverException
 from appinspector.model import Hierarchy, WindowSize
@@ -28,13 +28,16 @@ class IOSDriver(BaseDriver):
         super().__init__(serial)
         self.device = select_device(serial)
     
-    def _request(self, method: str, path: str) -> bytes:
+    def _request(self, method: str, path: str, payload: Optional[dict] = None) -> bytes:
         conn = self.device.make_http_connection(port=8100)
         try:
-            conn.request(method, path)
+            if payload is None:
+                conn.request(method, path)
+            else:
+                conn.request(method, path, body=json.dumps(payload), headers={"Content-Type": "application/json"})
             response = conn.getresponse()
             if response.getcode() != 200:
-                raise IOSDriverException(f"Failed to get screenshot, status: {response.getcode()}")
+                raise IOSDriverException(f"Failed request to device, status: {response.getcode()}")
             content = bytearray()
             while chunk := response.read(4096):
                 content.extend(chunk)
@@ -65,6 +68,15 @@ class IOSDriver(BaseDriver):
         xml_data = self._request_json_value("GET", "/source")
         root = ElementTree.fromstring(xml_data)
         return xml_data, parse_xml_element(root, WindowSize(width=1, height=1))
+    
+    def tap(self, x: int, y: int):
+        self._request("POST", f"/wda/tap/0", {"x": x, "y": y})
+    
+    def app_current(self) -> CurrentAppResponse:
+        # {'processArguments': {'env': {}, 'args': []}, 'name': '', 'pid': 32, 'bundleId': 'com.apple.springboard'}
+        value = self._request_json_value("GET", "/wda/activeAppInfo")
+        return CurrentAppResponse(package=value["bundleId"], pid=value["pid"])
+
         
 
 def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:

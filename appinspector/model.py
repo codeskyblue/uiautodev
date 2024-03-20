@@ -5,7 +5,6 @@
 """
 from __future__ import annotations
 
-import enum
 import typing
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -14,8 +13,10 @@ from pydantic import BaseModel
 
 class DeviceInfo(BaseModel):
     serial: str
-    model: str
-    name: str
+    model: str = ""
+    name: str = ""
+    status: str = ""
+    enabled: bool = True
 
 
 class ShellResponse(BaseModel):
@@ -34,15 +35,3 @@ class Hierarchy(BaseModel):
 class WindowSize(typing.NamedTuple):
     width: int
     height: int
-
-
-# Request and Response
-class TapRequest(BaseModel):
-    x: Union[int, float]
-    y: Union[int, float]
-    isPercent: bool = False
-
-
-# POST /api/v1/device/{serial}/command/{command}
-class Command(str, enum.Enum):
-    TAP = "tap"

@@ -10,7 +10,9 @@ from typing import List
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
-from appinspector.model import DeviceInfo, Hierarchy, ShellResponse, TapRequest
+from appinspector import command_proxy
+from appinspector.command_types import CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
+from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
 from appinspector.provider import BaseProvider
 
 
@@ -73,13 +75,20 @@ def make_router(provider: BaseProvider) -> APIRouter:
     def command_tap(serial: str, params: TapRequest):
         """Run a command on the device"""
         driver = provider.get_device_driver(serial)
-        x = params.x
-        y = params.y
-        if params.isPercent:
-            wsize = driver.window_size()
-            x = int(wsize[0] * params.x)
-            y = int(wsize[1] * params.y)
-        driver.tap(x, y)
+        command_proxy.tap(driver, params)
         return {"status": "ok"}
+    
+    @router.post('/{serial}/installApp')
+    def install_app(serial: str, params: InstallAppRequest) -> InstallAppResponse:
+        """Install app"""
+        driver = provider.get_device_driver(serial)
+        return command_proxy.install_app(driver, params)
+
+    @router.get('/{serial}/currentApp')
+    def current_app(serial: str) -> CurrentAppResponse:
+        """Get current app"""
+        driver = provider.get_device_driver(serial)
+        return command_proxy.current_app(driver)
+
 
     return router
