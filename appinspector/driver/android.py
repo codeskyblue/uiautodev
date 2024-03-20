@@ -104,7 +104,7 @@ class AndroidDriver(BaseDriver):
 
     def home(self):
         self.device.keyevent("HOME")
-        
+
 
 def parse_xml(xml_data: str, wsize: WindowSize) -> Hierarchy:
     root = ElementTree.fromstring(xml_data)

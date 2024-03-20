@@ -5,22 +5,15 @@
 """
 
 from __future__ import annotations
-from typing import Callable, Dict, Optional
+
 import typing
+from typing import Callable, Dict, Optional
 
 from pydantic import BaseModel
 
-from appinspector.command_types import (
-    Command,
-    CurrentAppResponse,
-    DumpResponse,
-    InstallAppRequest,
-    InstallAppResponse,
-    TapRequest,
-    WindowSizeResponse,
-)
+from appinspector.command_types import Command, CurrentAppResponse, DumpResponse, InstallAppRequest, \
+    InstallAppResponse, TapRequest, WindowSizeResponse
 from appinspector.driver.base import BaseDriver
-
 
 _COMMANDS: Dict[Command, Callable] = {}
 
