@@ -21,14 +21,27 @@ from appinspector.command_types import Command
 from appinspector.driver.appium import AppiumProvider
 from appinspector.exceptions import AppiumDriverException
 from appinspector.provider import AndroidProvider, BaseProvider, IOSProvider
-from appinspector.utils.common import convert_params_to_model, print_json_with_color
+from appinspector.utils.common import convert_params_to_model, print_json
 
 logger = logging.getLogger(__name__)
 
 
 @click.group()
-def cli():
-    pass
+@click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
+def cli(verbose: bool):
+    if verbose:
+        root_logger = logging.getLogger(__name__.split(".")[0])
+        root_logger.setLevel(logging.DEBUG)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        
+        formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+        console_handler.setFormatter(formatter)
+
+        root_logger.addHandler(console_handler)
+
+        logger.debug("Verbose mode enabled")
 
 
 def run_driver_command(provider: BaseProvider, command: Command, params: list[str] = None):
@@ -50,10 +63,10 @@ def run_driver_command(provider: BaseProvider, command: Command, params: list[st
     try:
         print("Command:", command.value)
         print("Params ↓")
-        print_json_with_color(params_obj)
+        print_json(params_obj)
         result = command_proxy.send_command(driver, command, params_obj)
         print("Result ↓")
-        print_json_with_color(result)
+        print_json(result)
     except pydantic.ValidationError as e:
         print(f"params error: {e}")
         print(f"\n--- params should be match schema ---")

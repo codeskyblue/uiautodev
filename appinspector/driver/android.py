@@ -5,7 +5,9 @@
 """
 
 import json
+import logging
 import re
+import time
 from functools import partial
 from typing import List, Tuple
 from xml.etree import ElementTree
@@ -19,6 +21,8 @@ from appinspector.driver.base import BaseDriver
 from appinspector.exceptions import AndroidDriverException
 from appinspector.model import Hierarchy, ShellResponse, WindowSize
 from appinspector.utils.common import fetch_through_socket
+
+logger = logging.getLogger(__name__)
 
 
 class AndroidDriver(BaseDriver):
@@ -49,42 +53,70 @@ class AndroidDriver(BaseDriver):
     def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
         """returns xml string and hierarchy object"""
         wsize = self.device.window_size()
-        self.shell("rm -f /sdcard/window_dump.xml")
+        logger.debug("window size: %s", wsize)
+        start = time.time()
         xml_data = self._dump_hierarchy_raw()
-        return xml_data, parse_xml(xml_data, WindowSize(width=wsize[0], height=wsize[1]))
-    
+        logger.debug("dump_hierarchy cost: %s", time.time() - start)
+
+        return xml_data, parse_xml(
+            xml_data, WindowSize(width=wsize[0], height=wsize[1])
+        )
+
     def _dump_hierarchy_raw(self) -> str:
-        """ 
+        """
         uiautomator2 server is conflict with "uiautomator dump" command.
         """
-        for dump_func in (self._get_u2_hierarchy, self.device.dump_hierarchy, self._get_appium_hierarchy):
+        for dump_func in (
+            self._get_u2_hierarchy,
+            self.device.dump_hierarchy,
+            self._get_appium_hierarchy,
+        ):
             try:
+                logger.debug(f"try to use %s", dump_func.__name__)
                 return dump_func()
-            except (requests.RequestException, AndroidDriverException, adbutils.AdbError):
+            except (
+                requests.RequestException,
+                AndroidDriverException,
+                adbutils.AdbError,
+            ):
                 continue
-    
+
     def _get_appium_hierarchy(self) -> str:
         c = self.device.create_connection(adbutils.Network.TCP, 6790)
         try:
             content = fetch_through_socket(c, "/wd/hub/session/0/source", timeout=10)
-            return json.loads(content)['value']
+            return json.loads(content)["value"]
         except adbutils.AdbError as e:
-            raise AndroidDriverException(f"Failed to get hierarchy from appium server: {str(e)}")
+            raise AndroidDriverException(
+                f"Failed to get hierarchy from appium server: {str(e)}"
+            )
         finally:
             c.close()
-    
+
     def _get_u2_hierarchy(self) -> str:
         c = self.device.create_connection(adbutils.Network.TCP, 9008)
         try:
             compressed = False
-            payload = {"jsonrpc": "2.0", "method": "dumpWindowHierarchy", "params": [compressed], "id": 1}
-            content = fetch_through_socket(c, "/jsonrpc/0", method="POST", json=payload, timeout=10)
-            return json.loads(content)['result']
+            payload = {
+                "jsonrpc": "2.0",
+                "method": "dumpWindowHierarchy",
+                "params": [compressed],
+                "id": 1,
+            }
+            content = fetch_through_socket(
+                c, "/jsonrpc/0", method="POST", json=payload, timeout=10
+            )
+            json_resp = json.loads(content)
+            if "error" in json_resp:
+                raise AndroidDriverException(json_resp["error"])
+            return json_resp["result"]
         except adbutils.AdbError as e:
-            raise AndroidDriverException(f"Failed to get hierarchy from appium server: {str(e)}")
+            raise AndroidDriverException(
+                f"Failed to get hierarchy from appium server: {str(e)}"
+            )
         finally:
             c.close()
-    
+
     def tap(self, x: int, y: int):
         self.device.click(x, y)
 
@@ -94,13 +126,12 @@ class AndroidDriver(BaseDriver):
 
     def app_install(self, app_path: str):
         self.device.install(app_path)
-    
+
     def app_current(self) -> CurrentAppResponse:
         info = self.device.app_current()
         return CurrentAppResponse(
-            package=info.package,
-            activity=info.activity,
-            pid=info.pid)
+            package=info.package, activity=info.activity, pid=info.pid
+        )
 
     def home(self):
         self.device.keyevent("HOME")
@@ -111,15 +142,18 @@ def parse_xml(xml_data: str, wsize: WindowSize) -> Hierarchy:
     return parse_xml_element(root, wsize)
 
 
-def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:
+def parse_xml_element(
+    element, wsize: WindowSize, indexes: List[int] = [0]
+) -> Hierarchy:
     """
     Recursively parse an XML element into a dictionary format.
     """
+    print(element.tag)
     name = element.tag
     if name == "node":
         name = element.attrib.get("class", "node")
     bounds = None
-    # bounds="[883,2222][1008,2265]"
+    # eg: bounds="[883,2222][1008,2265]"
     if "bounds" in element.attrib:
         bounds = element.attrib["bounds"]
         bounds = list(map(int, re.findall(r"\d+", bounds)))
@@ -132,7 +166,7 @@ def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hie
         )
         bounds = map(partial(round, ndigits=4), bounds)
     elem = Hierarchy(
-        key='-'.join(map(str, indexes)),
+        key="-".join(map(str, indexes)),
         name=name,
         bounds=bounds,
         properties={key: element.attrib[key] for key in element.attrib},
@@ -141,6 +175,6 @@ def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hie
 
     # Construct xpath for children
     for index, child in enumerate(element):
-        elem.children.append(parse_xml_element(child, wsize, indexes+[index]))
+        elem.children.append(parse_xml_element(child, wsize, indexes + [index]))
 
     return elem
