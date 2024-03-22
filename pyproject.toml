@@ -18,6 +18,7 @@ lxml = "*"
 click = "^8.1.7"
 appium-python-client = ">=3,<4"
 httpretty = "^1.1.4"
+pygments = ">=2"
 
 [tool.poetry.scripts]
 appinspector = "appinspector.__main__:main"

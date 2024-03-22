@@ -1,56 +1,18 @@
 from __future__ import annotations
 
+import datetime
 import json as sysjson
 import platform
 import re
 import socket
 import sys
 import typing
+import uuid
 from http.client import HTTPConnection, HTTPResponse
 from typing import Optional, TypeVar, Union
 
 from pydantic import BaseModel
-
-
-class ColorizedJsonEncoder(sysjson.JSONEncoder):
-    KEY_COLOR = "\033[1;34m"  # Bright Blue for keys
-    VALUE_COLOR = "\033[0;32m"  # Green for values
-    STRING_COLOR = "\033[0;33m"  # Yellow for strings
-    RESET = "\033[0m"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.colorize_output = is_output_terminal()
-
-    def encode(self, o):
-        if not self.colorize_output:
-            return super().encode(o)
-
-        uncolored_json = super().encode(o)
-
-        def colorize_key(match):
-            key = match.group(1)
-            return f"{self.KEY_COLOR}{key}{self.RESET}: "
-
-        def colorize_value(match):
-            value = match.group(0)
-            if value.startswith('"'):
-                return f"{self.STRING_COLOR}{value}{self.RESET}"
-            return f"{self.VALUE_COLOR}{value}{self.RESET}"
-
-        import re
-
-        # First, colorize keys
-        pattern_keys = r'(".*?")(\s*:\s*)'
-        colored_json = re.sub(pattern_keys, colorize_key, uncolored_json)
-
-        # Then, selectively colorize values
-        pattern_values = r':\s*(".*?"|\b(?:true|false|null)\b|\d+|\[.*?\]|\{.*?\})'
-        colored_json = re.sub(
-            pattern_values, colorize_value, colored_json, flags=re.DOTALL
-        )
-
-        return colored_json
+from pygments import formatters, highlight, lexers
 
 
 def is_output_terminal() -> bool:
@@ -68,11 +30,35 @@ def enable_windows_ansi_support():
         kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 
-def print_json_with_color(data: BaseModel | None):
-    enable_windows_ansi_support()
-    json_data = data.model_dump() if data else None
-    print(sysjson.dumps(json_data, indent=4, cls=ColorizedJsonEncoder))
+def default_json_encoder(obj):
+    if isinstance(obj, bytes):
+        return f'<{obj.hex()}>'
+    if isinstance(obj, datetime.datetime):
+        return str(obj)
+    if isinstance(obj, uuid.UUID):
+        return str(obj)
+    if isinstance(obj, BaseModel):
+        return obj.model_dump()
+    raise TypeError()
 
+
+def print_json(buf, colored=None, default=default_json_encoder):
+    """ copy from pymobiledevice3 """
+    formatted_json = sysjson.dumps(buf, sort_keys=True, indent=4, default=default)
+    if colored is None:
+        if is_output_terminal():
+            colored = True
+            enable_windows_ansi_support()
+        else:
+            colored = False
+
+    if colored:
+        colorful_json = highlight(formatted_json, lexers.JsonLexer(),
+                                  formatters.TerminalTrueColorFormatter(style='stata-dark'))
+        print(colorful_json)
+    else:
+        print(formatted_json)
+    
 
 _T = TypeVar("_T")
 
