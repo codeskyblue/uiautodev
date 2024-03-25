@@ -12,12 +12,16 @@ python = "^3.8"
 fastapi = {extras = ["all"], version = "^0.109.2"}
 uvicorn = {extras = ["standard"], version = "^0.27.1"}
 pillow = "*"
-adbutils = "^2.2.1"
+adbutils = "^2.2.1,!=2.2.2"
 construct = "*"
 lxml = "*"
 click = "^8.1.7"
-appium-python-client = ">=3,<4"
-httpretty = "^1.1.4"
+pygments = ">=2"
+httpretty = {version = "^1.1.4", optional = true}
+appium-python-client = {version = "^4.0.0", optional = true}
+
+[tool.poetry.extras]
+appium = ["appium-python-client", "httppretty"]
 
 [tool.poetry.scripts]
 appinspector = "appinspector.__main__:main"
