@@ -18,8 +18,6 @@ import uvicorn
 
 from appinspector import __version__, command_proxy
 from appinspector.command_types import Command
-from appinspector.driver.appium import AppiumProvider
-from appinspector.exceptions import AppiumDriverException
 from appinspector.provider import AndroidProvider, BaseProvider, IOSProvider
 from appinspector.utils.common import convert_params_to_model, print_json
 
@@ -93,6 +91,9 @@ def ios(command: Command, params: list[str] = None):
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def appium(command: Command, params: list[str] = None):
+    from appinspector.driver.appium import AppiumProvider
+    from appinspector.exceptions import AppiumDriverException
+    
     provider = AppiumProvider()
     try:
         run_driver_command(provider, command, params)
