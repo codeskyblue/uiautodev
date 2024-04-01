@@ -32,7 +32,7 @@
 
     chrome.runtime.onInstalled.addListener(async () => {
         chrome.storage.sync.set({ port });
-        console.log(`[AppInspector] default client port is set to: ${port}`);
+        console.log(`[uiauto.dev] default client port is set to: ${port}`);
         try {
             const data = await fetchByMessage({ url: "/info" });
             console.log(JSON.stringify(data));

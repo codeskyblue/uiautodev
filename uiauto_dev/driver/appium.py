@@ -21,12 +21,12 @@ from appium.webdriver.common.appiumby import AppiumBy as By
 from PIL import Image
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
-from appinspector.command_types import CurrentAppResponse
-from appinspector.driver.android import parse_xml
-from appinspector.driver.base import BaseDriver
-from appinspector.exceptions import AppiumDriverException
-from appinspector.model import DeviceInfo, Hierarchy, ShellResponse, WindowSize
-from appinspector.provider import BaseProvider
+from uiauto_dev.command_types import CurrentAppResponse
+from uiauto_dev.driver.android import parse_xml
+from uiauto_dev.driver.base_driver import BaseDriver
+from uiauto_dev.exceptions import AppiumDriverException
+from uiauto_dev.model import DeviceInfo, Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.provider import BaseProvider
 
 logger = logging.getLogger(__name__)
 

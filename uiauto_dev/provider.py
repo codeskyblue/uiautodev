@@ -9,13 +9,13 @@ import abc
 
 import adbutils
 
-from appinspector.driver.android import AndroidDriver
-from appinspector.driver.base import BaseDriver
-from appinspector.driver.ios import IOSDriver
-from appinspector.driver.mock import MockDriver
-from appinspector.exceptions import AppInspectorException
-from appinspector.model import DeviceInfo
-from appinspector.utils.usbmux import MuxDevice, list_devices
+from uiauto_dev.driver.android import AndroidDriver
+from uiauto_dev.driver.base_driver import BaseDriver
+from uiauto_dev.driver.ios import IOSDriver
+from uiauto_dev.driver.mock import MockDriver
+from uiauto_dev.exceptions import uiauto_devException
+from uiauto_dev.model import DeviceInfo
+from uiauto_dev.utils.usbmux import MuxDevice, list_devices
 
 
 class BaseProvider(abc.ABC):
@@ -31,9 +31,9 @@ class BaseProvider(abc.ABC):
         """ debug use """
         devs = self.list_devices()
         if len(devs) == 0:
-            raise AppInspectorException("No device found")
+            raise uiauto_devException("No device found")
         if len(devs) > 1:
-            raise AppInspectorException("More than one device found")
+            raise uiauto_devException("More than one device found")
         return self.get_device_driver(devs[0].serial)
 
 

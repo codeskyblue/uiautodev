@@ -15,11 +15,11 @@ from xml.etree import ElementTree
 
 from PIL import Image
 
-from appinspector.command_types import CurrentAppResponse
-from appinspector.driver.base import BaseDriver
-from appinspector.exceptions import IOSDriverException
-from appinspector.model import Hierarchy, WindowSize
-from appinspector.utils.usbmux import MuxDevice, select_device
+from uiauto_dev.command_types import CurrentAppResponse
+from uiauto_dev.driver.base_driver import BaseDriver
+from uiauto_dev.exceptions import IOSDriverException
+from uiauto_dev.model import Hierarchy, WindowSize
+from uiauto_dev.utils.usbmux import MuxDevice, select_device
 
 
 class IOSDriver(BaseDriver):
@@ -77,6 +77,8 @@ class IOSDriver(BaseDriver):
         value = self._request_json_value("GET", "/wda/activeAppInfo")
         return CurrentAppResponse(package=value["bundleId"], pid=value["pid"])
 
+    def home(self):
+        self._request("POST", "/wda/homescreen")
         
 
 def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:

@@ -21,6 +21,7 @@ class Command(str, enum.Enum):
     GET_WINDOW_SIZE = "getWindowSize"
     HOME = "home"
     DUMP = "dump"
+    WAKE_UP = "wakeUp"
 
     LIST = "list"
 

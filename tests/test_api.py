@@ -6,7 +6,7 @@
 
 from fastapi.testclient import TestClient
 
-from appinspector.app import app
+from uiauto_dev.app import app
 
 client = TestClient(app)
 

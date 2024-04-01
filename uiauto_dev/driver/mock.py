@@ -6,8 +6,8 @@
 
 from PIL import Image, ImageDraw
 
-from appinspector.driver.base import BaseDriver
-from appinspector.model import Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.driver.base_driver import BaseDriver
+from uiauto_dev.model import Hierarchy, ShellResponse, WindowSize
 
 
 class MockDriver(BaseDriver):

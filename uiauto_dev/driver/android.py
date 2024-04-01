@@ -16,11 +16,11 @@ import adbutils
 import requests
 from PIL import Image
 
-from appinspector.command_types import CurrentAppResponse
-from appinspector.driver.base import BaseDriver
-from appinspector.exceptions import AndroidDriverException
-from appinspector.model import Hierarchy, ShellResponse, WindowSize
-from appinspector.utils.common import fetch_through_socket
+from uiauto_dev.command_types import CurrentAppResponse
+from uiauto_dev.driver.base_driver import BaseDriver
+from uiauto_dev.exceptions import AndroidDriverException
+from uiauto_dev.model import Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)
 
@@ -135,6 +135,9 @@ class AndroidDriver(BaseDriver):
 
     def home(self):
         self.device.keyevent("HOME")
+    
+    def wake_up(self):
+        self.device.keyevent("WAKEUP")
 
 
 def parse_xml(xml_data: str, wsize: WindowSize) -> Hierarchy:

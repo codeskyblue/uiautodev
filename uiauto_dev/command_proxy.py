@@ -11,23 +11,23 @@ from typing import Callable, Dict, Optional
 
 from pydantic import BaseModel
 
-from appinspector.command_types import Command, CurrentAppResponse, DumpResponse, InstallAppRequest, \
+from uiauto_dev.command_types import Command, CurrentAppResponse, DumpResponse, InstallAppRequest, \
     InstallAppResponse, TapRequest, WindowSizeResponse
-from appinspector.driver.base import BaseDriver
+from uiauto_dev.driver.base_driver import BaseDriver
 
-_COMMANDS: Dict[Command, Callable] = {}
+COMMANDS: Dict[Command, Callable] = {}
 
 
 def register(command: Command):
     def wrapper(func):
-        _COMMANDS[command] = func
+        COMMANDS[command] = func
         return func
 
     return wrapper
 
 
 def get_command_params_type(command: Command) -> Optional[BaseModel]:
-    func = _COMMANDS.get(command)
+    func = COMMANDS.get(command)
     if func is None:
         return None
     type_hints = typing.get_type_hints(func)
@@ -35,9 +35,9 @@ def get_command_params_type(command: Command) -> Optional[BaseModel]:
 
 
 def send_command(driver: BaseDriver, command: Command, params=None):
-    if command not in _COMMANDS:
+    if command not in COMMANDS:
         raise NotImplementedError(f"command {command} not implemented")
-    func = _COMMANDS[command]
+    func = COMMANDS[command]
     type_hints = typing.get_type_hints(func)
     if type_hints.get("params"):
         if params is None:
@@ -92,3 +92,8 @@ def home(driver: BaseDriver):
 def dump(driver: BaseDriver) -> DumpResponse:
     source, _ = driver.dump_hierarchy()
     return DumpResponse(value=source)
+
+
+@register(Command.WAKE_UP)
+def wake_up(driver: BaseDriver):
+    driver.wake_up()
