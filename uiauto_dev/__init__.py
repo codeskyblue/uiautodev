@@ -7,6 +7,6 @@
 from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = version("appinspector")
+    __version__ = version("uiauto_dev")
 except PackageNotFoundError:
     __version__ = "0.0.0"

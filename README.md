@@ -1,19 +1,18 @@
-# appinspector
-[![codecov](https://codecov.io/gh/codeskyblue/appinspector/graph/badge.svg?token=aLTg4VOyQH)](https://codecov.io/gh/codeskyblue/appinspector)
-[![PyPI version](https://badge.fury.io/py/appinspector.svg)](https://badge.fury.io/py/appinspector)
+# uiauto-dev
+[![codecov](https://codecov.io/gh/codeskyblue/uiauto-dev/graph/badge.svg?token=aLTg4VOyQH)](https://codecov.io/gh/codeskyblue/uiauto-dev)
+[![PyPI version](https://badge.fury.io/py/uiauto-dev.svg)](https://badge.fury.io/py/uiauto-dev)
 
-appinspector.devsleep.com client
+https://uiauto.dev
 
-Based on
+UI Inspector for Android and iOS, help inspector element properties, and auto generate XPath, script.
 
-- fastapi
-- adbutils
-- tidevice3
 
 # DEVELOP
 ```bash
+# install poetry (python package manager)
+pip install poetry # pipx install poetry
+
 # install deps
-pip install poetry
 poetry install
 
 # format import

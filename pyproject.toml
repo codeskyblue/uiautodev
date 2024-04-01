@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "appinspector"
+name = "uiauto-dev"
 version = "0.0.0"
-description = "client for app-inspector.devsleep.com"
-homepage = "https://github.com/codeskyblue/appinspector"
+description = "Mobile UI Automation, include UI hierarchy inspector, script recorder"
+homepage = "https://uiauto.dev"
 authors = ["codeskyblue <codeskyblue@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -24,7 +24,7 @@ appium-python-client = {version = "^4.0.0", optional = true}
 appium = ["appium-python-client", "httppretty"]
 
 [tool.poetry.scripts]
-appinspector = "appinspector.__main__:main"
+"uiauto.dev" = "uiauto_dev.__main__:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"

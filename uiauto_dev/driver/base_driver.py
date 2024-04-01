@@ -10,8 +10,8 @@ from typing import Tuple
 from PIL import Image
 from pydantic import BaseModel
 
-from appinspector.command_types import CurrentAppResponse
-from appinspector.model import Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.command_types import CurrentAppResponse
+from uiauto_dev.model import Hierarchy, ShellResponse, WindowSize
 
 
 class BaseDriver(abc.ABC):
@@ -61,4 +61,8 @@ class BaseDriver(abc.ABC):
     
     def home(self):
         """ press home button """
+        raise NotImplementedError()
+
+    def wake_up(self):
+        """ wake up the device """
         raise NotImplementedError()

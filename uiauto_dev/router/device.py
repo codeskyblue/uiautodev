@@ -5,15 +5,15 @@
 """
 
 import io
-from typing import List
+from typing import Any, List
 
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
-from appinspector import command_proxy
-from appinspector.command_types import CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
-from appinspector.model import DeviceInfo, Hierarchy, ShellResponse
-from appinspector.provider import BaseProvider
+from uiauto_dev import command_proxy
+from uiauto_dev.command_types import Command, CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
+from uiauto_dev.model import DeviceInfo, Hierarchy, ShellResponse
+from uiauto_dev.provider import BaseProvider
 
 
 class AndroidShellPayload(BaseModel):
@@ -78,17 +78,27 @@ def make_router(provider: BaseProvider) -> APIRouter:
         command_proxy.tap(driver, params)
         return {"status": "ok"}
     
-    @router.post('/{serial}/installApp')
+    @router.post('/{serial}/command/installApp')
     def install_app(serial: str, params: InstallAppRequest) -> InstallAppResponse:
         """Install app"""
         driver = provider.get_device_driver(serial)
         return command_proxy.install_app(driver, params)
 
-    @router.get('/{serial}/currentApp')
+    @router.get('/{serial}/command/currentApp')
     def current_app(serial: str) -> CurrentAppResponse:
         """Get current app"""
         driver = provider.get_device_driver(serial)
         return command_proxy.current_app(driver)
 
+    @router.post('/{serial}/command/{command}')
+    def _command_proxy_other(serial: str, command: Command, params: Any = None):
+        """Run a command on the device"""
+        driver = provider.get_device_driver(serial)
+        func = command_proxy.COMMANDS[command]
+        if params is None:
+            response = func(driver)
+        else:
+            response = func(driver, params)
+        return response
 
     return router

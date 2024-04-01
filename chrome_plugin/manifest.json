@@ -1,8 +1,8 @@
 {
-    "name": "App Inspector Extension",
-    "short_name": "App Inspector",
+    "name": "uiauto.dev Extension",
+    "short_name": "uiauto.dev",
     "author": "codeskyblue",
-    "description": "AppInspector Extension helps the website app-inspector.devsleep.com communicate with the client.",
+    "description": "uiauto.dev Extension helps the website app-inspector.devsleep.com communicate with the client.",
     "version": "0.1.0",
     "manifest_version": 3,
     "background": {

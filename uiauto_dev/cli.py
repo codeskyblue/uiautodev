@@ -16,10 +16,10 @@ import httpx
 import pydantic
 import uvicorn
 
-from appinspector import __version__, command_proxy
-from appinspector.command_types import Command
-from appinspector.provider import AndroidProvider, BaseProvider, IOSProvider
-from appinspector.utils.common import convert_params_to_model, print_json
+from uiauto_dev import __version__, command_proxy
+from uiauto_dev.command_types import Command
+from uiauto_dev.provider import AndroidProvider, BaseProvider, IOSProvider
+from uiauto_dev.utils.common import convert_params_to_model, print_json
 
 logger = logging.getLogger(__name__)
 
@@ -91,8 +91,8 @@ def ios(command: Command, params: list[str] = None):
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def appium(command: Command, params: list[str] = None):
-    from appinspector.driver.appium import AppiumProvider
-    from appinspector.exceptions import AppiumDriverException
+    from uiauto_dev.driver.appium import AppiumProvider
+    from uiauto_dev.exceptions import AppiumDriverException
     
     provider = AppiumProvider()
     try:
@@ -120,11 +120,11 @@ def server(port: int, host: str, reload: bool, force: bool):
             pass
 
     # if args.mock:
-    #     os.environ["APPINSPECTOR_MOCK"] = "1"
+    #     os.environ["uiauto_dev_MOCK"] = "1"
     use_color = True
     if platform.system() == 'Windows':
         use_color = False
-    uvicorn.run("appinspector.app:app", host=host, port=port, reload=reload, use_colors=use_color)
+    uvicorn.run("uiauto_dev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
 
 
 def main():
@@ -132,7 +132,7 @@ def main():
     # logging.basicConfig(level=logging.INFO)
     logger.setLevel(logging.INFO)
     if len(sys.argv) == 1:
-        cli.main(args=["server"], prog_name="appinspector")
+        cli.main(args=["server"], prog_name="uiauto_dev")
     else:
         cli()
 

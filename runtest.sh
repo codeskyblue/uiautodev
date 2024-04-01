@@ -3,8 +3,8 @@
 
 set -e
 
-poetry run appinspector android --help
-poetry run appinspector appium --help
-poetry run appinspector ios --help
-poetry run appinspector version
-poetry run appinspector server --help
+poetry run uiauto.dev android --help
+poetry run uiauto.dev appium --help
+poetry run uiauto.dev ios --help
+poetry run uiauto.dev version
+poetry run uiauto.dev server --help
