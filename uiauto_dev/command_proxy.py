@@ -11,8 +11,8 @@ from typing import Callable, Dict, Optional
 
 from pydantic import BaseModel
 
-from uiauto_dev.command_types import Command, CurrentAppResponse, DumpResponse, InstallAppRequest, \
-    InstallAppResponse, TapRequest, WindowSizeResponse
+from uiauto_dev.command_types import Command, CurrentAppResponse, DumpResponse, InstallAppRequest, InstallAppResponse, \
+    TapRequest, WindowSizeResponse
 from uiauto_dev.driver.base_driver import BaseDriver
 
 COMMANDS: Dict[Command, Callable] = {}

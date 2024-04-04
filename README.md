@@ -1,5 +1,5 @@
 # uiauto-dev
-[![codecov](https://codecov.io/gh/codeskyblue/uiauto-dev/graph/badge.svg?token=aLTg4VOyQH)](https://codecov.io/gh/codeskyblue/uiauto-dev)
+[![codecov](https://codecov.io/gh/codeskyblue/appinspector/graph/badge.svg?token=aLTg4VOyQH)](https://codecov.io/gh/codeskyblue/appinspector)
 [![PyPI version](https://badge.fury.io/py/uiauto-dev.svg)](https://badge.fury.io/py/uiauto-dev)
 
 https://uiauto.dev
