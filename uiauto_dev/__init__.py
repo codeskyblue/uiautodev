@@ -4,9 +4,5 @@
 """Created on Mon Mar 04 2024 14:28:53 by codeskyblue
 """
 
-from importlib.metadata import PackageNotFoundError, version
-
-try:
-    __version__ = version("uiauto_dev")
-except PackageNotFoundError:
-    __version__ = "0.0.0"
+# version will be updated by poetry build
+__version__ = "0.0.0"

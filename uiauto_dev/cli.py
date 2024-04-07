@@ -130,6 +130,7 @@ def server(port: int, host: str, reload: bool, force: bool):
 def main():
     # set logger level to INFO
     # logging.basicConfig(level=logging.INFO)
+    print("version:", __version__)
     logger.setLevel(logging.INFO)
     if len(sys.argv) == 1:
         cli.main(args=["server"], prog_name="uiauto_dev")
