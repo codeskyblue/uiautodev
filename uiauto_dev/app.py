@@ -89,4 +89,4 @@ def demo() -> str:
 @app.get("/")
 def index_redirect():
     """ redirect to uiauto_dev.devsleep.com """
-    return RedirectResponse("https://uiauto_dev.devsleep.com")
+    return RedirectResponse("https://uiauto.dev")

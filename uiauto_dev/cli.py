@@ -10,6 +10,8 @@ import logging
 import platform
 import sys
 from pprint import pprint
+import threading
+import time
 
 import click
 import httpx
@@ -38,7 +40,6 @@ def cli(verbose: bool):
         console_handler.setFormatter(formatter)
 
         root_logger.addHandler(console_handler)
-
         logger.debug("Verbose mode enabled")
 
 
@@ -111,7 +112,8 @@ def print_version():
 @click.option("--host", default="127.0.0.1", help="host", show_default=True)
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
-def server(port: int, host: str, reload: bool, force: bool):
+@click.option("--no-browser", is_flag=True, default=False, help="do not open browser")
+def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
     logger.info("version: %s", __version__)
     if force:
         try:
@@ -124,15 +126,33 @@ def server(port: int, host: str, reload: bool, force: bool):
     use_color = True
     if platform.system() == 'Windows':
         use_color = False
+    
+    if not no_browser:
+        th = threading.Thread(target=open_browser_when_server_start, args=(f"http://{host}:{port}",))
+        th.daemon = True
+        th.start()
     uvicorn.run("uiauto_dev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
 
+
+def open_browser_when_server_start(server_url: str):
+    deadline = time.time() + 10
+    while time.time() < deadline:
+        try:
+            httpx.get(f"{server_url}/api/info", timeout=1)
+            break
+        except Exception as e:
+            time.sleep(0.5)
+    import webbrowser
+    web_url = "https://uiauto.dev"
+    logger.info("open browser: %s", web_url)
+    webbrowser.open(web_url)
 
 def main():
     # set logger level to INFO
     # logging.basicConfig(level=logging.INFO)
     logger.setLevel(logging.INFO)
     if len(sys.argv) == 1:
-        cli.main(args=["server"], prog_name="uiauto_dev")
+        cli.main(args=["server"], prog_name="uiauto.dev")
     else:
         cli()
 
