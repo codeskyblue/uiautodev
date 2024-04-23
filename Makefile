@@ -8,7 +8,7 @@ cov:
 	poetry run pytest --cov=. --cov-report xml --cov-report term
 
 dev: format
-	poetry run uiauto.dev server --reload --port 20242
+	poetry run uiauto.dev -v server --reload --port 20242
 
 mock:
 	poetry run uiauto.dev server --mock --port 20242 --reload

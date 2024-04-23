@@ -18,7 +18,7 @@ from PIL import Image
 from uiauto_dev.command_types import CurrentAppResponse
 from uiauto_dev.driver.base_driver import BaseDriver
 from uiauto_dev.exceptions import IOSDriverException
-from uiauto_dev.model import Hierarchy, WindowSize
+from uiauto_dev.model import Node, WindowSize
 from uiauto_dev.utils.usbmux import MuxDevice, select_device
 
 
@@ -63,7 +63,7 @@ class IOSDriver(BaseDriver):
     def window_size(self):
         return self._request_json_value("GET", "/window/size")
     
-    def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
+    def dump_hierarchy(self) -> Tuple[str, Node]:
         """returns xml string and hierarchy object"""
         xml_data = self._request_json_value("GET", "/source")
         root = ElementTree.fromstring(xml_data)
@@ -81,7 +81,7 @@ class IOSDriver(BaseDriver):
         self._request("POST", "/wda/homescreen")
         
 
-def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hierarchy:
+def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Node:
     """
     Recursively parse an XML element into a dictionary format.
     # <XCUIElementTypeApplication type="XCUIElementTypeApplication" name="设置" label="设置" enabled="true" visible="true" accessible="false" x="0" y="0" width="414" height="896" index="0">
@@ -98,7 +98,7 @@ def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Hie
     bounds = list(map(partial(round, ndigits=4), bounds))
     name = element.attrib.get("type", "XCUIElementTypeUnknown")
     
-    elem = Hierarchy(
+    elem = Node(
         key='-'.join(map(str, indexes)),
         name=name,
         bounds=bounds,

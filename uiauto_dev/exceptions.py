@@ -4,17 +4,25 @@
 """Created on Tue Mar 05 2024 11:16:29 by codeskyblue
 """
 
-class uiauto_devException(Exception):
+class UiautoException(Exception):
     pass
 
 
-class IOSDriverException(uiauto_devException):
+class IOSDriverException(UiautoException):
     pass
 
 
-class AndroidDriverException(uiauto_devException):
+class AndroidDriverException(UiautoException):
     pass
 
 
-class AppiumDriverException(uiauto_devException):
+class AppiumDriverException(UiautoException):
+    pass
+
+
+class MethodError(UiautoException):
+    pass
+
+
+class ElementNotFoundError(MethodError):
     pass

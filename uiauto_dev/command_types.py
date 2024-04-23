@@ -7,21 +7,28 @@
 
 # Request and Response
 import enum
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
+
+from uiauto_dev.model import Node
 
 
 # POST /api/v1/device/{serial}/command/{command}
 class Command(str, enum.Enum):
     TAP = "tap"
     TAP_ELEMENT = "tapElement"
-    INSTALL_APP = "installApp"
-    CURRENT_APP = "currentApp"
+    APP_INSTALL = "installApp"
+    APP_CURRENT = "currentApp"
+    APP_LAUNCH = "appLaunch"
+    APP_TERMINATE = "appTerminate"
+
     GET_WINDOW_SIZE = "getWindowSize"
     HOME = "home"
     DUMP = "dump"
     WAKE_UP = "wakeUp"
+    FIND_ELEMENTS = "findElements"
+    CLICK_ELEMENT = "clickElement"
 
     LIST = "list"
 
@@ -47,6 +54,15 @@ class CurrentAppResponse(BaseModel):
     pid: Optional[int] = None
 
 
+class AppLaunchRequest(BaseModel):
+    package: str
+    stop: bool = False
+
+
+class AppTerminateRequest(BaseModel):
+    package: str
+
+
 class WindowSizeResponse(BaseModel):
     width: int
     height: int
@@ -54,3 +70,20 @@ class WindowSizeResponse(BaseModel):
 
 class DumpResponse(BaseModel):
     value: str
+
+
+class By(str, enum.Enum):
+    ID = "id"
+    TEXT = "text"
+    XPATH = "xpath"
+    CLASS_NAME = "className"
+
+class FindElementRequest(BaseModel):
+    by: str
+    value: str
+    timeout: float = 10.0
+
+
+class FindElementResponse(BaseModel):
+    count: int
+    value: List[Node]

@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from uiauto_dev import command_proxy
 from uiauto_dev.command_types import Command, CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
-from uiauto_dev.model import DeviceInfo, Hierarchy, ShellResponse
+from uiauto_dev.model import DeviceInfo, Node, ShellResponse
 from uiauto_dev.provider import BaseProvider
 
 
@@ -62,7 +62,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
             return Response(content=str(e), media_type="text/plain", status_code=500)
 
     @router.get("/{serial}/hierarchy")
-    def dump_hierarchy(serial: str) -> Hierarchy:
+    def dump_hierarchy(serial: str) -> Node:
         """Dump the view hierarchy of an Android device"""
         try:
             driver = provider.get_device_driver(serial)
@@ -82,13 +82,13 @@ def make_router(provider: BaseProvider) -> APIRouter:
     def install_app(serial: str, params: InstallAppRequest) -> InstallAppResponse:
         """Install app"""
         driver = provider.get_device_driver(serial)
-        return command_proxy.install_app(driver, params)
+        return command_proxy.app_install(driver, params)
 
     @router.get('/{serial}/command/currentApp')
     def current_app(serial: str) -> CurrentAppResponse:
         """Get current app"""
         driver = provider.get_device_driver(serial)
-        return command_proxy.current_app(driver)
+        return command_proxy.app_current(driver)
 
     @router.post('/{serial}/command/{command}')
     def _command_proxy_other(serial: str, command: Command, params: Any = None):

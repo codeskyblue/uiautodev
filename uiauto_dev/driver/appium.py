@@ -25,7 +25,7 @@ from uiauto_dev.command_types import CurrentAppResponse
 from uiauto_dev.driver.android import parse_xml
 from uiauto_dev.driver.base_driver import BaseDriver
 from uiauto_dev.exceptions import AppiumDriverException
-from uiauto_dev.model import DeviceInfo, Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.model import DeviceInfo, Node, ShellResponse, WindowSize
 from uiauto_dev.provider import BaseProvider
 
 logger = logging.getLogger(__name__)
@@ -111,7 +111,7 @@ class AppiumDriver(BaseDriver):
         size = self.driver.get_window_size()
         return WindowSize(width=size["width"], height=size["height"])
         
-    def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
+    def dump_hierarchy(self) -> Tuple[str, Node]:
         source = self.driver.page_source
         wsize = self.window_size()
         return source, parse_xml(source, wsize)

@@ -9,9 +9,9 @@ from __future__ import annotations
 import logging
 import platform
 import sys
-from pprint import pprint
 import threading
 import time
+from pprint import pprint
 
 import click
 import httpx
@@ -88,6 +88,12 @@ def ios(command: Command, params: list[str] = None):
     run_driver_command(provider, command, params)
 
 
+@cli.command(help="run case (beta)")
+def case():
+    from uiauto_dev.case import run
+    run()
+
+
 @cli.command(help="COMMAND: " + ", ".join(c.value for c in Command))
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
@@ -107,7 +113,7 @@ def print_version():
     print(__version__)
 
 
-@cli.command()
+@cli.command(help="start uiauto.dev local server [default]")
 @click.option("--port", default=20242, help="port number", show_default=True)
 @click.option("--host", default="127.0.0.1", help="host", show_default=True)
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")

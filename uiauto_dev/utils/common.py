@@ -14,6 +14,8 @@ from typing import Optional, TypeVar, Union
 from pydantic import BaseModel
 from pygments import formatters, highlight, lexers
 
+from uiauto_dev.model import Node
+
 
 def is_output_terminal() -> bool:
     """
@@ -122,12 +124,18 @@ class SocketHTTPConnection(HTTPConnection):
         self.close()
 
 
+class MySocketHTTPConnection(SocketHTTPConnection):
+    def connect(self):
+        super().connect()
+        self.sock.settimeout(self.timeout)
+
+
 def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", json: Optional[dict] = None, timeout: float = 60) -> bytearray:
     """ usage example:
     with socket.create_connection((host, port)) as s:
         request_through_socket(s, "GET", "/")
     """
-    conn = SocketHTTPConnection(sock, timeout)
+    conn = MySocketHTTPConnection(sock, timeout)
     try:
         if json is None:
             conn.request(method, path)
@@ -142,3 +150,16 @@ def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", js
         return content
     finally:
         conn.close()
+
+
+def node_travel(node: Node, dfs: bool = True):
+    """ usage example:
+    for n in node_travel(node):
+        print(n)
+    """
+    if not dfs:
+        yield node
+    for child in node.children:
+        yield from node_travel(child, dfs)
+    if dfs:
+        yield node

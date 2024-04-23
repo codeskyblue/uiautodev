@@ -12,7 +12,7 @@ python = "^3.8"
 fastapi = {extras = ["all"], version = "^0.109.2"}
 uvicorn = {extras = ["standard"], version = "^0.27.1"}
 pillow = "*"
-adbutils = "^2.2.1,!=2.2.2"
+adbutils = "^2.4.1"
 construct = "*"
 lxml = "*"
 click = "^8.1.7"

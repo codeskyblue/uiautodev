@@ -6,14 +6,19 @@
 
 from __future__ import annotations
 
+import time
 import typing
 from typing import Callable, Dict, Optional
 
 from pydantic import BaseModel
 
-from uiauto_dev.command_types import Command, CurrentAppResponse, DumpResponse, InstallAppRequest, InstallAppResponse, \
-    TapRequest, WindowSizeResponse
+from uiauto_dev.command_types import AppLaunchRequest, AppTerminateRequest, By, Command, CurrentAppResponse, \
+    DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, TapRequest, \
+    WindowSizeResponse
 from uiauto_dev.driver.base_driver import BaseDriver
+from uiauto_dev.exceptions import ElementNotFoundError
+from uiauto_dev.model import Node
+from uiauto_dev.utils.common import node_travel
 
 COMMANDS: Dict[Command, Callable] = {}
 
@@ -64,17 +69,29 @@ def tap(driver: BaseDriver, params: TapRequest):
     driver.tap(x, y)
 
 
-@register(Command.INSTALL_APP)
-def install_app(driver: BaseDriver, params: InstallAppRequest):
+@register(Command.APP_INSTALL)
+def app_install(driver: BaseDriver, params: InstallAppRequest):
     """install app"""
     driver.app_install(params.url)
     return InstallAppResponse(success=True, id=None)
 
 
-@register(Command.CURRENT_APP)
-def current_app(driver: BaseDriver) -> CurrentAppResponse:
+@register(Command.APP_CURRENT)
+def app_current(driver: BaseDriver) -> CurrentAppResponse:
     """get current app"""
     return driver.app_current()
+
+
+@register(Command.APP_LAUNCH)
+def app_launch(driver: BaseDriver, params: AppLaunchRequest):
+    if params.stop:
+        driver.app_terminate(params.package)
+    driver.app_launch(params.package)
+
+
+@register(Command.APP_TERMINATE)
+def app_terminate(driver: BaseDriver, params: AppTerminateRequest):
+    driver.app_terminate(params.package)
 
 
 @register(Command.GET_WINDOW_SIZE)
@@ -97,3 +114,41 @@ def dump(driver: BaseDriver) -> DumpResponse:
 @register(Command.WAKE_UP)
 def wake_up(driver: BaseDriver):
     driver.wake_up()
+
+
+def node_match(node: Node, by: By, value: str) -> bool:
+    if by == By.ID:
+        return node.properties.get("resource-id") == value
+    if by == By.TEXT:
+        return node.properties.get("text") == value
+    if by == By.CLASS_NAME:
+        return node.name == value
+    raise ValueError(f"not support by {by!r}")
+
+
+@register(Command.FIND_ELEMENTS)
+def find_elements(driver: BaseDriver, params: FindElementRequest) -> FindElementResponse:
+    _, root_node = driver.dump_hierarchy()
+    # TODO: support By.XPATH
+    nodes = []
+    for node in node_travel(root_node):
+        if node_match(node, params.by, params.value):
+            nodes.append(node)
+    return FindElementResponse(count=len(nodes), value=nodes)
+
+
+@register(Command.CLICK_ELEMENT)
+def click_element(driver: BaseDriver, params: FindElementRequest):
+    node = None
+    deadline = time.time() + params.timeout
+    while time.time() < deadline:
+        result = find_elements(driver, params)
+        if result.value:
+            node = result.value[0]
+            break
+        time.sleep(.5) # interval
+    if not node:
+        raise ElementNotFoundError(f"element not found by {params.by}={params.value}")
+    center_x = (node.bounds[0] + node.bounds[2]) / 2
+    center_y = (node.bounds[1] + node.bounds[3]) / 2
+    tap(driver, TapRequest(x=center_x, y=center_y, isPercent=True))

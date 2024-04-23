@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import abc
+from functools import lru_cache
 
 import adbutils
 
@@ -13,7 +14,7 @@ from uiauto_dev.driver.android import AndroidDriver
 from uiauto_dev.driver.base_driver import BaseDriver
 from uiauto_dev.driver.ios import IOSDriver
 from uiauto_dev.driver.mock import MockDriver
-from uiauto_dev.exceptions import uiauto_devException
+from uiauto_dev.exceptions import UiautoException
 from uiauto_dev.model import DeviceInfo
 from uiauto_dev.utils.usbmux import MuxDevice, list_devices
 
@@ -31,9 +32,9 @@ class BaseProvider(abc.ABC):
         """ debug use """
         devs = self.list_devices()
         if len(devs) == 0:
-            raise uiauto_devException("No device found")
+            raise UiautoException("No device found")
         if len(devs) > 1:
-            raise uiauto_devException("More than one device found")
+            raise UiautoException("More than one device found")
         return self.get_device_driver(devs[0].serial)
 
 
@@ -52,6 +53,7 @@ class AndroidProvider(BaseProvider):
                 ret.append(DeviceInfo(serial=d.serial, model=dev.prop.model, name=dev.prop.name))
         return ret
 
+    @lru_cache
     def get_device_driver(self, serial: str) -> AndroidDriver:
         return AndroidDriver(serial)
 
@@ -61,6 +63,7 @@ class IOSProvider(BaseProvider):
         devs = list_devices()
         return [DeviceInfo(serial=d.serial, model="unknown", name="unknown") for d in devs]
 
+    @lru_cache
     def get_device_driver(self, serial: str) -> BaseDriver:
         return IOSDriver(serial)
     

@@ -11,7 +11,7 @@ from PIL import Image
 from pydantic import BaseModel
 
 from uiauto_dev.command_types import CurrentAppResponse
-from uiauto_dev.model import Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.model import Node, ShellResponse, WindowSize
 
 
 class BaseDriver(abc.ABC):
@@ -27,7 +27,7 @@ class BaseDriver(abc.ABC):
         raise NotImplementedError()
     
     @abc.abstractmethod
-    def dump_hierarchy(self) -> Tuple[str, Hierarchy]:
+    def dump_hierarchy(self) -> Tuple[str, Node]:
         """Dump the view hierarchy of the device
         :return: xml_source, Hierarchy
         """
@@ -57,6 +57,14 @@ class BaseDriver(abc.ABC):
     
     def app_current(self) -> CurrentAppResponse:
         """ get current app """
+        raise NotImplementedError()
+    
+    def app_launch(self, package: str):
+        """ launch app """
+        raise NotImplementedError()
+    
+    def app_terminate(self, package: str):
+        """ terminate app """
         raise NotImplementedError()
     
     def home(self):

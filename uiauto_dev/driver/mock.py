@@ -7,7 +7,7 @@
 from PIL import Image, ImageDraw
 
 from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.model import Hierarchy, ShellResponse, WindowSize
+from uiauto_dev.model import Node, ShellResponse, WindowSize
 
 
 class MockDriver(BaseDriver):
@@ -20,7 +20,7 @@ class MockDriver(BaseDriver):
         return im
 
     def dump_hierarchy(self):
-        return "", Hierarchy(
+        return "", Node(
             key="0",
             name="root",
             bounds=(0, 0, 1, 1),
@@ -28,7 +28,7 @@ class MockDriver(BaseDriver):
                 "class": "android.view.View",
             },
             children=[
-                Hierarchy(
+                Node(
                     key="0-0",
                     name="mock1",
                     bounds=(0.1, 0.1, 0.5, 0.5),
@@ -38,7 +38,7 @@ class MockDriver(BaseDriver):
                         "accessible": "true",
                     },
                 ),
-                Hierarchy(
+                Node(
                     key="0-1",
                     name="mock2",
                     bounds=(0.4, 0.4, 0.6, 0.6),
@@ -48,7 +48,7 @@ class MockDriver(BaseDriver):
                         "accessible": "true",
                     },
                     children=[
-                        Hierarchy(
+                        Node(
                             key="0-1-0",
                             name="mock2-1",
                             bounds=(0.42, 0.42, 0.45, 0.45),
@@ -60,7 +60,7 @@ class MockDriver(BaseDriver):
                         ),
                     ]
                 ),
-                Hierarchy(
+                Node(
                     key="0-2",
                     name="mock-should-not-show",
                     bounds=(0.4, 0.4, 0.6, 0.6),

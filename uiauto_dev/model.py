@@ -24,12 +24,12 @@ class ShellResponse(BaseModel):
     error: Optional[str] = ""
 
 
-class Hierarchy(BaseModel):
+class Node(BaseModel):
     key: str
     name: str
     bounds: Optional[Tuple[float, float, float, float]] = None
     properties: Dict[str, Union[str, bool]] = []
-    children: List[Hierarchy] = []
+    children: List[Node] = []
 
 
 class WindowSize(typing.NamedTuple):
