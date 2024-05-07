@@ -1,6 +1,6 @@
-# uiauto-dev
+# uiautodev
 [![codecov](https://codecov.io/gh/codeskyblue/appinspector/graph/badge.svg?token=aLTg4VOyQH)](https://codecov.io/gh/codeskyblue/appinspector)
-[![PyPI version](https://badge.fury.io/py/uiauto-dev.svg)](https://badge.fury.io/py/uiauto-dev)
+[![PyPI version](https://badge.fury.io/py/uiautodev.svg)](https://badge.fury.io/py/uiautodev)
 
 https://uiauto.dev
 
