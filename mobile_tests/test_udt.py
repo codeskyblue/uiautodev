@@ -4,8 +4,9 @@
 """Created on Tue Apr 23 2024 22:28:02 by codeskyblue
 """
 
-import pytest
 import adbutils
+import pytest
+
 from uiautodev.driver.udt.udt import UDT
 
 

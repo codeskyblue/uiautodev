@@ -7,7 +7,6 @@
 import json
 import logging
 import re
-import socket
 import time
 from functools import cached_property, partial
 from typing import List, Tuple
@@ -15,6 +14,7 @@ from xml.etree import ElementTree
 
 import adbutils
 import requests
+import uiautomator2 as u2
 from PIL import Image
 
 from uiautodev.command_types import CurrentAppResponse
@@ -34,24 +34,25 @@ class AndroidDriver(BaseDriver):
             self._get_u2_hierarchy,
             self._get_appium_hierarchy,
             self._get_udt_dump_hierarchy,
-            self.device.dump_hierarchy,
-            self._get_u2_lib_hierarchy,
         ]
     
     @cached_property
     def udt(self) -> UDT:    
         return UDT(self.device)
+
+    @cached_property
+    def ud(self) -> u2.Device:
+        return u2.connect_usb(self.serial)
     
     def screenshot(self, id: int) -> Image.Image:
-        # TODO: support multi-display
-        if id > 0:
-            raise ValueError("multi-display is not supported yet")
         try:
-            img = self.device.screenshot()
+            img = self.device.screenshot(display_id=id)
             return img.convert("RGB")
         except adbutils.AdbError as e:
             logger.warning("screenshot error: %s", str(e))
-            return self.udt.screenshot()
+            if id > 0:
+                raise AndroidDriverException("multi-display is not supported yet for uiautomator2")
+            return self.ud.screenshot()
 
     def shell(self, command: str) -> ShellResponse:
         try:
@@ -93,20 +94,11 @@ class AndroidDriver(BaseDriver):
                 self._try_dump_list.remove(dump_func)
                 self._try_dump_list.insert(0, dump_func)
                 return result
-            except (
-                requests.RequestException,
-                AndroidDriverException,
-                UDTError,
-                adbutils.AdbError,
-                socket.timeout,
-            ) as e:
-                logger.warning("dump error: %s", e)
             except Exception as e:
                 logger.exception("unexpected dump error: %s", e)
         raise AndroidDriverException("Failed to dump hierarchy")
     
     def _get_u2_hierarchy(self) -> str:
-        import uiautomator2 as u2
         d = u2.connect_usb(self.serial)
         return d.dump_hierarchy()
         # c = self.device.create_connection(adbutils.Network.TCP, 9008)
@@ -146,14 +138,6 @@ class AndroidDriver(BaseDriver):
 
     def _get_udt_dump_hierarchy(self) -> str:
         return self.udt.dump_hierarchy()
-
-    def _get_u2_lib_hierarchy(self) -> str:
-        try:
-            import uiautomator2 as u2
-            d = u2.connect_usb(self.serial)
-            return d.dump_hierarchy()
-        except ModuleNotFoundError:
-            raise AndroidDriverException("uiautomator2 lib not installed")
     
     def tap(self, x: int, y: int):
         self.device.click(x, y)

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import platform
+import subprocess
 import sys
 import threading
 import time
@@ -25,8 +26,9 @@ from uiautodev.utils.common import convert_params_to_model, print_json
 
 logger = logging.getLogger(__name__)
 
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-@click.group()
+@click.group(context_settings=CONTEXT_SETTINGS)
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
 def cli(verbose: bool):
     if verbose:
@@ -110,10 +112,17 @@ def appium(command: Command, params: list[str] = None):
 
 @cli.command('version')
 def print_version():
+    """ Print version """
     print(__version__)
 
 
-@cli.command(help="start uiauto.dev local server [default]")
+@cli.command('self-update')
+def self_update():
+    """ Update uiautodev to latest version """
+    subprocess.run([sys.executable, '-m', "pip", "install", "--upgrade", "uiautodev"])
+
+
+@cli.command(help="start uiauto.dev local server [Default]")
 @click.option("--port", default=20242, help="port number", show_default=True)
 @click.option("--host", default="127.0.0.1", help="host", show_default=True)
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
