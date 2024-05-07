@@ -15,11 +15,11 @@ from xml.etree import ElementTree
 
 from PIL import Image
 
-from uiauto_dev.command_types import CurrentAppResponse
-from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.exceptions import IOSDriverException
-from uiauto_dev.model import Node, WindowSize
-from uiauto_dev.utils.usbmux import MuxDevice, select_device
+from uiautodev.command_types import CurrentAppResponse
+from uiautodev.driver.base_driver import BaseDriver
+from uiautodev.exceptions import IOSDriverException
+from uiautodev.model import Node, WindowSize
+from uiautodev.utils.usbmux import MuxDevice, select_device
 
 
 class IOSDriver(BaseDriver):

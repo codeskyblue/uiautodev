@@ -26,3 +26,7 @@ class MethodError(UiautoException):
 
 class ElementNotFoundError(MethodError):
     pass
+
+
+class RequestError(UiautoException):
+    pass

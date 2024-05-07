@@ -10,10 +10,10 @@ from typing import Any, List
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
-from uiauto_dev import command_proxy
-from uiauto_dev.command_types import Command, CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
-from uiauto_dev.model import DeviceInfo, Node, ShellResponse
-from uiauto_dev.provider import BaseProvider
+from uiautodev import command_proxy
+from uiautodev.command_types import Command, CurrentAppResponse, InstallAppRequest, InstallAppResponse, TapRequest
+from uiautodev.model import DeviceInfo, Node, ShellResponse
+from uiautodev.provider import BaseProvider
 
 
 class AndroidShellPayload(BaseModel):

@@ -10,10 +10,10 @@ from typing import Dict, Union
 
 from pydantic import BaseModel
 
-from uiauto_dev import command_proxy
-from uiauto_dev.command_types import Command
-from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.provider import AndroidProvider
+from uiautodev import command_proxy
+from uiautodev.command_types import Command
+from uiautodev.driver.base_driver import BaseDriver
+from uiautodev.provider import AndroidProvider
 
 logger = logging.getLogger(__name__)
 

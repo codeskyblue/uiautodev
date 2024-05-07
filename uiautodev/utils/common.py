@@ -14,7 +14,8 @@ from typing import Optional, TypeVar, Union
 from pydantic import BaseModel
 from pygments import formatters, highlight, lexers
 
-from uiauto_dev.model import Node
+from uiautodev.exceptions import RequestError
+from uiautodev.model import Node
 
 
 def is_output_terminal() -> bool:
@@ -143,7 +144,7 @@ def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", js
             conn.request(method, path, body=sysjson.dumps(json), headers={"Content-Type": "application/json"})
         response = conn.getresponse()
         if response.getcode() != 200:
-            raise RuntimeError(f"Failed request to device, status: {response.getcode()}")
+            raise RequestError(f"request {method} {path}, status: {response.getcode()}")
         content = bytearray()
         while chunk := response.read(40960):
             content.extend(chunk)

@@ -18,10 +18,10 @@ import httpx
 import pydantic
 import uvicorn
 
-from uiauto_dev import __version__, command_proxy
-from uiauto_dev.command_types import Command
-from uiauto_dev.provider import AndroidProvider, BaseProvider, IOSProvider
-from uiauto_dev.utils.common import convert_params_to_model, print_json
+from uiautodev import __version__, command_proxy
+from uiautodev.command_types import Command
+from uiautodev.provider import AndroidProvider, BaseProvider, IOSProvider
+from uiautodev.utils.common import convert_params_to_model, print_json
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ def ios(command: Command, params: list[str] = None):
 
 @cli.command(help="run case (beta)")
 def case():
-    from uiauto_dev.case import run
+    from uiautodev.case import run
     run()
 
 
@@ -98,8 +98,8 @@ def case():
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def appium(command: Command, params: list[str] = None):
-    from uiauto_dev.driver.appium import AppiumProvider
-    from uiauto_dev.exceptions import AppiumDriverException
+    from uiautodev.driver.appium import AppiumProvider
+    from uiautodev.exceptions import AppiumDriverException
     
     provider = AppiumProvider()
     try:
@@ -127,8 +127,6 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
         except httpx.HTTPError:
             pass
 
-    # if args.mock:
-    #     os.environ["uiauto_dev_MOCK"] = "1"
     use_color = True
     if platform.system() == 'Windows':
         use_color = False
@@ -137,7 +135,7 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
         th = threading.Thread(target=open_browser_when_server_start, args=(f"http://{host}:{port}",))
         th.daemon = True
         th.start()
-    uvicorn.run("uiauto_dev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
+    uvicorn.run("uiautodev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
 
 
 def open_browser_when_server_start(server_url: str):
@@ -157,8 +155,14 @@ def main():
     # set logger level to INFO
     # logging.basicConfig(level=logging.INFO)
     logger.setLevel(logging.INFO)
-    if len(sys.argv) == 1:
-        cli.main(args=["server"], prog_name="uiauto.dev")
+
+    has_command = False
+    for name in sys.argv[1:]:
+        if not name.startswith("-"):
+            has_command = True
+
+    if not has_command:
+        cli.main(args=sys.argv[1:] + ["server"], prog_name="uiauto.dev")
     else:
         cli()
 

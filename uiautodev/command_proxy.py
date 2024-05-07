@@ -12,13 +12,13 @@ from typing import Callable, Dict, Optional
 
 from pydantic import BaseModel
 
-from uiauto_dev.command_types import AppLaunchRequest, AppTerminateRequest, By, Command, CurrentAppResponse, \
+from uiautodev.command_types import AppLaunchRequest, AppTerminateRequest, By, Command, CurrentAppResponse, \
     DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, TapRequest, \
     WindowSizeResponse
-from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.exceptions import ElementNotFoundError
-from uiauto_dev.model import Node
-from uiauto_dev.utils.common import node_travel
+from uiautodev.driver.base_driver import BaseDriver
+from uiautodev.exceptions import ElementNotFoundError
+from uiautodev.model import Node
+from uiautodev.utils.common import node_travel
 
 COMMANDS: Dict[Command, Callable] = {}
 

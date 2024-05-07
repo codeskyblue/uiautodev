@@ -6,7 +6,7 @@
 
 from fastapi.testclient import TestClient
 
-from uiauto_dev.app import app
+from uiautodev.app import app
 
 client = TestClient(app)
 

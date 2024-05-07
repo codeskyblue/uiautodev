@@ -15,7 +15,7 @@ from typing import List, Mapping, Optional
 from construct import Const, CString, Enum, FixedSized, GreedyBytes, Int16ul, Int32ul, Padding, Prefixed, StreamError, \
     Struct, Switch, this
 
-from uiauto_dev.utils.exceptions import BadCommandError, BadDevError, ConnectionFailedError, \
+from uiautodev.utils.exceptions import BadCommandError, BadDevError, ConnectionFailedError, \
     ConnectionFailedToUsbmuxdError, MuxException, MuxVersionError, NotPairedError
 
 usbmuxd_version = Enum(Int32ul,

@@ -10,8 +10,8 @@ from typing import Tuple
 from PIL import Image
 from pydantic import BaseModel
 
-from uiauto_dev.command_types import CurrentAppResponse
-from uiauto_dev.model import Node, ShellResponse, WindowSize
+from uiautodev.command_types import CurrentAppResponse
+from uiautodev.model import Node, ShellResponse, WindowSize
 
 
 class BaseDriver(abc.ABC):

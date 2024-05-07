@@ -7,7 +7,7 @@ Copy from https://github.com/doronz88/pymobiledevice3
 """
 
 
-from uiauto_dev.exceptions import IOSDriverException
+from uiautodev.exceptions import IOSDriverException
 
 
 class NotPairedError(IOSDriverException):

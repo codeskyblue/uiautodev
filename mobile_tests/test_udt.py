@@ -6,7 +6,7 @@
 
 import pytest
 import adbutils
-from uiauto_dev.driver.udt.udt import UDT
+from uiautodev.driver.udt.udt import UDT
 
 
 @pytest.fixture(scope="module")

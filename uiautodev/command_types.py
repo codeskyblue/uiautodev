@@ -11,7 +11,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
-from uiauto_dev.model import Node
+from uiautodev.model import Node
 
 
 # POST /api/v1/device/{serial}/command/{command}

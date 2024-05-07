@@ -4,7 +4,7 @@
 """Created on Sun Feb 18 2024 14:20:15 by codeskyblue
 """
 
-from uiauto_dev.cli import main
+from uiautodev.cli import main
 
 if __name__ == "__main__":
     main()

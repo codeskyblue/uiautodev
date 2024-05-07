@@ -11,6 +11,7 @@ import enum
 import io
 import json
 import logging
+from pprint import pprint
 import threading
 import time
 from pathlib import Path
@@ -111,6 +112,17 @@ class UDT:
         if self._session_id:
             return self._session_id
         self._session_id = self._new_session()
+        logger.debug("update waitForIdleTimeout to 0ms")
+        self._dev_request("POST", f"/session/{self._session_id}/appium/settings", payload={
+            "settings": {
+                "waitForIdleTimeout": 10,
+                "waitForSelectorTimeout": 10,
+                "actionAcknowledgmentTimeout": 10,
+                "scrollAcknowledgmentTimeout": 10,
+                "trackScrollEvents": False,
+            }
+        })
+        result = self._dev_request("GET", f"/session/{self._session_id}/appium/settings")
         return self._session_id
     
     def dev_request(self, method: str, path: str, **kwargs) -> AppiumResponse:
@@ -228,7 +240,6 @@ class UDT:
 
     def dump_hierarchy(self) -> str:
         resp = self.get(f"@/source")
-        logger.info("page source: %s", resp)
         return resp.value
     
     def status(self):

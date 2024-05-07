@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "uiauto-dev"
+name = "uiautodev"
 version = "0.0.0"
 description = "Mobile UI Automation, include UI hierarchy inspector, script recorder"
 homepage = "https://uiauto.dev"
@@ -12,19 +12,21 @@ python = "^3.8"
 fastapi = {extras = ["all"], version = "^0.109.2"}
 uvicorn = {extras = ["standard"], version = "^0.27.1"}
 pillow = "*"
-adbutils = "^2.4.1"
+adbutils = "^2.6.0"
 construct = "*"
 lxml = "*"
 click = "^8.1.7"
 pygments = ">=2"
 httpretty = {version = "^1.1.4", optional = true}
 appium-python-client = {version = "^4.0.0", optional = true}
+uiautomator2 = "^3.0.11"
 
 [tool.poetry.extras]
 appium = ["appium-python-client", "httppretty"]
 
 [tool.poetry.scripts]
-"uiauto.dev" = "uiauto_dev.__main__:main"
+"uiauto.dev" = "uiautodev.__main__:main"
+"uiautodev" = "uiautodev.__main__:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"

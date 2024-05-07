@@ -17,12 +17,12 @@ import adbutils
 import requests
 from PIL import Image
 
-from uiauto_dev.command_types import CurrentAppResponse
-from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.driver.udt.udt import UDT, UDTError
-from uiauto_dev.exceptions import AndroidDriverException
-from uiauto_dev.model import Node, ShellResponse, WindowSize
-from uiauto_dev.utils.common import fetch_through_socket
+from uiautodev.command_types import CurrentAppResponse
+from uiautodev.driver.base_driver import BaseDriver
+from uiautodev.driver.udt.udt import UDT, UDTError
+from uiautodev.exceptions import AndroidDriverException, RequestError
+from uiautodev.model import Node, ShellResponse, WindowSize
+from uiautodev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +32,10 @@ class AndroidDriver(BaseDriver):
         self.device = adbutils.device(serial)
         self._try_dump_list = [
             self._get_u2_hierarchy,
-            self.udt.dump_hierarchy,
             self._get_appium_hierarchy,
+            self._get_udt_dump_hierarchy,
             self.device.dump_hierarchy,
+            self._get_u2_lib_hierarchy,
         ]
     
     @cached_property
@@ -98,46 +99,62 @@ class AndroidDriver(BaseDriver):
                 UDTError,
                 adbutils.AdbError,
                 socket.timeout,
-            ):
-                continue
+            ) as e:
+                logger.warning("dump error: %s", e)
+            except Exception as e:
+                logger.exception("unexpected dump error: %s", e)
         raise AndroidDriverException("Failed to dump hierarchy")
     
     def _get_u2_hierarchy(self) -> str:
-        c = self.device.create_connection(adbutils.Network.TCP, 9008)
-        try:
-            compressed = False
-            payload = {
-                "jsonrpc": "2.0",
-                "method": "dumpWindowHierarchy",
-                "params": [compressed],
-                "id": 1,
-            }
-            content = fetch_through_socket(
-                c, "/jsonrpc/0", method="POST", json=payload, timeout=5
-            )
-            json_resp = json.loads(content)
-            if "error" in json_resp:
-                raise AndroidDriverException(json_resp["error"])
-            return json_resp["result"]
-        except adbutils.AdbError as e:
-            raise AndroidDriverException(
-                f"Failed to get hierarchy from u2 server: {str(e)}"
-            )
-        finally:
-            c.close()
+        import uiautomator2 as u2
+        d = u2.connect_usb(self.serial)
+        return d.dump_hierarchy()
+        # c = self.device.create_connection(adbutils.Network.TCP, 9008)
+        # try:
+        #     compressed = False
+        #     payload = {
+        #         "jsonrpc": "2.0",
+        #         "method": "dumpWindowHierarchy",
+        #         "params": [compressed],
+        #         "id": 1,
+        #     }
+        #     content = fetch_through_socket(
+        #         c, "/jsonrpc/0", method="POST", json=payload, timeout=5
+        #     )
+        #     json_resp = json.loads(content)
+        #     if "error" in json_resp:
+        #         raise AndroidDriverException(json_resp["error"])
+        #     return json_resp["result"]
+        # except adbutils.AdbError as e:
+        #     raise AndroidDriverException(
+        #         f"Failed to get hierarchy from u2 server: {str(e)}"
+        #     )
+        # finally:
+        #     c.close()
 
     def _get_appium_hierarchy(self) -> str:
         c = self.device.create_connection(adbutils.Network.TCP, 6790)
         try:
             content = fetch_through_socket(c, "/wd/hub/session/0/source", timeout=10)
             return json.loads(content)["value"]
-        except adbutils.AdbError as e:
+        except (adbutils.AdbError, RequestError) as e:
             raise AndroidDriverException(
                 f"Failed to get hierarchy from appium server: {str(e)}"
             )
         finally:
             c.close()
 
+    def _get_udt_dump_hierarchy(self) -> str:
+        return self.udt.dump_hierarchy()
+
+    def _get_u2_lib_hierarchy(self) -> str:
+        try:
+            import uiautomator2 as u2
+            d = u2.connect_usb(self.serial)
+            return d.dump_hierarchy()
+        except ModuleNotFoundError:
+            raise AndroidDriverException("uiautomator2 lib not installed")
+    
     def tap(self, x: int, y: int):
         self.device.click(x, y)
 

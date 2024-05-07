@@ -10,13 +10,13 @@ from functools import lru_cache
 
 import adbutils
 
-from uiauto_dev.driver.android import AndroidDriver
-from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.driver.ios import IOSDriver
-from uiauto_dev.driver.mock import MockDriver
-from uiauto_dev.exceptions import UiautoException
-from uiauto_dev.model import DeviceInfo
-from uiauto_dev.utils.usbmux import MuxDevice, list_devices
+from uiautodev.driver.android import AndroidDriver
+from uiautodev.driver.base_driver import BaseDriver
+from uiautodev.driver.ios import IOSDriver
+from uiautodev.driver.mock import MockDriver
+from uiautodev.exceptions import UiautoException
+from uiautodev.model import DeviceInfo
+from uiautodev.utils.usbmux import MuxDevice, list_devices
 
 
 class BaseProvider(abc.ABC):

@@ -16,10 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 
-from uiauto_dev import __version__
-from uiauto_dev.provider import AndroidProvider, IOSProvider, MockProvider
-from uiauto_dev.router.device import make_router
-from uiauto_dev.router.xml import router as xml_router
+from uiautodev import __version__
+from uiautodev.provider import AndroidProvider, IOSProvider, MockProvider
+from uiautodev.router.device import make_router
+from uiautodev.router.xml import router as xml_router
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ mock_router = make_router(MockProvider())
 
 app.include_router(mock_router, prefix="/api/mock", tags=["mock"])
 
-if os.environ.get("uiauto_dev_MOCK"):
+if os.environ.get("UIAUTODEV_MOCK"):
     app.include_router(mock_router, prefix="/api/android", tags=["mock"])
     app.include_router(mock_router, prefix="/api/ios", tags=["mock"])
 else:
@@ -88,5 +88,5 @@ def demo() -> str:
 
 @app.get("/")
 def index_redirect():
-    """ redirect to uiauto_dev.devsleep.com """
+    """ redirect to official homepage """
     return RedirectResponse("https://uiauto.dev")

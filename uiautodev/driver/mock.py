@@ -6,8 +6,8 @@
 
 from PIL import Image, ImageDraw
 
-from uiauto_dev.driver.base_driver import BaseDriver
-from uiauto_dev.model import Node, ShellResponse, WindowSize
+from uiautodev.driver.base_driver import BaseDriver
+from uiautodev.model import Node, ShellResponse, WindowSize
 
 
 class MockDriver(BaseDriver):
