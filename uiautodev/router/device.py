@@ -5,6 +5,7 @@
 """
 
 import io
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Response
@@ -15,6 +16,8 @@ from uiautodev.command_types import Command, CurrentAppResponse, InstallAppReque
 from uiautodev.model import DeviceInfo, Node, ShellResponse
 from uiautodev.provider import BaseProvider
 
+
+logger = logging.getLogger(__name__)
 
 class AndroidShellPayload(BaseModel):
     command: str
@@ -31,6 +34,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
         except NotImplementedError as e:
             return Response(content="list_devices not implemented", media_type="text/plain", status_code=501)
         except Exception as e:
+            logger.exception("list_devices failed")
             return Response(content=str(e), media_type="text/plain", status_code=500)
 
     @router.post("/{serial}/shell")
@@ -42,6 +46,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
         except NotImplementedError as e:
             return Response(content="shell not implemented", media_type="text/plain", status_code=501)
         except Exception as e:
+            logger.exception("shell failed")
             return ShellResponse(output="", error=str(e))
 
     @router.get(
@@ -59,6 +64,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
             image_bytes = buf.getvalue()
             return Response(content=image_bytes, media_type="image/jpeg")
         except Exception as e:
+            logger.exception("screenshot failed")
             return Response(content=str(e), media_type="text/plain", status_code=500)
 
     @router.get("/{serial}/hierarchy")
@@ -69,6 +75,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
             xml_data, hierarchy = driver.dump_hierarchy()
             return hierarchy
         except Exception as e:
+            logger.exception("dump_hierarchy failed")
             return Response(content=str(e), media_type="text/plain", status_code=500)
     
     @router.post('/{serial}/command/tap')

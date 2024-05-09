@@ -12,7 +12,7 @@ def is_chinese_language() -> bool:
     language_code, _ = locale.getdefaultlocale()
     
     # Check if the language code starts with 'zh' (Chinese)
-    if language_code.startswith('zh'):
+    if language_code and language_code.startswith('zh'):
         return True
     else:
         return False

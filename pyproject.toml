@@ -20,7 +20,7 @@ appium-python-client = {version = "^4.0.0", optional = true}
 uiautomator2 = ">=2"
 httpx = "*"
 fastapi = "^0.111.0"
-uvicorn = "*"
+uvicorn = {version = "*", extras = ["standard"]}
 poetry = "^1.8.2"
 
 [tool.poetry.extras]
