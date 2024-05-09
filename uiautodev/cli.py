@@ -21,6 +21,7 @@ import uvicorn
 
 from uiautodev import __version__, command_proxy
 from uiautodev.command_types import Command
+from uiautodev.common import get_webpage_url
 from uiautodev.provider import AndroidProvider, BaseProvider, IOSProvider
 from uiautodev.utils.common import convert_params_to_model, print_json
 
@@ -32,6 +33,10 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
 def cli(verbose: bool):
     if verbose:
+        # try to enable logger is not very easy
+        # you have to setup logHandler(logFormatter) for the root logger
+        # and set all children logger to DEBUG
+        # that's why it is not easy to use it with logging
         root_logger = logging.getLogger(__name__.split(".")[0])
         root_logger.setLevel(logging.DEBUG)
 
@@ -42,6 +47,12 @@ def cli(verbose: bool):
         console_handler.setFormatter(formatter)
 
         root_logger.addHandler(console_handler)
+
+        # set all children logger to DEBUG
+        for k in root_logger.manager.loggerDict.keys():
+            if k.startswith(root_logger.name+"."):
+                logging.getLogger(k).setLevel(logging.DEBUG)
+        
         logger.debug("Verbose mode enabled")
 
 
@@ -127,7 +138,7 @@ def self_update():
 @click.option("--host", default="127.0.0.1", help="host", show_default=True)
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
-@click.option("--no-browser", is_flag=True, default=False, help="do not open browser")
+@click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
 def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
     logger.info("version: %s", __version__)
     if force:
@@ -156,7 +167,7 @@ def open_browser_when_server_start(server_url: str):
         except Exception as e:
             time.sleep(0.5)
     import webbrowser
-    web_url = "https://uiauto.dev"
+    web_url = get_webpage_url()
     logger.info("open browser: %s", web_url)
     webbrowser.open(web_url)
 

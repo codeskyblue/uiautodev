@@ -17,6 +17,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 
 from uiautodev import __version__
+from uiautodev.common import get_webpage_url
 from uiautodev.provider import AndroidProvider, IOSProvider, MockProvider
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
@@ -89,4 +90,6 @@ def demo() -> str:
 @app.get("/")
 def index_redirect():
     """ redirect to official homepage """
-    return RedirectResponse("https://uiauto.dev")
+    url = get_webpage_url()
+    logger.debug("redirect to %s", url)
+    return RedirectResponse(url)
