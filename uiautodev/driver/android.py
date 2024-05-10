@@ -13,7 +13,6 @@ from typing import List, Tuple
 from xml.etree import ElementTree
 
 import adbutils
-import requests
 import uiautomator2 as u2
 from PIL import Image
 
@@ -29,7 +28,7 @@ logger = logging.getLogger(__name__)
 class AndroidDriver(BaseDriver):
     def __init__(self, serial: str):
         super().__init__(serial)
-        self.device = adbutils.device(serial)
+        self.adb_device = adbutils.device(serial)
         self._try_dump_list = [
             self._get_u2_hierarchy,
             self._get_appium_hierarchy,
@@ -38,7 +37,7 @@ class AndroidDriver(BaseDriver):
     
     @cached_property
     def udt(self) -> UDT:    
-        return UDT(self.device)
+        return UDT(self.adb_device)
 
     @cached_property
     def ud(self) -> u2.Device:
@@ -46,8 +45,7 @@ class AndroidDriver(BaseDriver):
     
     def screenshot(self, id: int) -> Image.Image:
         try:
-            img = self.device.screenshot(display_id=id)
-            return img.convert("RGB")
+            return self.adb_device.screenshot() # display_id is not OK now
         except adbutils.AdbError as e:
             logger.warning("screenshot error: %s", str(e))
             if id > 0:
@@ -56,7 +54,7 @@ class AndroidDriver(BaseDriver):
 
     def shell(self, command: str) -> ShellResponse:
         try:
-            ret = self.device.shell2(command, rstrip=True, timeout=20)
+            ret = self.adb_device.shell2(command, rstrip=True, timeout=20)
             if ret.returncode == 0:
                 return ShellResponse(output=ret.output, error=None)
             else:
@@ -68,7 +66,7 @@ class AndroidDriver(BaseDriver):
 
     def dump_hierarchy(self) -> Tuple[str, Node]:
         """returns xml string and hierarchy object"""
-        wsize = self.device.window_size()
+        wsize = self.adb_device.window_size()
         logger.debug("window size: %s", wsize)
         start = time.time()
         xml_data = self._dump_hierarchy_raw()
@@ -125,7 +123,7 @@ class AndroidDriver(BaseDriver):
         #     c.close()
 
     def _get_appium_hierarchy(self) -> str:
-        c = self.device.create_connection(adbutils.Network.TCP, 6790)
+        c = self.adb_device.create_connection(adbutils.Network.TCP, 6790)
         try:
             content = fetch_through_socket(c, "/wd/hub/session/0/source", timeout=10)
             return json.loads(content)["value"]
@@ -140,34 +138,34 @@ class AndroidDriver(BaseDriver):
         return self.udt.dump_hierarchy()
     
     def tap(self, x: int, y: int):
-        self.device.click(x, y)
+        self.adb_device.click(x, y)
 
     def window_size(self) -> Tuple[int, int]:
-        w, h = self.device.window_size()
+        w, h = self.adb_device.window_size()
         return (w, h)
 
     def app_install(self, app_path: str):
-        self.device.install(app_path)
+        self.adb_device.install(app_path)
 
     def app_current(self) -> CurrentAppResponse:
-        info = self.device.app_current()
+        info = self.adb_device.app_current()
         return CurrentAppResponse(
             package=info.package, activity=info.activity, pid=info.pid
         )
 
     def app_launch(self, package: str):
-        if self.device.package_info(package) is None:
+        if self.adb_device.package_info(package) is None:
             raise AndroidDriverException(f"App not installed: {package}")
-        self.device.app_start(package)
+        self.adb_device.app_start(package)
     
     def app_terminate(self, package: str):
-        self.device.app_stop(package)
+        self.adb_device.app_stop(package)
 
     def home(self):
-        self.device.keyevent("HOME")
+        self.adb_device.keyevent("HOME")
     
     def wake_up(self):
-        self.device.keyevent("WAKEUP")
+        self.adb_device.keyevent("WAKEUP")
 
 
 def parse_xml(xml_data: str, wsize: WindowSize) -> Node:

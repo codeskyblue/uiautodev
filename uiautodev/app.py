@@ -68,7 +68,7 @@ def info() -> InfoResponse:
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
         cwd=os.getcwd(),
-        drivers=["android"],
+        drivers=["android", "ios"],
     )
 
 
