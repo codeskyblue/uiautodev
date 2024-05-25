@@ -16,7 +16,6 @@ from uiautodev.command_types import Command, CurrentAppResponse, InstallAppReque
 from uiautodev.model import DeviceInfo, Node, ShellResponse
 from uiautodev.provider import BaseProvider
 
-
 logger = logging.getLogger(__name__)
 
 class AndroidShellPayload(BaseModel):
@@ -58,7 +57,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
         """Take a screenshot of device"""
         try:
             driver = provider.get_device_driver(serial)
-            pil_img = driver.screenshot(id)
+            pil_img = driver.screenshot(id).convert("RGB")
             buf = io.BytesIO()
             pil_img.save(buf, format="JPEG")
             image_bytes = buf.getvalue()
@@ -68,12 +67,17 @@ def make_router(provider: BaseProvider) -> APIRouter:
             return Response(content=str(e), media_type="text/plain", status_code=500)
 
     @router.get("/{serial}/hierarchy")
-    def dump_hierarchy(serial: str) -> Node:
+    def dump_hierarchy(serial: str, format: str = "json") -> Node:
         """Dump the view hierarchy of an Android device"""
         try:
             driver = provider.get_device_driver(serial)
             xml_data, hierarchy = driver.dump_hierarchy()
-            return hierarchy
+            if format == "xml":
+                return Response(content=xml_data, media_type="text/xml")
+            elif format == "json":
+                return hierarchy
+            else:
+                return Response(content=f"Invalid format: {format}", media_type="text/plain", status_code=400)
         except Exception as e:
             logger.exception("dump_hierarchy failed")
             return Response(content=str(e), media_type="text/plain", status_code=500)

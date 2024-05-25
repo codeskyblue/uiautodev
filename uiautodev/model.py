@@ -24,10 +24,18 @@ class ShellResponse(BaseModel):
     error: Optional[str] = ""
 
 
+class Rect(BaseModel):
+    x: int
+    y: int
+    width: int
+    height: int
+
+
 class Node(BaseModel):
     key: str
     name: str
     bounds: Optional[Tuple[float, float, float, float]] = None
+    rect: Optional[Rect] = None
     properties: Dict[str, Union[str, bool]] = []
     children: List[Node] = []
 

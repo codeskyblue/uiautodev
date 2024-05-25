@@ -9,7 +9,7 @@ import logging
 import re
 import time
 from functools import cached_property, partial
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from xml.etree import ElementTree
 
 import adbutils
@@ -20,7 +20,7 @@ from uiautodev.command_types import CurrentAppResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.driver.udt.udt import UDT, UDTError
 from uiautodev.exceptions import AndroidDriverException, RequestError
-from uiautodev.model import Node, ShellResponse, WindowSize
+from uiautodev.model import Node, Rect, ShellResponse, WindowSize
 from uiautodev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)
@@ -31,8 +31,8 @@ class AndroidDriver(BaseDriver):
         self.adb_device = adbutils.device(serial)
         self._try_dump_list = [
             self._get_u2_hierarchy,
-            self._get_appium_hierarchy,
             self._get_udt_dump_hierarchy,
+            # self._get_appium_hierarchy,
         ]
     
     @cached_property
@@ -64,16 +64,16 @@ class AndroidDriver(BaseDriver):
         except Exception as e:
             return ShellResponse(output="", error=f"adb error: {str(e)}")
 
-    def dump_hierarchy(self) -> Tuple[str, Node]:
+    def dump_hierarchy(self, display_id: Optional[int] = 0) -> Tuple[str, Node]:
         """returns xml string and hierarchy object"""
-        wsize = self.adb_device.window_size()
-        logger.debug("window size: %s", wsize)
         start = time.time()
         xml_data = self._dump_hierarchy_raw()
         logger.debug("dump_hierarchy cost: %s", time.time() - start)
 
+        wsize = self.adb_device.window_size()
+        logger.debug("window size: %s", wsize)
         return xml_data, parse_xml(
-            xml_data, WindowSize(width=wsize[0], height=wsize[1])
+            xml_data, WindowSize(width=wsize[0], height=wsize[1]), display_id
         )
 
     def _dump_hierarchy_raw(self) -> str:
@@ -99,28 +99,6 @@ class AndroidDriver(BaseDriver):
     def _get_u2_hierarchy(self) -> str:
         d = u2.connect_usb(self.serial)
         return d.dump_hierarchy()
-        # c = self.device.create_connection(adbutils.Network.TCP, 9008)
-        # try:
-        #     compressed = False
-        #     payload = {
-        #         "jsonrpc": "2.0",
-        #         "method": "dumpWindowHierarchy",
-        #         "params": [compressed],
-        #         "id": 1,
-        #     }
-        #     content = fetch_through_socket(
-        #         c, "/jsonrpc/0", method="POST", json=payload, timeout=5
-        #     )
-        #     json_resp = json.loads(content)
-        #     if "error" in json_resp:
-        #         raise AndroidDriverException(json_resp["error"])
-        #     return json_resp["result"]
-        # except adbutils.AdbError as e:
-        #     raise AndroidDriverException(
-        #         f"Failed to get hierarchy from u2 server: {str(e)}"
-        #     )
-        # finally:
-        #     c.close()
 
     def _get_appium_hierarchy(self) -> str:
         c = self.adb_device.create_connection(adbutils.Network.TCP, 6790)
@@ -168,26 +146,33 @@ class AndroidDriver(BaseDriver):
         self.adb_device.keyevent("WAKEUP")
 
 
-def parse_xml(xml_data: str, wsize: WindowSize) -> Node:
+def parse_xml(xml_data: str, wsize: WindowSize, display_id: int) -> Node:
     root = ElementTree.fromstring(xml_data)
-    return parse_xml_element(root, wsize)
+    node = parse_xml_element(root, wsize, display_id)
+    if node is None:
+        raise AndroidDriverException("Failed to parse xml")
+    return node
 
 
-def parse_xml_element(
-    element, wsize: WindowSize, indexes: List[int] = [0]
-) -> Node:
+def parse_xml_element(element, wsize: WindowSize, display_id: int, indexes: List[int] = [0]) -> Optional[Node]:
     """
     Recursively parse an XML element into a dictionary format.
     """
     name = element.tag
     if name == "node":
         name = element.attrib.get("class", "node")
+    curr_display_id = int(element.attrib.get("display-id", display_id))
+    if curr_display_id != display_id:
+        return
+
     bounds = None
+    rect = None
     # eg: bounds="[883,2222][1008,2265]"
     if "bounds" in element.attrib:
         bounds = element.attrib["bounds"]
         bounds = list(map(int, re.findall(r"\d+", bounds)))
         assert len(bounds) == 4
+        rect = Rect(x=bounds[0], y=bounds[1], width=bounds[2] - bounds[0], height=bounds[3] - bounds[1])
         bounds = (
             bounds[0] / wsize.width,
             bounds[1] / wsize.height,
@@ -195,16 +180,20 @@ def parse_xml_element(
             bounds[3] / wsize.height,
         )
         bounds = map(partial(round, ndigits=4), bounds)
+        
     elem = Node(
         key="-".join(map(str, indexes)),
         name=name,
         bounds=bounds,
+        rect=rect,
         properties={key: element.attrib[key] for key in element.attrib},
         children=[],
     )
 
     # Construct xpath for children
     for index, child in enumerate(element):
-        elem.children.append(parse_xml_element(child, wsize, indexes + [index]))
+        child_node = parse_xml_element(child, wsize, display_id, indexes + [index])
+        if child_node:
+            elem.children.append(child_node)
 
     return elem
