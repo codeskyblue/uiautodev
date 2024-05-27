@@ -146,7 +146,7 @@ class AndroidDriver(BaseDriver):
         self.adb_device.keyevent("WAKEUP")
 
 
-def parse_xml(xml_data: str, wsize: WindowSize, display_id: int) -> Node:
+def parse_xml(xml_data: str, wsize: WindowSize, display_id: Optional[int] = None) -> Node:
     root = ElementTree.fromstring(xml_data)
     node = parse_xml_element(root, wsize, display_id)
     if node is None:
@@ -154,16 +154,17 @@ def parse_xml(xml_data: str, wsize: WindowSize, display_id: int) -> Node:
     return node
 
 
-def parse_xml_element(element, wsize: WindowSize, display_id: int, indexes: List[int] = [0]) -> Optional[Node]:
+def parse_xml_element(element, wsize: WindowSize, display_id: Optional[int], indexes: List[int] = [0]) -> Optional[Node]:
     """
     Recursively parse an XML element into a dictionary format.
     """
     name = element.tag
     if name == "node":
         name = element.attrib.get("class", "node")
-    curr_display_id = int(element.attrib.get("display-id", display_id))
-    if curr_display_id != display_id:
-        return
+    if display_id is not None:
+        elem_display_id = int(element.attrib.get("display-id", display_id))
+        if elem_display_id != display_id:
+            return
 
     bounds = None
     rect = None
