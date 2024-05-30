@@ -10,7 +10,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 pillow = "*"
-adbutils = "^2.6.0"
+adbutils = "^2.7.0"
 construct = "*"
 lxml = "*"
 click = "^8.1.7"
@@ -23,6 +23,7 @@ fastapi = "^0.111.0"
 uvicorn = {version = "*", extras = ["standard"]}
 poetry = "^1.8.2"
 pydantic = "^2.6"
+wdapy = "^0.2.2"
 
 [tool.poetry.extras]
 appium = ["appium-python-client", "httppretty"]

@@ -144,6 +144,21 @@ class AndroidDriver(BaseDriver):
     
     def wake_up(self):
         self.adb_device.keyevent("WAKEUP")
+    
+    def back(self):
+        self.adb_device.keyevent("BACK")
+    
+    def app_switch(self):
+        self.adb_device.keyevent("APP_SWITCH")
+    
+    def volume_up(self):
+        self.adb_device.keyevent("VOLUME_UP")
+    
+    def volume_down(self):
+        self.adb_device.keyevent("VOLUME_DOWN")
+    
+    def volume_mute(self):
+        self.adb_device.keyevent("VOLUME_MUTE")
 
 
 def parse_xml(xml_data: str, wsize: WindowSize, display_id: Optional[int] = None) -> Node:

@@ -32,6 +32,13 @@ class Command(str, enum.Enum):
 
     LIST = "list"
 
+    # 0.4.0
+    BACK = "back"
+    APP_SWITCH = "appSwitch"
+    VOLUME_UP = "volumeUp"
+    VOLUME_DOWN = "volumeDown"
+    VOLUME_MUTE = "volumeMute"
+
 
 class TapRequest(BaseModel):
     x: Union[int, float]

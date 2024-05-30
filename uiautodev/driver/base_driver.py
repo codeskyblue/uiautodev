@@ -70,6 +70,26 @@ class BaseDriver(abc.ABC):
     def home(self):
         """ press home button """
         raise NotImplementedError()
+    
+    def back(self):
+        """ press back button """
+        raise NotImplementedError()
+
+    def app_switch(self):
+        """ switch app """
+        raise NotImplementedError()
+    
+    def volume_up(self):
+        """ volume up """
+        raise NotImplementedError()
+    
+    def volume_down(self):
+        """ volume down """
+        raise NotImplementedError()
+    
+    def volume_mute(self):
+        """ volume mute """
+        raise NotImplementedError()
 
     def wake_up(self):
         """ wake up the device """
