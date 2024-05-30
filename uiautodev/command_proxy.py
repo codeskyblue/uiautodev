@@ -105,6 +105,31 @@ def home(driver: BaseDriver):
     driver.home()
 
 
+@register(Command.BACK)
+def back(driver: BaseDriver):
+    driver.back()
+
+
+@register(Command.APP_SWITCH)
+def app_switch(driver: BaseDriver):
+    driver.app_switch()
+
+
+@register(Command.VOLUME_UP)
+def volume_up(driver: BaseDriver):
+    driver.volume_up()
+
+
+@register(Command.VOLUME_DOWN)
+def volume_down(driver: BaseDriver):
+    driver.volume_down()
+
+
+@register(Command.VOLUME_MUTE)
+def volume_mute(driver: BaseDriver):
+    driver.volume_mute()
+
+
 @register(Command.DUMP)
 def dump(driver: BaseDriver) -> DumpResponse:
     source, _ = driver.dump_hierarchy()

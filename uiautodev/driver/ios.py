@@ -13,13 +13,14 @@ from functools import partial
 from typing import List, Optional, Tuple
 from xml.etree import ElementTree
 
+import wdapy
 from PIL import Image
 
 from uiautodev.command_types import CurrentAppResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.exceptions import IOSDriverException
 from uiautodev.model import Node, WindowSize
-from uiautodev.utils.usbmux import MuxDevice, select_device
+from uiautodev.utils.usbmux import select_device
 
 
 class IOSDriver(BaseDriver):
@@ -27,6 +28,7 @@ class IOSDriver(BaseDriver):
         """ serial is the udid of the ios device """
         super().__init__(serial)
         self.device = select_device(serial)
+        self.wda = wdapy.AppiumUSBClient(self.device.serial)
     
     def _request(self, method: str, path: str, payload: Optional[dict] = None) -> bytes:
         conn = self.device.make_http_connection(port=8100)
@@ -56,29 +58,36 @@ class IOSDriver(BaseDriver):
         return self._request_json("GET", "/status")
     
     def screenshot(self, id: int = 0) -> Image.Image:
-        png_base64 = self._request_json_value("GET", "/screenshot")
-        png_data = base64.b64decode(png_base64)
-        return Image.open(io.BytesIO(png_data))
+        return self.wda.screenshot()
     
     def window_size(self):
-        return self._request_json_value("GET", "/window/size")
+        return self.wda.window_size()
     
     def dump_hierarchy(self) -> Tuple[str, Node]:
         """returns xml string and hierarchy object"""
-        xml_data = self._request_json_value("GET", "/source")
+        t = self.wda.sourcetree()
+        xml_data = t.value
         root = ElementTree.fromstring(xml_data)
         return xml_data, parse_xml_element(root, WindowSize(width=1, height=1))
     
     def tap(self, x: int, y: int):
-        self._request("POST", f"/wda/tap/0", {"x": x, "y": y})
+        self.wda.tap(x, y)
     
     def app_current(self) -> CurrentAppResponse:
-        # {'processArguments': {'env': {}, 'args': []}, 'name': '', 'pid': 32, 'bundleId': 'com.apple.springboard'}
-        value = self._request_json_value("GET", "/wda/activeAppInfo")
-        return CurrentAppResponse(package=value["bundleId"], pid=value["pid"])
+        info = self.wda.app_current()
+        return CurrentAppResponse(package=info.bundle_id, pid=info.pid)
 
     def home(self):
-        self._request("POST", "/wda/homescreen")
+        self.wda.homescreen()
+    
+    def app_switch(self):
+        raise NotImplementedError()
+
+    def volume_up(self):
+        self.wda.volume_up()
+    
+    def volume_down(self):
+        self.wda.volume_down()
         
 
 def parse_xml_element(element, wsize: WindowSize, indexes: List[int]=[0]) -> Node:
