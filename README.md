@@ -4,6 +4,8 @@
 
 https://uiauto.dev
 
+> backup site: https://uiauto.devsleep.com
+
 UI Inspector for Android and iOS, help inspector element properties, and auto generate XPath, script.
 
 # Install
