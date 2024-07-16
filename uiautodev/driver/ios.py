@@ -5,10 +5,7 @@
 """
 
 
-import base64
-import io
 import json
-import re
 from functools import partial
 from typing import List, Optional, Tuple
 from xml.etree import ElementTree

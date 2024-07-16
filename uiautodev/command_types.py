@@ -22,6 +22,7 @@ class Command(str, enum.Enum):
     APP_CURRENT = "currentApp"
     APP_LAUNCH = "appLaunch"
     APP_TERMINATE = "appTerminate"
+    APP_LIST = "appList"
 
     GET_WINDOW_SIZE = "getWindowSize"
     HOME = "home"

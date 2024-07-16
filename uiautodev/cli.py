@@ -140,7 +140,7 @@ def self_update():
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
 @click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
 def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
-    logger.info("version: %s", __version__)
+    print("uiautodev version:", __version__)
     if force:
         try:
             httpx.get(f"http://{host}:{port}/shutdown", timeout=3)
