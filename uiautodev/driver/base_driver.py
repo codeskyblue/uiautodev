@@ -4,14 +4,14 @@
 """Created on Fri Mar 01 2024 14:18:30 by codeskyblue
 """
 import abc
-import enum
-from typing import Tuple
+from io import FileIO
+from typing import Iterator, List, Tuple
 
 from PIL import Image
 from pydantic import BaseModel
 
 from uiautodev.command_types import CurrentAppResponse
-from uiautodev.model import Node, ShellResponse, WindowSize
+from uiautodev.model import Node, AppInfo, ShellResponse, WindowSize
 
 
 class BaseDriver(abc.ABC):
@@ -94,3 +94,12 @@ class BaseDriver(abc.ABC):
     def wake_up(self):
         """ wake up the device """
         raise NotImplementedError()
+    
+    def app_list(self) -> List[AppInfo]:
+        """ list installed packages """
+        raise NotImplementedError()
+    
+    def open_app_file(self, package: str) -> Iterator[bytes]:
+        """ open app file """
+        raise NotImplementedError()
+        

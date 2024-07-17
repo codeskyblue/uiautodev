@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import time
 import typing
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -17,7 +17,7 @@ from uiautodev.command_types import AppLaunchRequest, AppTerminateRequest, By, C
     WindowSizeResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.exceptions import ElementNotFoundError
-from uiautodev.model import Node
+from uiautodev.model import Node, AppInfo
 from uiautodev.utils.common import node_travel
 
 COMMANDS: Dict[Command, Callable] = {}
@@ -39,17 +39,21 @@ def get_command_params_type(command: Command) -> Optional[BaseModel]:
     return type_hints.get("params")
 
 
-def send_command(driver: BaseDriver, command: Command, params=None):
+def send_command(driver: BaseDriver, command: Union[str, Command], params=None):
     if command not in COMMANDS:
         raise NotImplementedError(f"command {command} not implemented")
     func = COMMANDS[command]
-    type_hints = typing.get_type_hints(func)
-    if type_hints.get("params"):
+    params_model = get_command_params_type(command)
+    if params_model:
         if params is None:
             raise ValueError(f"params is required for {command}")
-        if not isinstance(params, type_hints["params"]):
-            raise TypeError(f"params should be {type_hints['params']}")
-    if params is None:
+        if isinstance(params, dict):
+            params = params_model.model_validate(params)
+        elif isinstance(params, params_model):
+            pass
+        else:
+            raise TypeError(f"params should be {params_model}", params)
+    if not params:
         return func(driver)
     return func(driver, params)
 
@@ -177,3 +181,10 @@ def click_element(driver: BaseDriver, params: FindElementRequest):
     center_x = (node.bounds[0] + node.bounds[2]) / 2
     center_y = (node.bounds[1] + node.bounds[3]) / 2
     tap(driver, TapRequest(x=center_x, y=center_y, isPercent=True))
+
+
+@register(Command.APP_LIST)
+def app_list(driver: BaseDriver) -> List[AppInfo]:
+    # added in v0.5.0
+    return driver.app_list()
+

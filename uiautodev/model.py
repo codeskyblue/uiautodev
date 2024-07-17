@@ -43,3 +43,7 @@ class Node(BaseModel):
 class WindowSize(typing.NamedTuple):
     width: int
     height: int
+
+
+class AppInfo(BaseModel):
+    packageName: str

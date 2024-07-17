@@ -6,9 +6,10 @@
 
 import io
 import logging
-from typing import Any, List
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Response
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from uiautodev import command_proxy
@@ -102,14 +103,25 @@ def make_router(provider: BaseProvider) -> APIRouter:
         return command_proxy.app_current(driver)
 
     @router.post('/{serial}/command/{command}')
-    def _command_proxy_other(serial: str, command: Command, params: Any = None):
+    def _command_proxy_other(serial: str, command: Command, params: Dict[str, Any] = None):
         """Run a command on the device"""
         driver = provider.get_device_driver(serial)
-        func = command_proxy.COMMANDS[command]
-        if params is None:
-            response = func(driver)
-        else:
-            response = func(driver, params)
+        response = command_proxy.send_command(driver, command, params)
         return response
+    
+    @router.get('/{serial}/backupApp')
+    def _backup_app(serial: str, packageName: str):
+        """Backup app
+        
+        Added in 0.5.0
+        """
+        driver = provider.get_device_driver(serial)
+        file_name = f"{packageName}.apk"
+        headers = {
+            'Content-Disposition': f'attachment; filename="{file_name}"'
+        }
+        return StreamingResponse(driver.open_app_file(packageName), headers=headers)
+        
+
 
     return router

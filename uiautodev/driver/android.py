@@ -4,12 +4,11 @@
 """Created on Fri Mar 01 2024 14:19:29 by codeskyblue
 """
 
-import json
 import logging
 import re
 import time
 from functools import cached_property, partial
-from typing import List, Optional, Tuple
+from typing import Iterator, List, Optional, Tuple
 from xml.etree import ElementTree
 
 import adbutils
@@ -18,9 +17,8 @@ from PIL import Image
 
 from uiautodev.command_types import CurrentAppResponse
 from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.driver.udt.udt import UDT, UDTError
 from uiautodev.exceptions import AndroidDriverException, RequestError
-from uiautodev.model import Node, Rect, ShellResponse, WindowSize
+from uiautodev.model import Node, AppInfo, Rect, ShellResponse, WindowSize
 from uiautodev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)
@@ -29,28 +27,15 @@ class AndroidDriver(BaseDriver):
     def __init__(self, serial: str):
         super().__init__(serial)
         self.adb_device = adbutils.device(serial)
-        self._try_dump_list = [
-            self._get_u2_hierarchy,
-            self._get_udt_dump_hierarchy,
-            # self._get_appium_hierarchy,
-        ]
-    
-    @cached_property
-    def udt(self) -> UDT:    
-        return UDT(self.adb_device)
 
     @cached_property
     def ud(self) -> u2.Device:
         return u2.connect_usb(self.serial)
     
     def screenshot(self, id: int) -> Image.Image:
-        try:
-            return self.adb_device.screenshot() # display_id is not OK now
-        except adbutils.AdbError as e:
-            logger.warning("screenshot error: %s", str(e))
-            if id > 0:
-                raise AndroidDriverException("multi-display is not supported yet for uiautomator2")
-            return self.ud.screenshot()
+        if id > 0:
+            raise AndroidDriverException("multi-display is not supported yet for uiautomator2")
+        return self.ud.screenshot()
 
     def shell(self, command: str) -> ShellResponse:
         try:
@@ -82,38 +67,12 @@ class AndroidDriver(BaseDriver):
 
         uiautomator dump errors:
         - ERROR: could not get idle state.
-
         """
-        for dump_func in self._try_dump_list[:]:
-            try:
-                logger.debug(f"try to dump with %s", dump_func.__name__)
-                result = dump_func()
-                logger.debug("dump success")
-                self._try_dump_list.remove(dump_func)
-                self._try_dump_list.insert(0, dump_func)
-                return result
-            except Exception as e:
-                logger.exception("unexpected dump error: %s", e)
-        raise AndroidDriverException("Failed to dump hierarchy")
-    
-    def _get_u2_hierarchy(self) -> str:
-        d = u2.connect_usb(self.serial)
-        return d.dump_hierarchy()
-
-    def _get_appium_hierarchy(self) -> str:
-        c = self.adb_device.create_connection(adbutils.Network.TCP, 6790)
         try:
-            content = fetch_through_socket(c, "/wd/hub/session/0/source", timeout=10)
-            return json.loads(content)["value"]
-        except (adbutils.AdbError, RequestError) as e:
-            raise AndroidDriverException(
-                f"Failed to get hierarchy from appium server: {str(e)}"
-            )
-        finally:
-            c.close()
-
-    def _get_udt_dump_hierarchy(self) -> str:
-        return self.udt.dump_hierarchy()
+            return self.ud.dump_hierarchy()
+        except Exception as e:
+            logger.exception("unexpected dump error: %s", e)
+            raise AndroidDriverException("Failed to dump hierarchy")
     
     def tap(self, x: int, y: int):
         self.adb_device.click(x, y)
@@ -159,6 +118,22 @@ class AndroidDriver(BaseDriver):
     
     def volume_mute(self):
         self.adb_device.keyevent("VOLUME_MUTE")
+    
+    def app_list(self) -> List[AppInfo]:
+        results = []
+        output = self.adb_device.shell(["pm", "list", "packages", '-3'])
+        for m in re.finditer(r"^package:([^\s]+)\r?$", output, re.M):
+            packageName = m.group(1)
+            results.append(AppInfo(packageName=packageName))
+        return results
+
+    def open_app_file(self, package: str) -> Iterator[bytes]:
+        line = self.adb_device.shell(f"pm path {package}")
+        if not line.startswith("package:"):
+            raise AndroidDriverException(f"Failed to get package path: {line}")
+        remote_path = line.split(':', 1)[1]
+        yield from self.adb_device.sync.iter_content(remote_path)
+
 
 
 def parse_xml(xml_data: str, wsize: WindowSize, display_id: Optional[int] = None) -> Node:
