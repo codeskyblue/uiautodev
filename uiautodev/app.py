@@ -11,13 +11,15 @@ import signal
 from pathlib import Path
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
+import uvicorn
 
 from uiautodev import __version__
-from uiautodev.common import get_webpage_url
+from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
+from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, IOSProvider, MockProvider
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
@@ -58,7 +60,6 @@ class InfoResponse(BaseModel):
     cwd: str
     drivers: List[str]
 
-
 @app.get("/api/info")
 def info() -> InfoResponse:
     """Information about the application"""
@@ -71,6 +72,12 @@ def info() -> InfoResponse:
         drivers=["android", "ios"],
     )
 
+@app.post('/api/ocr_image')
+async def _ocr_image(file: UploadFile = File(...)) -> List[Node]:
+    """OCR an image"""
+    image_data = await file.read()
+    image = convert_bytes_to_image(image_data)
+    return ocr_image(image)
 
 @app.get("/shutdown")
 def shutdown() -> str:
@@ -93,3 +100,7 @@ def index_redirect():
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
+
+
+if __name__ == '__main__':
+    uvicorn.run("uiautodev.app:app", port=4000, reload=True, use_colors=True)

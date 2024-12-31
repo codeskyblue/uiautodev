@@ -5,8 +5,15 @@
 """
 
 
+import io
 import locale
+import logging
+from typing import List
+from PIL import Image
 
+from uiautodev.model import Node, OCRNode
+
+logger = logging.getLogger(__name__)
 
 def is_chinese_language() -> bool:
     language_code, _ = locale.getdefaultlocale()
@@ -23,3 +30,24 @@ def get_webpage_url() -> str:
     if is_chinese_language():
         web_url = "https://uiauto.devsleep.com"
     return web_url
+
+
+def convert_bytes_to_image(byte_data: bytes) -> Image.Image:
+    return Image.open(io.BytesIO(byte_data))
+
+
+def ocr_image(image: Image.Image) -> List[OCRNode]:
+    # Placeholder for OCR implementation
+    w, h = image.size
+    try:
+        from ocrmac import ocrmac
+    except ImportError:
+        logger.error("OCR is not supported on this platform")
+        return []
+    result = ocrmac.OCR(image).recognize()
+    nodes = []
+    for index, (text, confidence, pbounds) in enumerate(result):
+        print(f"OCR result: {text}, confidence: {confidence}, bounds: {pbounds}")
+        # bounds = int(pbounds[0]*w), int(pbounds[1]*h), int(pbounds[2]*w), int(pbounds[3]*h)
+        nodes.append(OCRNode(key=str(index), name=text, bounds=pbounds, confidence=confidence))
+    return nodes
