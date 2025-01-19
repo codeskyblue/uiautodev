@@ -28,7 +28,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
 
     @router.get("/list")
     def _list() -> List[DeviceInfo]:
-        """List of Android devices"""
+        """List devices"""
         try:
             return provider.list_devices()
         except NotImplementedError as e:

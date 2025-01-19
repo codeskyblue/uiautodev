@@ -61,8 +61,6 @@ def send_command(driver: BaseDriver, command: Union[str, Command], params=None):
 @register(Command.TAP)
 def tap(driver: BaseDriver, params: TapRequest):
     """Tap on the screen
-    :param x: x coordinate
-    :param y: y coordinate
     """
     x = params.x
     y = params.y
