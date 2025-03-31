@@ -21,7 +21,10 @@ class HarmonyUtils:
         command = "hdc list targets"
         result = run_command(command)
         if result and not "Empty" in result:
-            devices = result.split("\n")
+            devices = []
+            for line in result.strip().split("\n"):
+                if '\t' in line:
+                    devices.append(line.split('\t', 1)[0])
             return devices
         else:
             return []

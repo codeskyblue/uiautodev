@@ -51,7 +51,7 @@ if Environment.UIAUTODEV_MOCK:
 else:
     app.include_router(android_router, prefix="/api/android", tags=["android"])
     app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
-    app.include_router(mock_router, prefix="/api/harmony", tags=["harmony"])
+    app.include_router(harmony_router, prefix="/api/harmony", tags=["harmony"])
 
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 
