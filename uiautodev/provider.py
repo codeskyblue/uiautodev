@@ -13,6 +13,7 @@ import adbutils
 from uiautodev.driver.android import AndroidDriver
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.driver.ios import IOSDriver
+from uiautodev.driver.harmony import HarmonyUtils, HarmonyDriver
 from uiautodev.driver.mock import MockDriver
 from uiautodev.exceptions import UiautoException
 from uiautodev.model import DeviceInfo
@@ -27,7 +28,7 @@ class BaseProvider(abc.ABC):
     @abc.abstractmethod
     def get_device_driver(self, serial: str) -> BaseDriver:
         raise NotImplementedError()
-    
+
     def get_single_device_driver(self) -> BaseDriver:
         """ debug use """
         devs = self.list_devices()
@@ -66,7 +67,17 @@ class IOSProvider(BaseProvider):
     @lru_cache
     def get_device_driver(self, serial: str) -> BaseDriver:
         return IOSDriver(serial)
-    
+
+
+class HarmonyProvider(BaseProvider):
+    def list_devices(self) -> list[DeviceInfo]:
+        devices = HarmonyUtils.list_device()
+        return [DeviceInfo(serial=d, model=HarmonyUtils.get_model(d), name=HarmonyUtils.get_model(d)) for d in devices]
+
+    @lru_cache
+    def get_device_driver(self, serial: str) -> HarmonyDriver:
+        return HarmonyDriver(serial)
+
 
 class MockProvider(BaseProvider):
     def list_devices(self) -> list[DeviceInfo]:

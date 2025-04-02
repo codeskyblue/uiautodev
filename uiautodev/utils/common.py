@@ -5,6 +5,7 @@ import json as sysjson
 import platform
 import re
 import socket
+import subprocess
 import sys
 import typing
 import uuid
@@ -61,9 +62,10 @@ def print_json(buf, colored=None, default=default_json_encoder):
         print(colorful_json)
     else:
         print(formatted_json)
-    
+
 
 _T = TypeVar("_T")
+
 
 def convert_to_type(value: str, _type: _T) -> _T:
     """ usage example:
@@ -78,7 +80,7 @@ def convert_to_type(value: str, _type: _T) -> _T:
     if _type == re.Pattern:
         return re.compile(value)
     raise NotImplementedError(f"convert {value} to {_type}")
-    
+
 
 def convert_params_to_model(params: list[str], model: BaseModel) -> BaseModel:
     """ used in cli.py """
@@ -114,7 +116,7 @@ class SocketHTTPConnection(HTTPConnection):
     def __init__(self, conn: socket.socket, timeout: float):
         super().__init__("localhost", timeout=timeout)
         self.__conn = conn
-        
+
     def connect(self):
         self.sock = self.__conn
 
@@ -131,7 +133,8 @@ class MySocketHTTPConnection(SocketHTTPConnection):
         self.sock.settimeout(self.timeout)
 
 
-def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", json: Optional[dict] = None, timeout: float = 60) -> bytearray:
+def fetch_through_socket(sock: socket.socket, path: str, method: str = "GET", json: Optional[dict] = None,
+                         timeout: float = 60) -> bytearray:
     """ usage example:
     with socket.create_connection((host, port)) as s:
         request_through_socket(s, "GET", "/")
@@ -164,3 +167,25 @@ def node_travel(node: Node, dfs: bool = True):
         yield from node_travel(child, dfs)
     if dfs:
         yield node
+
+
+def run_command(command: str, timeout: int = 60) -> str:
+    """
+    run shell command
+    """
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            timeout=timeout,
+            text=True
+        )
+        output = result.stdout
+        if result.stderr:
+            output += "\n" + result.stderr
+        return output.strip()
+    except subprocess.TimeoutExpired as e:
+        return f"timeout {e}"
+    except Exception as e:
+        return f"run command error {e}"

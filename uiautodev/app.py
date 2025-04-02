@@ -20,7 +20,7 @@ import uvicorn
 from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
-from uiautodev.provider import AndroidProvider, IOSProvider, MockProvider
+from uiautodev.provider import AndroidProvider, IOSProvider, MockProvider, HarmonyProvider
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
@@ -39,6 +39,7 @@ app.add_middleware(
 
 android_router = make_router(AndroidProvider())
 ios_router = make_router(IOSProvider())
+harmony_router = make_router(HarmonyProvider())
 mock_router = make_router(MockProvider())
 
 app.include_router(mock_router, prefix="/api/mock", tags=["mock"])
@@ -46,9 +47,11 @@ app.include_router(mock_router, prefix="/api/mock", tags=["mock"])
 if Environment.UIAUTODEV_MOCK:
     app.include_router(mock_router, prefix="/api/android", tags=["mock"])
     app.include_router(mock_router, prefix="/api/ios", tags=["mock"])
+    app.include_router(mock_router, prefix="/api/harmony", tags=["mock"])
 else:
     app.include_router(android_router, prefix="/api/android", tags=["android"])
     app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
+    app.include_router(mock_router, prefix="/api/harmony", tags=["harmony"])
 
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 
@@ -61,6 +64,7 @@ class InfoResponse(BaseModel):
     cwd: str
     drivers: List[str]
 
+
 @app.get("/api/info")
 def info() -> InfoResponse:
     """Information about the application"""
@@ -70,8 +74,9 @@ def info() -> InfoResponse:
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
         cwd=os.getcwd(),
-        drivers=["android", "ios"],
+        drivers=["android", "ios", "harmony"],
     )
+
 
 @app.post('/api/ocr_image')
 async def _ocr_image(file: UploadFile = File(...)) -> List[Node]:
@@ -79,6 +84,7 @@ async def _ocr_image(file: UploadFile = File(...)) -> List[Node]:
     image_data = await file.read()
     image = convert_bytes_to_image(image_data)
     return ocr_image(image)
+
 
 @app.get("/shutdown")
 def shutdown() -> str:
