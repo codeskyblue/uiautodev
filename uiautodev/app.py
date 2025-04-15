@@ -94,7 +94,7 @@ def shutdown() -> str:
 
 
 @app.get("/demo")
-def demo() -> str:
+def demo():
     """Demo endpoint"""
     static_dir = Path(__file__).parent / "static"
     print(static_dir / "demo.html")

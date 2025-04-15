@@ -48,9 +48,7 @@ class HDCError(Exception):
 
 class HDC:
     def __init__(self):
-        self.hdc = shutil.which("hdc")
-        if not self.hdc:
-            raise HDCError("hdc not found")
+        self.hdc = 'hdc'
         self.tmpdir = tempfile.TemporaryDirectory()
     
     def __del__(self):
