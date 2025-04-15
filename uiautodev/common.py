@@ -9,6 +9,7 @@ import io
 import locale
 import logging
 from typing import List
+
 from PIL import Image
 
 from uiautodev.model import Node, OCRNode

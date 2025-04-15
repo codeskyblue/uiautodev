@@ -10,7 +10,7 @@ import sys
 import typing
 import uuid
 from http.client import HTTPConnection, HTTPResponse
-from typing import Optional, TypeVar, Union
+from typing import List, Optional, TypeVar, Union
 
 from pydantic import BaseModel
 from pygments import formatters, highlight, lexers
@@ -82,7 +82,7 @@ def convert_to_type(value: str, _type: _T) -> _T:
     raise NotImplementedError(f"convert {value} to {_type}")
 
 
-def convert_params_to_model(params: list[str], model: BaseModel) -> BaseModel:
+def convert_params_to_model(params: List[str], model: BaseModel) -> BaseModel:
     """ used in cli.py """
     assert len(params) > 0
     if len(params) == 1:
@@ -168,24 +168,3 @@ def node_travel(node: Node, dfs: bool = True):
     if dfs:
         yield node
 
-
-def run_command(command: str, timeout: int = 60) -> str:
-    """
-    run shell command
-    """
-    try:
-        result = subprocess.run(
-            command,
-            shell=True,
-            capture_output=True,
-            timeout=timeout,
-            text=True
-        )
-        output = result.stdout
-        if result.stderr:
-            output += "\n" + result.stderr
-        return output.strip()
-    except subprocess.TimeoutExpired as e:
-        return f"timeout {e}"
-    except Exception as e:
-        return f"run command error {e}"

@@ -1,124 +1,162 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
+import logging
 import os
+import re
+import shutil
+import subprocess
 import tempfile
 import time
-import re
-from typing import Tuple, List, Optional
+import uuid
+from pathlib import Path
+from typing import List, Optional, Tuple, Union, final
 
 from PIL import Image
 
 from uiautodev.command_types import CurrentAppResponse
-from uiautodev.utils.common import run_command
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.model import AppInfo, Node, Rect, ShellResponse, WindowSize
 
+logger = logging.getLogger(__name__)
 
-class HarmonyUtils:
-    @staticmethod
-    def list_device() -> List[str]:
-        command = "hdc list targets"
+StrOrPath = Union[str, Path]
+
+
+def run_command(command: str, timeout: int = 60) -> str:
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            timeout=timeout,
+            text=True,
+            input='' # this avoid stdout: "FreeChannelContinue handle->data is nullptr"
+        )
+        # the hdc shell stderr is (不仅没啥用，还没办法去掉)
+        # Remote PTY will not be allocated because stdin is not a terminal.
+        # Use multiple -t options to force remote PTY allocation.
+        output = result.stdout.strip()
+        return output
+    except subprocess.TimeoutExpired as e:
+        raise TimeoutError(f"{command:r} timeout {e}")
+
+
+class HDCError(Exception):
+    pass
+
+
+class HDC:
+    def __init__(self):
+        self.hdc = shutil.which("hdc")
+        if not self.hdc:
+            raise HDCError("hdc not found")
+        self.tmpdir = tempfile.TemporaryDirectory()
+    
+    def __del__(self):
+        self.tmpdir.cleanup()
+    
+    def list_device(self) -> List[str]:
+        command = f"{self.hdc} list targets"
         result = run_command(command)
         if result and not "Empty" in result:
             devices = []
             for line in result.strip().split("\n"):
                 if '\t' in line:
-                    devices.append(line.split('\t', 1)[0])
+                    serial, state = line.strip().split('\t', 1)
+                    if state == 'device':
+                        devices.append(serial)
+                    else:
+                        logger.warning(f"{serial} is {state}")
             return devices
         else:
             return []
+    
+    def shell(self, serial: str, command: str) -> str:
+        command = f"{self.hdc} -t {serial} shell \"{command}\""
+        result = run_command(command)
+        return result.strip()
+    
+    def get_model(self, serial: str) -> str:
+        return self.shell(serial, "param get const.product.model")
+    
+    def pull(self, serial: str, remote: StrOrPath, local: StrOrPath):
+        if isinstance(remote, Path):
+            remote = remote.as_posix()
+        command = f"{self.hdc} -t {serial} file recv {remote} {local}"
+        output = run_command(command)
+        if not os.path.exists(local):
+            raise HDCError(f"device file: {remote} not found", output)
+    
+    def push(self, serial: str, local: StrOrPath, remote: StrOrPath) -> str:
+        if isinstance(remote, Path):
+            remote = remote.as_posix()
+        command = f"{self.hdc} -t {serial} file send {local} {remote}"
+        return run_command(command)
+    
+    def screenshot(self, serial: str) -> Image.Image:
+        device_path = f'/data/local/tmp/screenshot-{int(time.time()*1000)}.png'
+        self.shell(serial, f"uitest screenCap -p {device_path}")
+        try:
+            local_path = os.path.join(self.tmpdir.name, f"{uuid.uuid4()}.png")
+            self.pull(serial, device_path, local_path)
+            with Image.open(local_path) as image:
+                image.load()
+                return image
+        finally:
+            self.shell(serial, f"rm {device_path}")
 
-    @staticmethod
-    def shell(device_sn: str, command: str) -> str:
-        shell_command = f"hdc -t {device_sn} shell {command}"
-        return run_command(shell_command)
-
-    @staticmethod
-    def get_model(device_sn: str) -> str:
-        return HarmonyUtils.shell(device_sn, "param get const.product.model")
-
-    @staticmethod
-    def screenshot(device_sn: str) -> str:
-        name = "{}.jpeg".format(int(time.time() * 1000))
-        remote_path = "/data/local/tmp/{}".format(name)
-        HarmonyUtils.shell(device_sn, "snapshot_display -f {}".format(remote_path))
-        temp_path = os.path.join(tempfile.gettempdir(), name)
-        HarmonyUtils.pull(device_sn, remote_path, temp_path)
-        if os.path.exists(temp_path):
-            HarmonyUtils.shell(device_sn, "rm {}".format(remote_path))
-            return temp_path
-        else:
-            return None
-
-    @staticmethod
-    def dump_layout(device_sn: str) -> str:
+    def dump_layout(self, serial: str) -> dict:
         name = "{}.json".format(int(time.time() * 1000))
-        remote_path = "/data/local/tmp/{}".format(name)
-        HarmonyUtils.shell(device_sn, "uitest dumpLayout -p {}".format(remote_path))
-        temp_path = os.path.join(tempfile.gettempdir(), name)
-        HarmonyUtils.pull(device_sn, remote_path, temp_path)
-        if os.path.exists(temp_path):
-            HarmonyUtils.shell(device_sn, "rm {}".format(remote_path))
-            return temp_path
-        else:
-            return None
-
-    @staticmethod
-    def pull(device_sn: str, remote: str, local: str) -> str:
-        command = f"hdc -t {device_sn} file recv {remote} {local}"
-        return run_command(command)
-
-    @staticmethod
-    def push(device_sn: str, local: str, remote: str) -> str:
-        command = f"hdc -t {device_sn} file send {local} {remote}"
-        return run_command(command)
-
+        remote_path = f"/data/local/tmp/layout-{name}.json"
+        temp_path = os.path.join(self.tmpdir.name, f"layout-{name}.json")
+        output = self.shell(serial, f"uitest dumpLayout -p {remote_path}")
+        self.pull(serial, remote_path, temp_path)
+        # mock
+        # temp_path = Path(__file__).parent / 'testdata/layout.json'
+        try:
+            with open(temp_path, "rb") as f:
+                json_content = json.load(f)
+            return json_content
+        except json.JSONDecodeError:
+            raise HDCError(f"failed to dump layout: {output}")
+        finally:
+            self.shell(serial, f"rm {remote_path}")
+    
 
 class HarmonyDriver(BaseDriver):
-    def __init__(self, serial: str):
+    def __init__(self, hdc: HDC, serial: str):
         super().__init__(serial)
+        self.hdc = hdc
 
     def screenshot(self, id: int = 0) -> Image.Image:
-        path = HarmonyUtils.screenshot(self.serial)
-        if path:
-            try:
-                image = Image.open(path)
-                image.load()
-                os.remove(path)
-                return image
-            except Exception as e:
-                raise RuntimeError(f"can not load image or cannot delete {e}")
-        else:
-            raise FileNotFoundError("screenshot failed!")
+        return self.hdc.screenshot(self.serial)
 
-    def window_size(self) -> Tuple[int, int]:
-        result = HarmonyUtils.shell(self.serial, "hidumper -s 10 -a screen")
+    def window_size(self) -> WindowSize:
+        result = self.hdc.shell(self.serial, "hidumper -s 10 -a screen")
         pattern = r"activeMode:\s*(\d+x\d+)"
         match = re.search(pattern, result)
         if match:
             resolution = match.group(1).split("x")
-            return int(resolution[0]), int(resolution[1])
+            return WindowSize(width=int(resolution[0]), height=int(resolution[1]))
         else:
             image = self.screenshot()
-            return image.size
+            return WindowSize(width=image.width, height=image.height)
 
     def dump_hierarchy(self) -> Tuple[str, Node]:
         """returns xml string and hierarchy object"""
-        layout = HarmonyUtils.dump_layout(self.serial)
-        with open(layout, "r", encoding="utf-8") as f:
-            json_content = json.load(f)
-        return json.dumps(json_content), parse_json_element(json_content, WindowSize(width=1, height=1))
+        layout = self.hdc.dump_layout(self.serial)
+        return json.dumps(layout), parse_json_element(layout)
 
     def tap(self, x: int, y: int):
-        HarmonyUtils.shell(self.serial, "uinput -T -c {} {}".format(x, y))
+        self.hdc.shell(self.serial, f"uinput -T -c {x} {y}")
 
-    def app_current(self) -> CurrentAppResponse:
-        echo = HarmonyUtils.shell(self.serial, "hidumper -s WindowManagerService -a '-a'")
+    def app_current(self) -> Optional[CurrentAppResponse]:
+        echo = self.hdc.shell(self.serial, "hidumper -s WindowManagerService -a '-a'")
         focus_window = re.search(r"Focus window: (\d+)", echo)
         if focus_window:
             focus_window = focus_window.group(1)
-        mission_echo = HarmonyUtils.shell(self.serial, "aa dump -a")
+        mission_echo = self.hdc.shell(self.serial, "aa dump -a")
         pkg_names = re.findall(r"Mission ID #(\d+)\s+mission name #\[(.*?)\]", mission_echo)
         if focus_window and pkg_names:
             for mission in pkg_names:
@@ -127,36 +165,36 @@ class HarmonyDriver(BaseDriver):
                     mission_name = mission[1]
                     pkg_name = mission_name.split(":")[0].replace("#", "")
                     ability_name = mission_name.split(":")[-1]
-                    pid = HarmonyUtils.shell(self.serial, "pidof {}".format(pkg_name)).strip()
-                    return CurrentAppResponse(package=pkg_name, activity=ability_name, pid=pid)
+                    pid = self.hdc.shell(self.serial, f"pidof {pkg_name}").strip()
+                    return CurrentAppResponse(package=pkg_name, activity=ability_name, pid=int(pid))
         else:
             return None
 
     def shell(self, command: str) -> ShellResponse:
-        result = HarmonyUtils.shell(self.serial, command)
+        result = self.hdc.shell(self.serial, command)
         return ShellResponse(output=result)
 
     def home(self):
-        HarmonyUtils.shell(self.serial, "uinput -K -d 1 -u 1")
+        self.hdc.shell(self.serial, "uinput -K -d 1 -u 1")
 
     def back(self):
-        HarmonyUtils.shell(self.serial, "uinput -K -d 2 -u 2")
+        self.hdc.shell(self.serial, "uinput -K -d 2 -u 2")
 
     def volume_up(self):
-        HarmonyUtils.shell(self.serial, "uinput -K -d 16 -u 16")
+        self.hdc.shell(self.serial, "uinput -K -d 16 -u 16")
 
     def volume_down(self):
-        HarmonyUtils.shell(self.serial, "uinput -K -d 17 -u 17")
+        self.hdc.shell(self.serial, "uinput -K -d 17 -u 17")
 
     def volume_mute(self):
-        HarmonyUtils.shell(self.serial, "uinput -K -d 22 -u 22")
+        self.hdc.shell(self.serial, "uinput -K -d 22 -u 22")
 
     def app_switch(self):
-        HarmonyUtils.shell(self.serial, "uinput -K -d 2076 -d 2049 -u 2076 -u 2049")
+        self.hdc.shell(self.serial, "uinput -K -d 2076 -d 2049 -u 2076 -u 2049")
 
     def app_list(self) -> List[AppInfo]:
         results = []
-        output = HarmonyUtils.shell(self.serial, "bm dump -a")
+        output = self.hdc.shell(self.serial, "bm dump -a")
         for i in output.split("\n"):
             if "ID" in i:
                 continue
@@ -165,7 +203,7 @@ class HarmonyDriver(BaseDriver):
         return results
 
 
-def parse_json_element(element, wsize: WindowSize, indexes: List[int] = [0]) -> Optional[Node]:
+def parse_json_element(element, indexes: List[int] = [0]) -> Node:
     """
     Recursively parse an json element into a dictionary format.
     """
@@ -175,23 +213,17 @@ def parse_json_element(element, wsize: WindowSize, indexes: List[int] = [0]) -> 
     bounds = list(map(int, re.findall(r"\d+", bounds)))
     assert len(bounds) == 4
     rect = Rect(x=bounds[0], y=bounds[1], width=bounds[2] - bounds[0], height=bounds[3] - bounds[1])
-    bounds = (
-        bounds[0] / wsize.width,
-        bounds[1] / wsize.height,
-        bounds[2] / wsize.width,
-        bounds[3] / wsize.height,
-    )
     elem = Node(
         key="-".join(map(str, indexes)),
         name=name,
-        bounds=bounds,
+        bounds=None,
         rect=rect,
         properties={key: attributes[key] for key in attributes},
         children=[],
     )
     # Construct xpath for children
     for index, child in enumerate(element.get("children", [])):
-        child_node = parse_json_element(child, wsize, indexes + [index])
+        child_node = parse_json_element(child, indexes + [index])
         if child_node:
             elem.children.append(child_node)
 

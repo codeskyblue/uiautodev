@@ -11,16 +11,16 @@ import signal
 from pathlib import Path
 from typing import List
 
+import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
-import uvicorn
 
 from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
-from uiautodev.provider import AndroidProvider, IOSProvider, MockProvider, HarmonyProvider
+from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
