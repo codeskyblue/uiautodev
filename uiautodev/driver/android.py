@@ -18,7 +18,7 @@ from PIL import Image
 from uiautodev.command_types import CurrentAppResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.exceptions import AndroidDriverException, RequestError
-from uiautodev.model import Node, AppInfo, Rect, ShellResponse, WindowSize
+from uiautodev.model import AppInfo, Node, Rect, ShellResponse, WindowSize
 from uiautodev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)

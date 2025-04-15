@@ -17,7 +17,7 @@ from uiautodev.command_types import AppLaunchRequest, AppTerminateRequest, By, C
     WindowSizeResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.exceptions import ElementNotFoundError
-from uiautodev.model import Node, AppInfo
+from uiautodev.model import AppInfo, Node
 from uiautodev.utils.common import node_travel
 
 COMMANDS: Dict[Command, Callable] = {}

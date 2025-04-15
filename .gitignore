@@ -161,3 +161,4 @@ cython_debug/
 
 poetry.lock
 window_dump.xml
+.DS_Store
