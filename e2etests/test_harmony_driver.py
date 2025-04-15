@@ -5,7 +5,7 @@
 import pytest
 
 from uiautodev.driver.harmony import HDC
-
+from uiautodev.driver.harmony import HarmonyDriver
 
 @pytest.fixture
 def hdc() -> HDC:
@@ -40,9 +40,6 @@ def test_dump_layout(hdc: HDC, serial: str):
     layout = hdc.dump_layout(serial)
     assert layout is not None
     assert isinstance(layout, dict)
-
-
-from uiautodev.driver.harmony import HarmonyDriver
 
 
 @pytest.fixture
