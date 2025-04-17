@@ -60,12 +60,8 @@ class HDC:
         if result and not "Empty" in result:
             devices = []
             for line in result.strip().split("\n"):
-                if '\t' in line:
-                    serial, state = line.strip().split('\t', 1)
-                    if state == 'device':
-                        devices.append(serial)
-                    else:
-                        logger.warning(f"{serial} is {state}")
+                serial = line.strip().split('\t', 1)[0]
+                devices.append(serial)
             return devices
         else:
             return []
