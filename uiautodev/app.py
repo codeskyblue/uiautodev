@@ -130,7 +130,7 @@ async def unified_ws(websocket: WebSocket, subpath: str):
     """
     匹配以下WS流，如果有证书，后续ng可以配置后，将ws升级为wss
     视频流（h264流前端展示）：ws://0.0.0.0:4000/android/scrcpy/screen/<serial>
-    视频流 (touch操控事件下发):ws://0.0.0.0:4000/android/scrcpy/control/<serial>
+    控制流 (touch操控事件下发):ws://0.0.0.0:4000/android/scrcpy/control/<serial>
     todo: 视频流目前前端还是使用截图来获取展示，待优化接入该WS视频流
     """
     await websocket.accept()

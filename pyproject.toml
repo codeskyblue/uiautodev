@@ -10,7 +10,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 pillow = "*"
-adbutils = "^2.7.0"
+adbutils = ">=2.7.0,<=2.8.0"
 construct = "*"
 lxml = "*"
 click = "^8.1.7"
