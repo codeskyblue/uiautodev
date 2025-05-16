@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
@@ -24,6 +24,12 @@ from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, Mo
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
+from uiautodev.remote.scrcpy import ScrcpyServer
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# 设置日志格式
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +113,51 @@ def index_redirect():
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
+
+
+def get_scrcpy_server(serial: str) -> ScrcpyServer:
+    # 每次都创建新的 ScrcpyServer 实例
+    server = ScrcpyServer()
+    server.start_scrcpy_server(serial)
+    server.controller, server.video_socket, server.device, server.resolution_width, server.resolution_height = (
+        server.setup_connection(serial)
+    )
+    return server
+
+
+@app.websocket("/android/scrcpy/{subpath:path}")
+async def unified_ws(websocket: WebSocket, subpath: str):
+    """
+    匹配以下WS流，如果有证书，后续ng可以配置后，将ws升级为wss
+    视频流（h264流前端展示）：ws://0.0.0.0:4000/android/scrcpy/screen/<serial>
+    视频流 (touch操控事件下发):ws://0.0.0.0:4000/android/scrcpy/control/<serial>
+    todo: 视频流目前前端还是使用截图来获取展示，待优化接入该WS视频流
+    """
+    await websocket.accept()
+    try:
+        logger.info(f"WebSocket path: {subpath}")
+        # 拆分 subpath，预期格式为 "{type}/{serial}"
+        parts = subpath.strip("/").split("/")
+        logger.info(f"parts: {parts}")
+        if len(parts) != 2:
+            await websocket.close(code=1008)
+            logger.error(f"Invalid WebSocket path: {subpath}")
+            return
+
+        path_type, serial = parts
+        server = get_scrcpy_server(serial)
+
+        if path_type == "screen":
+            await server.handle_video_websocket(websocket, serial)
+        elif path_type == "control":
+            await server.handle_control_websocket(websocket, serial)
+        else:
+            await websocket.close(code=1008)
+            logger.error(f"Unknown WebSocket type: {path_type}")
+    except Exception as e:
+        logger.error(f"WebSocket error for {subpath}: {e}")
+    finally:
+        logger.info(f"WebSocket closed for {subpath}")
 
 
 if __name__ == '__main__':
