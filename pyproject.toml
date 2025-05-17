@@ -7,6 +7,10 @@ authors = ["codeskyblue <codeskyblue@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
+include = [
+    { path = "uiautodev/binaries/scrcpy.jar", format = "wheel" }
+]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 pillow = "*"

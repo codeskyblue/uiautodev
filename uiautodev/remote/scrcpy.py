@@ -41,7 +41,7 @@ class ScrcpyServer:
         Args:
             scrcpy_jar_path (str, optional): Path to the scrcpy server JAR file. Defaults to None.
         """
-        self.scrcpy_jar_path = scrcpy_jar_path or os.path.join(os.path.dirname(__file__), 'scrcpy_server.jar')
+        self.scrcpy_jar_path = scrcpy_jar_path or os.path.join(os.path.dirname(__file__), '../binaries/scrcpy_server.jar')
         self.need_run_scrcpy = True
         self.controller = None
         self.video_socket = None
