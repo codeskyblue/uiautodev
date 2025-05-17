@@ -21,15 +21,10 @@ from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
+from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
-from uiautodev.remote.scrcpy import ScrcpyServer
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# 设置日志格式
-log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 logger = logging.getLogger(__name__)
 
