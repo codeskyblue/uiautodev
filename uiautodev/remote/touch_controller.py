@@ -1,5 +1,5 @@
-import struct
 import socket
+import struct
 
 
 class ScrcpyTouchController:

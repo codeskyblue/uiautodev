@@ -5,9 +5,9 @@ import os
 import struct
 import subprocess
 import time
-from starlette.websockets import WebSocketDisconnect
 
-from adbutils import adb, AdbError, Network
+from adbutils import AdbError, Network, adb
+from starlette.websockets import WebSocketDisconnect
 
 from uiautodev.remote.touch_controller import ScrcpyTouchController
 
@@ -46,8 +46,10 @@ class ScrcpyServer:
         self.controller = None
         self.video_socket = None
         self.device = None
-        self.resolution_width = 0
-        self.resolution_height = 0
+        self.resolution_width = 0  # scrcpy 投屏转换宽度
+        self.resolution_height = 0  # scrcpy 投屏转换高度
+        self.device_width = 0  # 设备真实宽度
+        self.device_height = 0  # 设备真实高度
 
     def start_scrcpy_server(self, serial: str, control: bool = True):
         """
@@ -123,8 +125,7 @@ class ScrcpyServer:
         finally:
             logging.info('enter finally ...')
 
-    @staticmethod
-    def setup_connection(serial: str, control: bool = True):
+    def setup_connection(self, serial: str, control: bool = True):
         """
         Sets up the connection to the scrcpy server, including video and control sockets.
 
@@ -136,6 +137,14 @@ class ScrcpyServer:
             tuple: Contains the touch controller, video socket, device object, screen width, and screen height.
         """
         device = adb.device(serial=serial)
+        # 获取设备真实长宽
+        output = device.shell("wm size")
+        if "Physical size" in output:
+            size_str = output.strip().split(":")[1].strip()
+            self.device_width, self.device_height = map(int, size_str.split("x"))
+        else:
+            raise RuntimeError("Failed to get device resolution")
+
         video_socket = None
         for _ in range(100):
             try:
@@ -257,6 +266,8 @@ class ScrcpyServer:
                             'sizeInfo': {
                                 'width': self.resolution_width,
                                 'height': self.resolution_height,
+                                'device_width': self.device_width,
+                                'device_height': self.device_height,
                                 'rotation': 0,
                             }
                         })

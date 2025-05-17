@@ -8,6 +8,7 @@ import logging
 import os
 import platform
 import signal
+import subprocess
 from pathlib import Path
 from typing import List
 
@@ -110,7 +111,23 @@ def index_redirect():
     return RedirectResponse(url)
 
 
+def is_scrcpy_running(serial: str) -> bool:
+    try:
+        result = subprocess.check_output(
+            ['adb', '-s', serial, 'shell', 'ps'],
+            stderr=subprocess.DEVNULL
+        ).decode()
+        return 'com.genymobile.scrcpy.Server' in result
+    except Exception as e:
+        logger.warning(f"Failed to check scrcpy server process: {e}")
+        return False
+
+
 def get_scrcpy_server(serial: str) -> ScrcpyServer:
+    if is_scrcpy_running(serial):
+        logger.info(f"scrcpy server already running on {serial}, skipping start")
+        return
+    logger.info(f"scrcpy server not running, starting on {serial}")
     # 每次都创建新的 ScrcpyServer 实例
     server = ScrcpyServer()
     server.start_scrcpy_server(serial)
@@ -118,7 +135,6 @@ def get_scrcpy_server(serial: str) -> ScrcpyServer:
         server.setup_connection(serial)
     )
     return server
-
 
 @app.websocket("/android/scrcpy/{subpath:path}")
 async def unified_ws(websocket: WebSocket, subpath: str):
@@ -151,6 +167,7 @@ async def unified_ws(websocket: WebSocket, subpath: str):
             logger.error(f"Unknown WebSocket type: {path_type}")
     except Exception as e:
         logger.error(f"WebSocket error for {subpath}: {e}")
+
     finally:
         logger.info(f"WebSocket closed for {subpath}")
 
