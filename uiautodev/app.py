@@ -8,7 +8,6 @@ import logging
 import os
 import platform
 import signal
-import subprocess
 from pathlib import Path
 from typing import List
 
@@ -110,34 +109,8 @@ def index_redirect():
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
 
-
-def is_scrcpy_running(serial: str) -> bool:
-    try:
-        result = subprocess.check_output(
-            ['adb', '-s', serial, 'shell', 'ps'],
-            stderr=subprocess.DEVNULL
-        ).decode()
-        return 'com.genymobile.scrcpy.Server' in result
-    except Exception as e:
-        logger.warning(f"Failed to check scrcpy server process: {e}")
-        return False
-
-
-def get_scrcpy_server(serial: str) -> ScrcpyServer:
-    if is_scrcpy_running(serial):
-        logger.info(f"scrcpy server already running on {serial}, skipping start")
-        return
-    logger.info(f"scrcpy server not running, starting on {serial}")
-    # 每次都创建新的 ScrcpyServer 实例
-    server = ScrcpyServer()
-    server.start_scrcpy_server(serial)
-    server.controller, server.video_socket, server.device, server.resolution_width, server.resolution_height = (
-        server.setup_connection(serial)
-    )
-    return server
-
-@app.websocket("/android/scrcpy/{subpath:path}")
-async def unified_ws(websocket: WebSocket, subpath: str):
+@app.websocket("/android/scrcpy/{path_type}/{serial}")
+async def unified_ws(websocket: WebSocket, path_type: str, serial: str):
     """
     匹配以下WS流，如果有证书，后续ng可以配置后，将ws升级为wss
     视频流（h264流前端展示）：ws://0.0.0.0:4000/android/scrcpy/screen/<serial>
@@ -146,18 +119,14 @@ async def unified_ws(websocket: WebSocket, subpath: str):
     """
     await websocket.accept()
     try:
-        logger.info(f"WebSocket path: {subpath}")
-        # 拆分 subpath，预期格式为 "{type}/{serial}"
-        parts = subpath.strip("/").split("/")
-        logger.info(f"parts: {parts}")
-        if len(parts) != 2:
-            await websocket.close(code=1008)
-            logger.error(f"Invalid WebSocket path: {subpath}")
-            return
+        logger.info(f"WebSocket path_type: {path_type}, serial: {serial}")
 
-        path_type, serial = parts
-        server = get_scrcpy_server(serial)
+        # 获取 ScrcpyServer 实例
+        server = ScrcpyServer()
+        server.start_scrcpy_server(serial)
+        server.setup_connection(serial)
 
+        # 根据 path_type 处理不同的 WebSocket 类型
         if path_type == "screen":
             await server.handle_video_websocket(websocket, serial)
         elif path_type == "control":
@@ -166,10 +135,9 @@ async def unified_ws(websocket: WebSocket, subpath: str):
             await websocket.close(code=1008)
             logger.error(f"Unknown WebSocket type: {path_type}")
     except Exception as e:
-        logger.error(f"WebSocket error for {subpath}: {e}")
-
+        logger.error(f"WebSocket error for path_type={path_type}, serial={serial}: {e}")
     finally:
-        logger.info(f"WebSocket closed for {subpath}")
+        logger.info(f"WebSocket closed for path_type={path_type}, serial={serial}")
 
 
 if __name__ == '__main__':

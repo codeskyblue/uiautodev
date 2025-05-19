@@ -3,19 +3,13 @@ import json
 import logging
 import os
 import struct
-import subprocess
+import threading
 import time
 
 from adbutils import AdbError, Network, adb
 from starlette.websockets import WebSocketDisconnect
 
 from uiautodev.remote.touch_controller import ScrcpyTouchController
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-)
-logging.getLogger().setLevel(logging.INFO)
 
 
 class ScrcpyServer:
@@ -51,6 +45,30 @@ class ScrcpyServer:
         self.device_width = 0  # 设备真实宽度
         self.device_height = 0  # 设备真实高度
 
+    @staticmethod
+    def is_scrcpy_running(serial: str) -> bool:
+        """
+        检查 scrcpy 服务器是否正在运行。
+
+        Args:
+            serial (str): Android 设备的序列号。
+
+        Returns:
+            bool: 如果 scrcpy 服务器正在运行，返回 True；否则返回 False。
+        """
+        try:
+            # 使用 adbutils 获取设备
+            device = adb.device(serial=serial)
+
+            # 执行 shell 命令
+            result = device.shell("ps")
+
+            # 检查 scrcpy 服务是否存在
+            return 'com.genymobile.scrcpy.Server' in result
+        except Exception as e:
+            logging.warning(f"Failed to check scrcpy server process: {e}")
+            return False
+
     def start_scrcpy_server(self, serial: str, control: bool = True):
         """
         Pushes the scrcpy server JAR file to the Android device and starts the scrcpy server.
@@ -60,35 +78,43 @@ class ScrcpyServer:
             control (bool, optional): Whether to enable touch control. Defaults to True.
 
         Returns:
-            subprocess.Popen: Process object representing the scrcpy server.
+            threading.Thread: Thread object representing the scrcpy server execution.
         """
         logging.info(f'start_scrcpy_server: {serial}')
-        # 推送scrcpy服务器到设备
-        subprocess.run(['adb', '-s', serial, 'push', self.scrcpy_jar_path, '/data/local/tmp/scrcpy_server.jar'])
 
-        # 启动scrcpy服务器
-        start_command = [
-            'adb', '-s', serial, 'shell', 'CLASSPATH=/data/local/tmp/scrcpy_server.jar',
-            'app_process', '/',  # 用于启动 Android 应用程序的工具
-            'com.genymobile.scrcpy.Server',  # scrcpy 服务器的入口点，负责处理和管理 scrcpy 的所有功能
-            '2.7',  # 当前采用的2.7版本，经测试稳定，兼容安卓15系统
-            'log_level=info',
-            'max_size=1024',  # 0 表示不限制分辨率，保持原始设备分辨率,这里需要设置最大1024,因为某些oppo手机无法使用1920去解码
-            'max_fps=30',  # 15 表示最大帧率为 15 帧每秒。可以调整以减少带宽消耗或提高性能
-            'video_bit_rate=8000000',  # 视频的比特率, 默认 8000000 即 8 Mbps 1000000000 1Gbps
-            'tunnel_forward=true',  # 启用或禁用 adb 的隧道转发
-            'send_frame_meta=false',  # 是否发送每帧的元数据。元数据包括帧的时间戳、序列号等信息，通常用于同步
-            'control=true' if control else 'control=false',
-            'audio=false',
-            'show_touches=false',  # 是否显示触摸操作的指示器
-            'stay_awake=false',  # 是否保持设备唤醒状态
-            'power_off_on_close=false',  # 是否在关闭 scrcpy 时关闭设备屏幕
-            'clipboard_autosync=false'  # 是否自动同步剪贴板
-        ]
+        # 检查 scrcpy 是否已经运行
+        if self.is_scrcpy_running(serial):
+            logging.info(f"scrcpy server already running on {serial}, skipping start")
+            return
 
-        process = subprocess.Popen(start_command)
-        logging.info('scrcpy server started')
-        return process
+        # 获取设备对象
+        device = adb.device(serial=serial)
+
+        # 推送 scrcpy 服务器到设备
+        device.push(self.scrcpy_jar_path, '/data/local/tmp/scrcpy_server.jar')
+        logging.info('scrcpy server JAR pushed to device')
+
+        # 构建启动 scrcpy 服务器的命令
+        start_command = (
+            'CLASSPATH=/data/local/tmp/scrcpy_server.jar '
+            'app_process / '
+            'com.genymobile.scrcpy.Server 2.7 '
+            'log_level=info max_size=1024 max_fps=30 '
+            'video_bit_rate=8000000 tunnel_forward=true '
+            'send_frame_meta=false '
+            f'control={"true" if control else "false"} '
+            'audio=false show_touches=false stay_awake=false '
+            'power_off_on_close=false clipboard_autosync=false'
+        )
+
+        # 定义一个线程来执行命令
+        def run_scrcpy():
+            device.shell(start_command)
+            logging.info('scrcpy server started')
+
+        thread = threading.Thread(target=run_scrcpy)
+        thread.start()
+        return thread
 
     async def read_video_stream(self, video_socket, websocket):
         """
@@ -138,58 +164,56 @@ class ScrcpyServer:
         """
         device = adb.device(serial=serial)
         # 获取设备真实长宽
-        output = device.shell("wm size")
-        if "Physical size" in output:
-            size_str = output.strip().split(":")[1].strip()
-            self.device_width, self.device_height = map(int, size_str.split("x"))
-        else:
-            raise RuntimeError("Failed to get device resolution")
+        try:
+            self.device_width, self.device_height = device.window_size()
+            logging.info(f"Device resolution: {self.device_width}x{self.device_height}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to get device resolution: {e}")
 
-        video_socket = None
+        self.video_socket = None
         for _ in range(100):
             try:
-                video_socket = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
-                logging.info(f'video_socket = {video_socket}')
+                self.video_socket = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
+                logging.info(f'video_socket = {self.video_socket}')
                 break
             except AdbError:
                 time.sleep(0.1)
 
-        dummy_byte = video_socket.recv(1)
+        dummy_byte = self.video_socket.recv(1)
         if not dummy_byte or dummy_byte != b"\x00":
             raise ConnectionError("Did not receive Dummy Byte!")
         logging.info('Received Dummy Byte!')
 
         if not control:
-            return video_socket
+            return
         else:
-            control_socket = None
+            self.controller = None
             for _ in range(100):
                 try:
-                    control_socket = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
-                    logging.info(f'control_socket = {control_socket}')
+                    self.controller = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
+                    logging.info(f'control_socket = {self.controller}')
                     break
                 except AdbError:
                     time.sleep(0.1)
             # Protocol docking reference: https://github.com/Genymobile/scrcpy/blob/master/doc/develop.md
-            device_name = video_socket.recv(64).decode('utf-8').rstrip('\x00')
+            device_name = self.video_socket.recv(64).decode('utf-8').rstrip('\x00')
             logging.info(f'Device name: {device_name}')
 
-            codec = video_socket.recv(4)
+            codec = self.video_socket.recv(4)
             logging.info(f'resolution_data: {codec}')
 
-            resolution_data = video_socket.recv(8)
+            resolution_data = self.video_socket.recv(8)
             logging.info(f'resolution_data: {resolution_data}')
 
-            screen_width, screen_height = struct.unpack(">II", resolution_data)
-            logging.info(f'Resolution: {screen_width}x{screen_height}')
+            self.resolution_width, self.resolution_height = struct.unpack(">II", resolution_data)
+            logging.info(f'Resolution: {self.resolution_width}x{self.resolution_height}')
 
             format_string = '>BBqiiHHHii'
             const_value = 65535
             unknown1 = 1
             unknown2 = 1
 
-            touch_controller = ScrcpyTouchController(control_socket, format_string, const_value, unknown1, unknown2)
-            return touch_controller, video_socket, device, screen_width, screen_height
+            self.controller = ScrcpyTouchController(self.controller, format_string, const_value, unknown1, unknown2)
 
     async def handle_control_websocket(self, websocket, serial):
         """
