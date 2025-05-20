@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
 def cli(verbose: bool):
@@ -42,7 +43,7 @@ def cli(verbose: bool):
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.DEBUG)
-        
+
         formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
         console_handler.setFormatter(formatter)
 
@@ -50,9 +51,9 @@ def cli(verbose: bool):
 
         # set all children logger to DEBUG
         for k in root_logger.manager.loggerDict.keys():
-            if k.startswith(root_logger.name+"."):
+            if k.startswith(root_logger.name + "."):
                 logging.getLogger(k).setLevel(logging.DEBUG)
-        
+
         logger.debug("Verbose mode enabled")
 
 
@@ -113,7 +114,7 @@ def case():
 def appium(command: Command, params: list[str] = None):
     from uiautodev.driver.appium import AppiumProvider
     from uiautodev.exceptions import AppiumDriverException
-    
+
     provider = AppiumProvider()
     try:
         run_driver_command(provider, command, params)
@@ -150,7 +151,7 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
     use_color = True
     if platform.system() == 'Windows':
         use_color = False
-    
+
     if not no_browser:
         th = threading.Thread(target=open_browser_when_server_start, args=(f"http://{host}:{port}",))
         th.daemon = True
@@ -170,6 +171,7 @@ def open_browser_when_server_start(server_url: str):
     web_url = get_webpage_url()
     logger.info("open browser: %s", web_url)
     webbrowser.open(web_url)
+
 
 def main():
     # set logger level to INFO

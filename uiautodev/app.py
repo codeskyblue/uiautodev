@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
@@ -21,6 +21,7 @@ from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
+from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
@@ -107,6 +108,37 @@ def index_redirect():
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
+
+
+@app.websocket("/android/scrcpy/{path_type}/{serial}")
+async def unified_ws(websocket: WebSocket, path_type: str, serial: str):
+    """
+    匹配以下WS流，如果有证书，后续ng可以配置后，将ws升级为wss
+    视频流（h264流前端展示）：ws://0.0.0.0:4000/android/scrcpy/screen/<serial>
+    控制流 (touch操控事件下发):ws://0.0.0.0:4000/android/scrcpy/control/<serial>
+    todo: 视频流目前前端还是使用截图来获取展示，待优化接入该WS视频流
+    """
+    await websocket.accept()
+    try:
+        logger.info(f"WebSocket path_type: {path_type}, serial: {serial}")
+
+        # 获取 ScrcpyServer 实例
+        server = ScrcpyServer()
+        server.start_scrcpy_server(serial)
+        server.setup_connection(serial)
+
+        # 根据 path_type 处理不同的 WebSocket 类型
+        if path_type == "screen":
+            await server.handle_video_websocket(websocket, serial)
+        elif path_type == "control":
+            await server.handle_control_websocket(websocket, serial)
+        else:
+            await websocket.close(code=1008)
+            logger.error(f"Unknown WebSocket type: {path_type}")
+    except Exception as e:
+        logger.error(f"WebSocket error for path_type={path_type}, serial={serial}: {e}")
+    finally:
+        logger.info(f"WebSocket closed for path_type={path_type}, serial={serial}")
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ import adbutils
 
 from uiautodev.driver.android import AndroidDriver
 from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.driver.harmony import HarmonyDriver, HDC
+from uiautodev.driver.harmony import HDC, HarmonyDriver
 from uiautodev.driver.ios import IOSDriver
 from uiautodev.driver.mock import MockDriver
 from uiautodev.exceptions import UiautoException
