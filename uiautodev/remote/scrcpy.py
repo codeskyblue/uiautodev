@@ -11,6 +11,8 @@ from starlette.websockets import WebSocketDisconnect
 
 from uiautodev.remote.touch_controller import ScrcpyTouchController
 
+logger = logging.getLogger(__name__)
+
 
 class ScrcpyServer:
     """
@@ -66,7 +68,7 @@ class ScrcpyServer:
             # 检查 scrcpy 服务是否存在
             return 'com.genymobile.scrcpy.Server' in result
         except Exception as e:
-            logging.warning(f"Failed to check scrcpy server process: {e}")
+            logger.warning(f"Failed to check scrcpy server process: {e}")
             return False
 
     def start_scrcpy_server(self, serial: str, control: bool = True):
@@ -80,11 +82,11 @@ class ScrcpyServer:
         Returns:
             threading.Thread: Thread object representing the scrcpy server execution.
         """
-        logging.info(f'start_scrcpy_server: {serial}')
+        logger.info(f'start_scrcpy_server: {serial}')
 
         # 检查 scrcpy 是否已经运行
         if self.is_scrcpy_running(serial):
-            logging.info(f"scrcpy server already running on {serial}, skipping start")
+            logger.info(f"scrcpy server already running on {serial}, skipping start")
             return
 
         # 获取设备对象
@@ -92,7 +94,7 @@ class ScrcpyServer:
 
         # 推送 scrcpy 服务器到设备
         device.push(self.scrcpy_jar_path, '/data/local/tmp/scrcpy_server.jar')
-        logging.info('scrcpy server JAR pushed to device')
+        logger.info('scrcpy server JAR pushed to device')
 
         # 构建启动 scrcpy 服务器的命令
         start_command = (
@@ -110,7 +112,7 @@ class ScrcpyServer:
         # 定义一个线程来执行命令
         def run_scrcpy():
             device.shell(start_command)
-            logging.info('scrcpy server started')
+            logger.info('scrcpy server started')
 
         thread = threading.Thread(target=run_scrcpy)
         thread.start()
@@ -127,29 +129,29 @@ class ScrcpyServer:
         try:
             while True:
                 if video_socket._closed:
-                    logging.warning('Video socket is closed.')
+                    logger.warning('Video socket is closed.')
                     break
 
                 loop = asyncio.get_event_loop()
                 data = await loop.run_in_executor(None, video_socket.recv, 1024 * 1024 * 10)
 
                 if not data:
-                    logging.warning('No data received, breaking the loop.')
+                    logger.warning('No data received, breaking the loop.')
                     break
 
                 if websocket.client_state.name != "CONNECTED":
-                    logging.info('WebSocket no longer connected. Exiting video stream.')
+                    logger.info('WebSocket no longer connected. Exiting video stream.')
                     break
 
-                # logging.info(f"Data type: {type(data)}, length: {len(data)}")
+                # logger.info(f"Data type: {type(data)}, length: {len(data)}")
                 if websocket:
                     await websocket.send_bytes(data)
 
         except Exception as e:
-            logging.error(f'Error reading video stream: {e}')
+            logger.error(f'Error reading video stream: {e}')
 
         finally:
-            logging.info('enter finally ...')
+            logger.info('enter finally ...')
 
     def setup_connection(self, serial: str, control: bool = True):
         """
@@ -166,7 +168,7 @@ class ScrcpyServer:
         # 获取设备真实长宽
         try:
             self.device_width, self.device_height = device.window_size()
-            logging.info(f"Device resolution: {self.device_width}x{self.device_height}")
+            logger.info(f"Device resolution: {self.device_width}x{self.device_height}")
         except Exception as e:
             raise RuntimeError(f"Failed to get device resolution: {e}")
 
@@ -174,7 +176,7 @@ class ScrcpyServer:
         for _ in range(100):
             try:
                 self.video_socket = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
-                logging.info(f'video_socket = {self.video_socket}')
+                logger.info(f'video_socket = {self.video_socket}')
                 break
             except AdbError:
                 time.sleep(0.1)
@@ -182,7 +184,7 @@ class ScrcpyServer:
         dummy_byte = self.video_socket.recv(1)
         if not dummy_byte or dummy_byte != b"\x00":
             raise ConnectionError("Did not receive Dummy Byte!")
-        logging.info('Received Dummy Byte!')
+        logger.info('Received Dummy Byte!')
 
         if not control:
             return
@@ -191,22 +193,22 @@ class ScrcpyServer:
             for _ in range(100):
                 try:
                     self.controller = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
-                    logging.info(f'control_socket = {self.controller}')
+                    logger.info(f'control_socket = {self.controller}')
                     break
                 except AdbError:
                     time.sleep(0.1)
             # Protocol docking reference: https://github.com/Genymobile/scrcpy/blob/master/doc/develop.md
             device_name = self.video_socket.recv(64).decode('utf-8').rstrip('\x00')
-            logging.info(f'Device name: {device_name}')
+            logger.info(f'Device name: {device_name}')
 
             codec = self.video_socket.recv(4)
-            logging.info(f'resolution_data: {codec}')
+            logger.info(f'resolution_data: {codec}')
 
             resolution_data = self.video_socket.recv(8)
-            logging.info(f'resolution_data: {resolution_data}')
+            logger.info(f'resolution_data: {resolution_data}')
 
             self.resolution_width, self.resolution_height = struct.unpack(">II", resolution_data)
-            logging.info(f'Resolution: {self.resolution_width}x{self.resolution_height}')
+            logger.info(f'Resolution: {self.resolution_width}x{self.resolution_height}')
 
             format_string = '>BBqiiHHHii'
             const_value = 65535
@@ -223,12 +225,12 @@ class ScrcpyServer:
             websocket (WebSocket): WebSocket connection to the client.
             serial (str): Serial number of the Android device.
         """
-        logging.info(f'Control New control connection from {websocket} for serial: {serial}')
+        logger.info(f'Control New control connection from {websocket} for serial: {serial}')
         try:
             while True:
                 try:
                     message = await websocket.receive_text()
-                    logging.info(f'Received message: {message}')
+                    logger.info(f'Received message: {message}')
                     message = json.loads(message)
 
                     message_type = message.get('messageType', None)
@@ -256,25 +258,25 @@ class ScrcpyServer:
                         self.device.shell(f'am broadcast -a SONIC_KEYBOARD --es msg \'{text}\'')
 
                 except WebSocketDisconnect:
-                    logging.info('Control WebSocket disconnected by client.')
+                    logger.info('Control WebSocket disconnected by client.')
                     break  # 正确退出循环
                 except Exception as e:
-                    logging.error(f'Error handling message: {e}')
+                    logger.error(f'Error handling message: {e}')
                     break  # 出现错误也应中断，不然会继续尝试 receive
         except Exception as e:
-            logging.error(f'Control connection handler error: {e}')
+            logger.error(f'Control connection handler error: {e}')
         finally:
 
-            logging.info(f"Control WebSocket closed for serial {serial}")
+            logger.info(f"Control WebSocket closed for serial {serial}")
 
             if websocket.client_state.name != "DISCONNECTED":
-                logging.info(f"control/{serial}: {websocket.client_state.name}")
+                logger.info(f"control/{serial}: {websocket.client_state.name}")
                 await websocket.close()
-            logging.info(f"WebSocket closed for control/{serial}")
+            logger.info(f"WebSocket closed for control/{serial}")
 
     async def handle_video_websocket(self, websocket=None, serial=''):
         if websocket:
-            logging.info(f'Video New video connection from {websocket} for serial: {serial}')
+            logger.info(f'Video New video connection from {websocket} for serial: {serial}')
 
         video_task = asyncio.create_task(self.read_video_stream(self.video_socket, websocket))
 
@@ -282,7 +284,7 @@ class ScrcpyServer:
             while True:
                 try:
                     message = await websocket.receive_text()
-                    logging.info(f"Received message: {message}")
+                    logger.info(f"Received message: {message}")
                     data = json.loads(message)
                     if 'udid' in data:
                         response = json.dumps({
@@ -296,21 +298,21 @@ class ScrcpyServer:
                             }
                         })
                         await websocket.send_text(response)
-                        logging.info(f'Sent resolution: {response}')
+                        logger.info(f'Sent resolution: {response}')
                 except json.JSONDecodeError:
-                    logging.error('Failed to decode JSON message')
+                    logger.error('Failed to decode JSON message')
                 except WebSocketDisconnect:
-                    logging.info("WebSocket disconnected by client.")
+                    logger.info("WebSocket disconnected by client.")
                     break
                 except Exception as e:
-                    logging.error(f'Error handling message: {e}')
+                    logger.error(f'Error handling message: {e}')
                     break
 
         except Exception as e:
-            logging.error(f'Video connection handler error: {e}')
+            logger.error(f'Video connection handler error: {e}')
         finally:
             video_task.cancel()
 
             if websocket.client_state.name != "DISCONNECTED":
                 await websocket.close()
-            logging.info(f"WebSocket closed for screen/{serial}")
+            logger.info(f"WebSocket closed for screen/{serial}")

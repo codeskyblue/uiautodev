@@ -109,6 +109,7 @@ def index_redirect():
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
 
+
 @app.websocket("/android/scrcpy/{path_type}/{serial}")
 async def unified_ws(websocket: WebSocket, path_type: str, serial: str):
     """
