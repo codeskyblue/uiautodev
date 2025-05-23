@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import platform
 import subprocess
 import sys
@@ -34,26 +35,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
 def cli(verbose: bool):
     if verbose:
-        # try to enable logger is not very easy
-        # you have to setup logHandler(logFormatter) for the root logger
-        # and set all children logger to DEBUG
-        # that's why it is not easy to use it with logging
-        root_logger = logging.getLogger(__name__.split(".")[0])
-        root_logger.setLevel(logging.DEBUG)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
-
-        formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-        console_handler.setFormatter(formatter)
-
-        root_logger.addHandler(console_handler)
-
-        # set all children logger to DEBUG
-        for k in root_logger.manager.loggerDict.keys():
-            if k.startswith(root_logger.name + "."):
-                logging.getLogger(k).setLevel(logging.DEBUG)
-
+        os.environ['UIAUTODEV_DEBUG'] = '1'
         logger.debug("Verbose mode enabled")
 
 

@@ -2,35 +2,28 @@ import asyncio
 import json
 import logging
 import os
+import socket
 import struct
-import threading
-import time
+from typing import Optional
 
+import retry
 from adbutils import AdbError, Network, adb
-from starlette.websockets import WebSocketDisconnect
+from adbutils._adb import AdbConnection
+from adbutils._device import AdbDevice
+from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from uiautodev.remote.touch_controller import ScrcpyTouchController
 
 logger = logging.getLogger(__name__)
-
 
 class ScrcpyServer:
     """
     ScrcpyServer class is responsible for managing the scrcpy server on Android devices.
     It handles the initialization, communication, and control of the scrcpy server,
     including video streaming and touch control.
-
-    Attributes:
-        scrcpy_jar_path (str): Path to the scrcpy server JAR file.
-        need_run_scrcpy (bool): Flag indicating whether the scrcpy server needs to be started.
-        controller (ScrcpyTouchController): Controller for handling touch events.
-        video_socket (socket): Socket for receiving video stream data.
-        device (adb.Device): ADB device object representing the connected Android device.
-        resolution_width (int): Width of the device screen resolution.
-        resolution_height (int): Height of the device screen resolution.
     """
 
-    def __init__(self, scrcpy_jar_path: str = None):
+    def __init__(self, device: AdbDevice, scrcpy_jar_path: Optional[str] = None):
         """
         Initializes the ScrcpyServer instance.
 
@@ -38,15 +31,57 @@ class ScrcpyServer:
             scrcpy_jar_path (str, optional): Path to the scrcpy server JAR file. Defaults to None.
         """
         self.scrcpy_jar_path = scrcpy_jar_path or os.path.join(os.path.dirname(__file__), '../binaries/scrcpy_server.jar')
-        self.need_run_scrcpy = True
-        self.controller = None
-        self.video_socket = None
-        self.device = None
+        self.device = device
         self.resolution_width = 0  # scrcpy 投屏转换宽度
         self.resolution_height = 0  # scrcpy 投屏转换高度
         self.device_width = 0  # 设备真实宽度
         self.device_height = 0  # 设备真实高度
+        
+        self._shell_conn: AdbConnection
+        self._video_conn: socket.socket
+        self._control_conn: socket.socket
 
+        self._setup_connection()
+    
+    def _setup_connection(self):
+        self._shell_conn = self.start_scrcpy_server(control=True)
+        self._video_conn = self._connect_scrcpy(self.device)
+        self._control_conn = self._connect_scrcpy(self.device)
+        self._parse_scrcpy_info(self._video_conn)
+        self.device_width, self.device_height = self.device.window_size()
+        logger.debug(f"Device size: {self.device_width}x{self.device_height}")
+
+        format_string = '>BBqiiHHHii'
+        const_value = 65535
+        unknown1 = 1
+        unknown2 = 1
+        self.controller = ScrcpyTouchController(self._control_conn, format_string, const_value, unknown1, unknown2)
+        
+    def _parse_scrcpy_info(self, conn: socket.socket):
+        dummy_byte = conn.recv(1)
+        if not dummy_byte or dummy_byte != b"\x00":
+            raise ConnectionError("Did not receive Dummy Byte!")
+        logger.debug('Received Dummy Byte!')
+        device_name = conn.recv(64).decode('utf-8').rstrip('\x00')
+        logger.debug(f'Device name: {device_name}')
+        codec = conn.recv(4)
+        logger.debug(f'resolution_data: {codec}')
+        resolution_data = conn.recv(8)
+        logger.debug(f'resolution_data: {resolution_data}')
+        self.resolution_width, self.resolution_height = struct.unpack(">II", resolution_data)
+        logger.debug(f'Resolution: {self.resolution_width}x{self.resolution_height}')
+
+    def close(self):
+        try:
+            self._control_conn.close()
+            self._video_conn.close()
+            self._shell_conn.close()
+        except:
+            pass
+    
+    def __del__(self):
+        self.close()
+    
     @staticmethod
     def is_scrcpy_running(serial: str) -> bool:
         """
@@ -63,37 +98,29 @@ class ScrcpyServer:
             device = adb.device(serial=serial)
 
             # 执行 shell 命令
-            result = device.shell("ps")
-
+            ret = device.shell2("ps")
             # 检查 scrcpy 服务是否存在
-            return 'com.genymobile.scrcpy.Server' in result
+            # COMMENT(ssx): ps未必在每个设备上都好使
+            return 'com.genymobile.scrcpy.Server' in ret.output # type: ignore
         except Exception as e:
             logger.warning(f"Failed to check scrcpy server process: {e}")
             return False
 
-    def start_scrcpy_server(self, serial: str, control: bool = True):
+    def start_scrcpy_server(self, control: bool = True) -> AdbConnection:
         """
         Pushes the scrcpy server JAR file to the Android device and starts the scrcpy server.
 
         Args:
-            serial (str): Serial number of the Android device.
             control (bool, optional): Whether to enable touch control. Defaults to True.
 
         Returns:
-            threading.Thread: Thread object representing the scrcpy server execution.
+            AdbConnection
         """
-        logger.info(f'start_scrcpy_server: {serial}')
-
-        # 检查 scrcpy 是否已经运行
-        if self.is_scrcpy_running(serial):
-            logger.info(f"scrcpy server already running on {serial}, skipping start")
-            return
-
         # 获取设备对象
-        device = adb.device(serial=serial)
+        device = self.device
 
         # 推送 scrcpy 服务器到设备
-        device.push(self.scrcpy_jar_path, '/data/local/tmp/scrcpy_server.jar')
+        device.sync.push(self.scrcpy_jar_path, '/data/local/tmp/scrcpy_server.jar', check=True)
         logger.info('scrcpy server JAR pushed to device')
 
         # 构建启动 scrcpy 服务器的命令
@@ -108,114 +135,38 @@ class ScrcpyServer:
             'audio=false show_touches=false stay_awake=false '
             'power_off_on_close=false clipboard_autosync=false'
         )
+        conn = device.shell(start_command, stream=True)
+        print(conn.conn.recv(100))
+        return conn # type: ignore
 
-        # 定义一个线程来执行命令
-        def run_scrcpy():
-            device.shell(start_command)
-            logger.info('scrcpy server started')
-
-        thread = threading.Thread(target=run_scrcpy)
-        thread.start()
-        return thread
-
-    async def read_video_stream(self, video_socket, websocket):
-        """
-        Handles video WebSocket connections, streaming video data to the client.
-
-        Args:
-            websocket (WebSocket, optional): WebSocket connection to the client. Defaults to None.
-            serial (str, optional): Serial number of the Android device. Defaults to ''.
-        """
-        try:
-            while True:
-                if video_socket._closed:
-                    logger.warning('Video socket is closed.')
-                    break
-
-                loop = asyncio.get_event_loop()
-                data = await loop.run_in_executor(None, video_socket.recv, 1024 * 1024 * 10)
-
+    async def stream_video_to_websocket(self, conn: socket.socket, ws: WebSocket):
+        # Set socket to non-blocking mode
+        conn.setblocking(False)
+        
+        while True:
+            # check if ws closed
+            if ws.client_state.name != "CONNECTED":
+                logger.info('WebSocket no longer connected. Exiting video stream.')
+                break
+                
+            try:
+                # Use asyncio to read data asynchronously
+                data = await asyncio.get_event_loop().sock_recv(conn, 1024*1024)
                 if not data:
                     logger.warning('No data received, breaking the loop.')
                     break
-
-                if websocket.client_state.name != "CONNECTED":
-                    logger.info('WebSocket no longer connected. Exiting video stream.')
-                    break
-
-                # logger.info(f"Data type: {type(data)}, length: {len(data)}")
-                if websocket:
-                    await websocket.send_bytes(data)
-
-        except Exception as e:
-            logger.error(f'Error reading video stream: {e}')
-
-        finally:
-            logger.info('enter finally ...')
-
-    def setup_connection(self, serial: str, control: bool = True):
-        """
-        Sets up the connection to the scrcpy server, including video and control sockets.
-
-        Args:
-            serial (str): Serial number of the Android device.
-            control (bool, optional): Whether to enable touch control. Defaults to True.
-
-        Returns:
-            tuple: Contains the touch controller, video socket, device object, screen width, and screen height.
-        """
-        device = adb.device(serial=serial)
-        # 获取设备真实长宽
-        try:
-            self.device_width, self.device_height = device.window_size()
-            logger.info(f"Device resolution: {self.device_width}x{self.device_height}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to get device resolution: {e}")
-
-        self.video_socket = None
-        for _ in range(100):
-            try:
-                self.video_socket = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
-                logger.info(f'video_socket = {self.video_socket}')
+                # send data to ws
+                await ws.send_bytes(data)
+            except (ConnectionError, BrokenPipeError) as e:
+                logger.error(f'Socket error: {e}')
                 break
-            except AdbError:
-                time.sleep(0.1)
+            
 
-        dummy_byte = self.video_socket.recv(1)
-        if not dummy_byte or dummy_byte != b"\x00":
-            raise ConnectionError("Did not receive Dummy Byte!")
-        logger.info('Received Dummy Byte!')
 
-        if not control:
-            return
-        else:
-            self.controller = None
-            for _ in range(100):
-                try:
-                    self.controller = device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
-                    logger.info(f'control_socket = {self.controller}')
-                    break
-                except AdbError:
-                    time.sleep(0.1)
-            # Protocol docking reference: https://github.com/Genymobile/scrcpy/blob/master/doc/develop.md
-            device_name = self.video_socket.recv(64).decode('utf-8').rstrip('\x00')
-            logger.info(f'Device name: {device_name}')
-
-            codec = self.video_socket.recv(4)
-            logger.info(f'resolution_data: {codec}')
-
-            resolution_data = self.video_socket.recv(8)
-            logger.info(f'resolution_data: {resolution_data}')
-
-            self.resolution_width, self.resolution_height = struct.unpack(">II", resolution_data)
-            logger.info(f'Resolution: {self.resolution_width}x{self.resolution_height}')
-
-            format_string = '>BBqiiHHHii'
-            const_value = 65535
-            unknown1 = 1
-            unknown2 = 1
-
-            self.controller = ScrcpyTouchController(self.controller, format_string, const_value, unknown1, unknown2)
+    @retry.retry(exceptions=AdbError, tries=20, delay=0.1)
+    def _connect_scrcpy(self, device: AdbDevice) -> socket.socket:
+        return device.create_connection(Network.LOCAL_ABSTRACT, 'scrcpy')
+    
 
     async def handle_control_websocket(self, websocket, serial):
         """
@@ -233,13 +184,14 @@ class ScrcpyServer:
                     logger.info(f'Received message: {message}')
                     message = json.loads(message)
 
-                    message_type = message.get('messageType', None)
+                    message_type = message.get('type', None)
                     # if message_type is None:
                     #     continue
                     if message_type == 'touch':
-                        action_type = message['data']['actionType']
-                        x, y, width, height = (message['data']['x'], message['data']['y'],
-                                               message['data']['width'], message['data']['height'])
+                        action_type = message.get('actionType')
+                        width, height = self.resolution_width, self.resolution_height
+                        x = int(message['x'] * width)
+                        y = int(message['y'] * height)
                         if action_type == 0:
                             self.controller.down(x, y, width, height)
                         elif action_type == 1:
@@ -260,11 +212,6 @@ class ScrcpyServer:
                 except WebSocketDisconnect:
                     logger.info('Control WebSocket disconnected by client.')
                     break  # 正确退出循环
-                except Exception as e:
-                    logger.error(f'Error handling message: {e}')
-                    break  # 出现错误也应中断，不然会继续尝试 receive
-        except Exception as e:
-            logger.error(f'Control connection handler error: {e}')
         finally:
 
             logger.info(f"Control WebSocket closed for serial {serial}")
@@ -274,11 +221,11 @@ class ScrcpyServer:
                 await websocket.close()
             logger.info(f"WebSocket closed for control/{serial}")
 
-    async def handle_video_websocket(self, websocket=None, serial=''):
+    async def handle_video_websocket(self, websocket: WebSocket, serial=''):
         if websocket:
             logger.info(f'Video New video connection from {websocket} for serial: {serial}')
 
-        video_task = asyncio.create_task(self.read_video_stream(self.video_socket, websocket))
+        video_task = asyncio.create_task(self.stream_video_to_websocket(self._video_conn, websocket))
 
         try:
             while True:
