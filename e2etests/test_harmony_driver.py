@@ -4,8 +4,8 @@
 
 import pytest
 
-from uiautodev.driver.harmony import HDC
-from uiautodev.driver.harmony import HarmonyDriver
+from uiautodev.driver.harmony import HDC, HarmonyDriver
+
 
 @pytest.fixture
 def hdc() -> HDC:

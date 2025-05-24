@@ -7,10 +7,14 @@ authors = ["codeskyblue <codeskyblue@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
+include = [
+    {path = "uiautodev/binaries/scrcpy.jar"}
+]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 pillow = "*"
-adbutils = "^2.7.0"
+adbutils = ">=2.8.10,<3"
 construct = "*"
 lxml = "*"
 click = "^8.1.7"

@@ -4,6 +4,7 @@
 """Created on Sun Feb 18 2024 13:48:55 by codeskyblue
 """
 
+from functools import lru_cache
 import logging
 import os
 import platform
@@ -11,16 +12,19 @@ import signal
 from pathlib import Path
 from typing import List
 
+import adbutils
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
+from rich.logging import RichHandler
 
 from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
+from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
@@ -28,6 +32,15 @@ from uiautodev.utils.envutils import Environment
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+
+def enable_logger_to_console():
+    _logger = logging.getLogger("uiautodev")
+    _logger.setLevel(logging.DEBUG)
+    _logger.addHandler(RichHandler(enable_link_path=False))
+
+if os.getenv("UIAUTODEV_DEBUG"):
+    enable_logger_to_console()
 
 app.add_middleware(
     CORSMiddleware,
@@ -107,6 +120,40 @@ def index_redirect():
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
+
+
+@lru_cache(maxsize=1024)
+def get_scrcpy_server(serial: str):
+    # 这里主要是为了避免两次websocket建立建立，启动两个scrcpy进程
+    logger.info("create scrcpy server for %s", serial)
+    device = adbutils.device(serial)
+    return ScrcpyServer(device)
+
+
+@app.websocket("/android/scrcpy/{serial}/{path_type}")
+async def unified_ws(websocket: WebSocket, serial: str, path_type: str):
+    """
+    Args:
+        serial: device serial
+        path_type: screen (h264 stream) | control (touch events)
+    """
+    await websocket.accept()
+    try:
+        logger.info(f"WebSocket path_type: {path_type}, serial: {serial}")
+
+        # 获取 ScrcpyServer 实例
+        server = get_scrcpy_server(serial)
+
+        # 根据 path_type 处理不同的 WebSocket 类型
+        if path_type == "screen":
+            await server.handle_video_websocket(websocket, serial)
+        elif path_type == "control":
+            await server.handle_control_websocket(websocket, serial)
+        else:
+            await websocket.close(code=1008)
+            logger.error(f"Unknown WebSocket type: {path_type}")
+    finally:
+        logger.info(f"WebSocket closed for path_type={path_type}, serial={serial}")
 
 
 if __name__ == '__main__':

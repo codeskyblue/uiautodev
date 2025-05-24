@@ -48,6 +48,18 @@ make format
 
 # run server
 make dev
+
+# If you encounter the error NameError: name 'int2byte' is not defined,
+# try installing a stable version of the construct package to resolve it:
+# and restart: make dev
+pip install construct==2.9.45
+
+```
+
+运行测试
+
+```sh
+make test
 ```
 
 # LICENSE
