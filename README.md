@@ -56,5 +56,11 @@ pip install construct==2.9.45
 
 ```
 
+运行测试
+
+```sh
+make test
+```
+
 # LICENSE
 [MIT](LICENSE)
