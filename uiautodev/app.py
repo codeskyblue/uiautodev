@@ -4,11 +4,11 @@
 """Created on Sun Feb 18 2024 13:48:55 by codeskyblue
 """
 
-from functools import lru_cache
 import logging
 import os
 import platform
 import signal
+from functools import lru_cache
 from pathlib import Path
 from typing import List
 
@@ -19,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 from rich.logging import RichHandler
+from starlette.websockets import WebSocketDisconnect
 
 from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
@@ -38,6 +39,7 @@ def enable_logger_to_console():
     _logger = logging.getLogger("uiautodev")
     _logger.setLevel(logging.DEBUG)
     _logger.addHandler(RichHandler(enable_link_path=False))
+
 
 if os.getenv("UIAUTODEV_DEBUG"):
     enable_logger_to_console()
@@ -130,30 +132,25 @@ def get_scrcpy_server(serial: str):
     return ScrcpyServer(device)
 
 
-@app.websocket("/android/scrcpy/{serial}/{path_type}")
-async def unified_ws(websocket: WebSocket, serial: str, path_type: str):
+@app.websocket("/android/scrcpy/{serial}")
+async def unified_ws(websocket: WebSocket, serial: str):
     """
     Args:
         serial: device serial
-        path_type: screen (h264 stream) | control (touch events)
+        websocket: WebSocket
     """
     await websocket.accept()
+
     try:
-        logger.info(f"WebSocket path_type: {path_type}, serial: {serial}")
+        logger.info(f"WebSocket serial: {serial}")
 
         # 获取 ScrcpyServer 实例
         server = get_scrcpy_server(serial)
-
-        # 根据 path_type 处理不同的 WebSocket 类型
-        if path_type == "screen":
-            await server.handle_video_websocket(websocket, serial)
-        elif path_type == "control":
-            await server.handle_control_websocket(websocket, serial)
-        else:
-            await websocket.close(code=1008)
-            logger.error(f"Unknown WebSocket type: {path_type}")
+        await server.handle_unified_websocket(websocket, serial)
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected by client.")
     finally:
-        logger.info(f"WebSocket closed for path_type={path_type}, serial={serial}")
+        logger.info(f"WebSocket closed for serial={serial}")
 
 
 if __name__ == '__main__':

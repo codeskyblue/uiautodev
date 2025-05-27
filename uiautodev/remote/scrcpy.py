@@ -263,3 +263,61 @@ class ScrcpyServer:
             if websocket.client_state.name != "DISCONNECTED":
                 await websocket.close()
             logger.info(f"WebSocket closed for screen/{serial}")
+
+    async def handle_unified_websocket(self, websocket: WebSocket, serial=''):
+        logger.info(f"[Unified] WebSocket connection from {websocket} for serial: {serial}")
+
+        # 启动视频流任务
+        video_task = asyncio.create_task(self.stream_video_to_websocket(self._video_conn, websocket))
+
+        try:
+            while True:
+                try:
+                    message = await websocket.receive_text()
+                    logger.debug(f"[Unified] Received message: {message}")
+                    message = json.loads(message)
+
+                    message_type = message.get('type')
+
+                    if message_type == 'touch':
+                        action_type = message.get('actionType')
+                        width, height = self.resolution_width, self.resolution_height
+                        x = int(message['x'] * width)
+                        y = int(message['y'] * height)
+                        if action_type == 0:
+                            self.controller.down(x, y, width, height)
+                        elif action_type == 1:
+                            self.controller.up(x, y, width, height)
+                        elif action_type == 2:
+                            self.controller.move(x, y, width, height)
+                        else:
+                            logger.warning(f"[Unified] Unknown actionType: {action_type}")
+
+                    elif message_type == 'keyEvent':
+                        event_number = message['data']['eventNumber']
+                        self.device.shell(f'input keyevent {event_number}')
+
+                    elif message_type == 'text':
+                        text = message['detail']
+                        self.device.shell(f'am broadcast -a SONIC_KEYBOARD --es msg \'{text}\'')
+
+                    elif message_type == 'ping':
+                        await websocket.send_text(json.dumps({"type": "pong"}))
+
+                except WebSocketDisconnect:
+                    logger.info('[Unified] WebSocket disconnected by client.')
+                    break
+                except Exception as e:
+                    logger.exception(f'[Unified] Exception while handling message: {e}')
+                    break
+        finally:
+            video_task.cancel()
+            try:
+                await video_task
+            except asyncio.CancelledError:
+                logger.info('[Unified] Video task cancelled.')
+
+            if websocket.client_state.name != "DISCONNECTED":
+                await websocket.close()
+            logger.info(f"[Unified] WebSocket closed for serial={serial}")
+
