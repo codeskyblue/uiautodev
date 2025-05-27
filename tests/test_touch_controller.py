@@ -1,10 +1,11 @@
-import pytest
-from unittest.mock import MagicMock
 import struct
+from unittest.mock import MagicMock
 
-from uiautodev.remote.touch_controller import KeyEvent, ScrcpyTouchController, MessageType
+import pytest
+
 from uiautodev.remote.android_input import KeyeventAction, MetaState
 from uiautodev.remote.keycode import KeyCode
+from uiautodev.remote.touch_controller import KeyEvent, MessageType, ScrcpyTouchController
 
 
 @pytest.fixture

@@ -7,6 +7,7 @@ from construct import Byte, Int16ub, Int32ub, Int64ub, Struct
 from uiautodev.remote.android_input import KeyeventAction, MetaState
 from uiautodev.remote.keycode import KeyCode
 
+
 # https://github.com/Genymobile/scrcpy/blob/master/app/src/control_msg.h#L29
 class MessageType(enum.IntEnum):
     INJECT_KEYCODE = 0

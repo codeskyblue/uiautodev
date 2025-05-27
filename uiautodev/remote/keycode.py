@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class KeyCode(IntEnum):
     """Android key codes ported from Android's KeyEvent class
     
