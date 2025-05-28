@@ -71,8 +71,7 @@ class AndroidDriver(BaseDriver):
         try:
             return self.ud.dump_hierarchy()
         except Exception as e:
-            logger.exception("unexpected dump error: %s", e)
-            raise AndroidDriverException("Failed to dump hierarchy")
+            raise AndroidDriverException(f"Failed to dump hierarchy: {str(e)}")
     
     def tap(self, x: int, y: int):
         self.adb_device.click(x, y)
