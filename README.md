@@ -62,5 +62,9 @@ pip install construct==2.9.45
 make test
 ```
 
+# Links
+- https://app.tangoapp.dev/ 基于webadb的手机远程控制项目
+- https://docs.tangoapp.dev/scrcpy/video/web-codecs/ H264解码器
+
 # LICENSE
 [MIT](LICENSE)
