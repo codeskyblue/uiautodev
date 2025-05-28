@@ -8,7 +8,6 @@ import logging
 import os
 import platform
 import signal
-from functools import lru_cache
 from pathlib import Path
 from typing import List
 
@@ -124,7 +123,6 @@ def index_redirect():
     return RedirectResponse(url)
 
 
-@lru_cache(maxsize=1024)
 def get_scrcpy_server(serial: str):
     # 这里主要是为了避免两次websocket建立建立，启动两个scrcpy进程
     logger.info("create scrcpy server for %s", serial)
@@ -132,7 +130,7 @@ def get_scrcpy_server(serial: str):
     return ScrcpyServer(device)
 
 
-@app.websocket("/android/scrcpy/{serial}")
+@app.websocket("/ws/android/scrcpy/{serial}")
 async def unified_ws(websocket: WebSocket, serial: str):
     """
     Args:
@@ -149,6 +147,9 @@ async def unified_ws(websocket: WebSocket, serial: str):
         await server.handle_unified_websocket(websocket, serial)
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
+    except Exception as e:
+        logger.exception(f"WebSocket error for serial={serial}: {e}")
+        await websocket.close(code=1000, reason=str(e))
     finally:
         logger.info(f"WebSocket closed for serial={serial}")
 

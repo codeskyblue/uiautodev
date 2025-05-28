@@ -80,7 +80,8 @@ def make_router(provider: BaseProvider) -> APIRouter:
             else:
                 return Response(content=f"Invalid format: {format}", media_type="text/plain", status_code=400)
         except Exception as e:
-            logger.exception("dump_hierarchy failed")
+            #logger.exception("dump_hierarchy failed")
+            logger.error(f"Error dumping hierarchy: {str(e)}")
             return Response(content=str(e), media_type="text/plain", status_code=500)
     
     @router.post('/{serial}/command/tap')

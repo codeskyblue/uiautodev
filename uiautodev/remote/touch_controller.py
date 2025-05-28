@@ -57,13 +57,8 @@ KeyEvent = Struct(
 class ScrcpyTouchController:
     """scrcpy控制类，支持scrcpy版本>=2.2"""
 
-    def __init__(self, control_socket: socket.socket, format_string: str, unknown1: int,
-                 unknown2: int, const_value: int):
+    def __init__(self, control_socket: socket.socket):
         self.control_socket = control_socket
-        self.format_string = format_string # '>BBqiiHHHii'
-        self.unknown1 = unknown1
-        self.unknown2 = unknown2
-        self.const_value = const_value
 
     def _build_touch_event(self, action: int, x: int, y: int, width: int, height: int):
         x = max(0, min(x, width))
