@@ -12,20 +12,9 @@ from uiautodev.remote.touch_controller import KeyEvent, MessageType, ScrcpyTouch
 def controller():
     # Create a mock socket for testing
     mock_socket = MagicMock()
-    
-    # Format string and constants used in the controller
-    format_string = '>BBqiiHHHii'
-    const_value = 65535
-    unknown1 = 1
-    unknown2 = 1
-    
     # Create the controller with the mock socket
     controller = ScrcpyTouchController(
-        mock_socket, 
-        format_string, 
-        const_value, 
-        unknown1, 
-        unknown2
+        mock_socket
     )
     
     # Add the mock_socket as an attribute for assertions
@@ -39,7 +28,7 @@ WIDTH = 1080
 HEIGHT = 1920
 
 
-def test_down(controller):
+def test_down(controller: ScrcpyTouchController):
     """Test the down method sends the correct data"""
     # Test coordinates
     x, y = 100, 200

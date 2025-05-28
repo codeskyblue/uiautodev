@@ -17,8 +17,6 @@ def device() -> AdbDevice:
 
 def test_scrcpy_video(device: AdbDevice):
     server = ScrcpyServer(device)
-    assert server.device_width > 0
-    assert server.device_height > 0
     assert server.resolution_width > 0
     assert server.resolution_height > 0
     server.close()
