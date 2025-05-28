@@ -11,16 +11,20 @@ import signal
 from pathlib import Path
 from typing import List
 
+import adbutils
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
+from rich.logging import RichHandler
+from starlette.websockets import WebSocketDisconnect
 
 from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
+from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
@@ -28,6 +32,16 @@ from uiautodev.utils.envutils import Environment
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+
+def enable_logger_to_console():
+    _logger = logging.getLogger("uiautodev")
+    _logger.setLevel(logging.DEBUG)
+    _logger.addHandler(RichHandler(enable_link_path=False))
+
+
+if os.getenv("UIAUTODEV_DEBUG"):
+    enable_logger_to_console()
 
 app.add_middleware(
     CORSMiddleware,
@@ -107,6 +121,37 @@ def index_redirect():
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
+
+
+def get_scrcpy_server(serial: str):
+    # 这里主要是为了避免两次websocket建立建立，启动两个scrcpy进程
+    logger.info("create scrcpy server for %s", serial)
+    device = adbutils.device(serial)
+    return ScrcpyServer(device)
+
+
+@app.websocket("/ws/android/scrcpy/{serial}")
+async def unified_ws(websocket: WebSocket, serial: str):
+    """
+    Args:
+        serial: device serial
+        websocket: WebSocket
+    """
+    await websocket.accept()
+
+    try:
+        logger.info(f"WebSocket serial: {serial}")
+
+        # 获取 ScrcpyServer 实例
+        server = get_scrcpy_server(serial)
+        await server.handle_unified_websocket(websocket, serial)
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected by client.")
+    except Exception as e:
+        logger.exception(f"WebSocket error for serial={serial}: {e}")
+        await websocket.close(code=1000, reason=str(e))
+    finally:
+        logger.info(f"WebSocket closed for serial={serial}")
 
 
 if __name__ == '__main__':
