@@ -6,9 +6,9 @@
 
 import io
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Query, Request, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -18,9 +18,6 @@ from uiautodev.model import DeviceInfo, Node, ShellResponse
 from uiautodev.provider import BaseProvider
 
 logger = logging.getLogger(__name__)
-
-class AndroidShellPayload(BaseModel):
-    command: str
 
 
 def make_router(provider: BaseProvider) -> APIRouter:
@@ -36,18 +33,6 @@ def make_router(provider: BaseProvider) -> APIRouter:
         except Exception as e:
             logger.exception("list_devices failed")
             return Response(content=str(e), media_type="text/plain", status_code=500)
-
-    @router.post("/{serial}/shell")
-    def android_shell(serial: str, payload: AndroidShellPayload) -> ShellResponse:
-        """Run a shell command on an Android device"""
-        try:
-            driver = provider.get_device_driver(serial)
-            return driver.shell(payload.command)
-        except NotImplementedError as e:
-            return Response(content="shell not implemented", media_type="text/plain", status_code=501)
-        except Exception as e:
-            logger.exception("shell failed")
-            return ShellResponse(output="", error=str(e))
 
     @router.get(
         "/{serial}/screenshot/{id}",
