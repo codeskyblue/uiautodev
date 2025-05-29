@@ -31,6 +31,15 @@ class AndroidDriver(BaseDriver):
     @cached_property
     def ud(self) -> u2.Device:
         return u2.connect_usb(self.serial)
+
+    def get_current_activity(self) -> str:
+        ret = self.adb_device.shell2(["dumpsys", "activity", "activities"], rstrip=True, timeout=5)
+        # 使用正则查找包含前台 activity 的行
+        match = re.search(r"mResumedActivity:.*? ([\w\.]+\/[\w\.]+)", ret.output)
+        if match:
+            return match.group(1)  # 返回包名/类名，例如 com.example/.MainActivity
+        else:
+            return ""
     
     def screenshot(self, id: int) -> Image.Image:
         if id > 0:

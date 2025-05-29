@@ -9,7 +9,7 @@ import os
 import platform
 import signal
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 import adbutils
 import uvicorn
@@ -25,6 +25,7 @@ from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
 from uiautodev.remote.scrcpy import ScrcpyServer
+from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
@@ -68,7 +69,23 @@ else:
     app.include_router(harmony_router, prefix="/api/harmony", tags=["harmony"])
 
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
+app.include_router(android_device_router, prefix="/api/android", tags=["android"])
 
+
+@app.get('/api/{platform}/features')
+def get_features(platform: str) -> Dict[str, bool]:
+    """Get features supported by the specified platform"""
+    features = {}
+    # 获取所有带有指定平台tag的路由
+    for route in app.routes:
+        if hasattr(route, 'tags') and platform in route.tags:
+            if route.path.startswith(f"/api/{platform}/{{serial}}/"):
+                # 提取特性名称
+                parts = route.path.split('/')
+                feature_name = parts[-1]
+                if not feature_name.startswith('{'):
+                    features[feature_name] = True
+    return features
 
 class InfoResponse(BaseModel):
     version: str
