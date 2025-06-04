@@ -126,13 +126,48 @@ class AndroidDriver(BaseDriver):
     
     def volume_mute(self):
         self.adb_device.keyevent("VOLUME_MUTE")
-    
+
+    def get_app_version(self, package_name: str) -> Optional[dict]:
+        """
+        Get the version information of an app, including mainVersion and subVersion.
+
+        Args:
+            package_name (str): The package name of the app.
+
+        Returns:
+            dict: A dictionary containing mainVersion and subVersion.
+        """
+        output = self.adb_device.shell(["dumpsys", "package", package_name])
+
+        # versionName
+        m = re.search(r"versionName=(?P<name>[^\s]+)", output)
+        version_name = m.group("name") if m else ""
+        if version_name == "null":  # Java dumps "null" for null values
+            version_name = None
+
+        # versionCode
+        m = re.search(r"versionCode=(?P<code>\d+)", output)
+        version_code = m.group("code") if m else ""
+        version_code = int(version_code) if version_code.isdigit() else None
+
+        return {
+            "versionName": version_name,
+            "versionCode": version_code
+        }
+
     def app_list(self) -> List[AppInfo]:
         results = []
         output = self.adb_device.shell(["pm", "list", "packages", '-3'])
         for m in re.finditer(r"^package:([^\s]+)\r?$", output, re.M):
             packageName = m.group(1)
-            results.append(AppInfo(packageName=packageName))
+            # get version
+            version_info = self.get_app_version(packageName)
+            app_info = AppInfo(
+                packageName=packageName,
+                versionName=version_info.get("versionName"),
+                versionCode=version_info.get("versionCode")
+            )
+            results.append(app_info)
         return results
 
     def open_app_file(self, package: str) -> Iterator[bytes]:
