@@ -24,6 +24,7 @@ from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
+from uiautodev.remote.harmony_scrcpy import HarmonyScrcpyServer
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
@@ -86,6 +87,7 @@ def get_features(platform: str) -> Dict[str, bool]:
                 if not feature_name.startswith('{'):
                     features[feature_name] = True
     return features
+
 
 class InfoResponse(BaseModel):
     version: str
@@ -162,6 +164,39 @@ async def unified_ws(websocket: WebSocket, serial: str):
         # 获取 ScrcpyServer 实例
         server = get_scrcpy_server(serial)
         await server.handle_unified_websocket(websocket, serial)
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected by client.")
+    except Exception as e:
+        logger.exception(f"WebSocket error for serial={serial}: {e}")
+        await websocket.close(code=1000, reason=str(e))
+    finally:
+        logger.info(f"WebSocket closed for serial={serial}")
+
+
+def get_harmony_scrcpy_server(serial: str):
+    logger.info("create harmony scrcpy server for %s", serial)
+    from hypium import UiDriver
+    driver = UiDriver.connect(device_sn=serial)
+    logger.info(f'device wake_up_display: {driver.wake_up_display()}')
+    return HarmonyScrcpyServer(driver)
+
+
+@app.websocket("/ws/harmony/scrcpy/{serial}")
+async def unified_harmony_ws(websocket: WebSocket, serial: str):
+    """
+    Args:
+        serial: device serial
+        websocket: WebSocket
+    """
+    await websocket.accept()
+
+    try:
+        logger.info(f"WebSocket serial: {serial}")
+
+        # 获取 HarmonyScrcpyServer 实例
+        server = get_harmony_scrcpy_server(serial)
+        server.start()
+        await server.handle_ws(websocket)
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
     except Exception as e:
