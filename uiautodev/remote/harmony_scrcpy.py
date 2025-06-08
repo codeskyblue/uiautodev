@@ -11,9 +11,9 @@ from hypium import KeyCode
 logger = logging.getLogger(__name__)
 
 
-class HarmonyScrcpyServer:
+class HarmonyMjpegServer:
     """
-    HarmonyScrcpyServer is responsible for handling screen streaming functionality
+    HarmonyMjpegServer is responsible for handling screen streaming functionality
     for HarmonyOS devices that support ABC proxy (a communication interface).
 
     It manages WebSocket clients, communicates with the ABC server over gRPC, and streams

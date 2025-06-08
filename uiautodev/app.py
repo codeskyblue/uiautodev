@@ -24,7 +24,7 @@ from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
-from uiautodev.remote.harmony_scrcpy import HarmonyScrcpyServer
+from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
@@ -173,15 +173,15 @@ async def unified_ws(websocket: WebSocket, serial: str):
         logger.info(f"WebSocket closed for serial={serial}")
 
 
-def get_harmony_scrcpy_server(serial: str):
-    logger.info("create harmony scrcpy server for %s", serial)
+def get_harmony_mjpeg_server(serial: str):
+    logger.info("create harmony mjpeg server for %s", serial)
     from hypium import UiDriver
     driver = UiDriver.connect(device_sn=serial)
     logger.info(f'device wake_up_display: {driver.wake_up_display()}')
-    return HarmonyScrcpyServer(driver)
+    return HarmonyMjpegServer(driver)
 
 
-@app.websocket("/ws/harmony/scrcpy/{serial}")
+@app.websocket("/ws/harmony/mjpeg/{serial}")
 async def unified_harmony_ws(websocket: WebSocket, serial: str):
     """
     Args:
@@ -194,7 +194,7 @@ async def unified_harmony_ws(websocket: WebSocket, serial: str):
         logger.info(f"WebSocket serial: {serial}")
 
         # 获取 HarmonyScrcpyServer 实例
-        server = get_harmony_scrcpy_server(serial)
+        server = get_harmony_mjpeg_server(serial)
         server.start()
         await server.handle_ws(websocket)
     except WebSocketDisconnect:
