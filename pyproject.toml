@@ -35,7 +35,7 @@ xdevice-ohos = { path = "uiautodev/binaries/xdevice-ohos-5.0.7.200.tar.gz" }
 hypium = { path = "uiautodev/binaries/hypium-5.0.7.200.tar.gz" }
 
 [tool.poetry.extras]
-harmony = ["xdevice", "xdevice-devicetest", "xdevice-ohos", "hypium"]
+harmony = ["setuptools", "xdevice", "xdevice-devicetest", "xdevice-ohos", "hypium"]
 
 [tool.poetry.scripts]
 "uiauto.dev" = "uiautodev.__main__:main"
