@@ -24,7 +24,6 @@ from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
-from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
@@ -174,6 +173,7 @@ async def unified_ws(websocket: WebSocket, serial: str):
 
 
 def get_harmony_mjpeg_server(serial: str):
+    from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
     logger.info("create harmony mjpeg server for %s", serial)
     from hypium import UiDriver
     driver = UiDriver.connect(device_sn=serial)
