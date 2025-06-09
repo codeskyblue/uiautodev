@@ -12,6 +12,10 @@ UI Inspector for Android and iOS, help inspector element properties, and auto ge
 ```bash
 pip install uiautodev
 ```
+If you are working with HarmonyOS and need additional dependencies, you can install the harmony version with the following command:
+```bash
+pip install uiautodev[harmony]
+```
 
 # Usage
 ```bash
