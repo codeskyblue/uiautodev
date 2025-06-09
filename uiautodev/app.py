@@ -29,6 +29,7 @@ from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
+from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +174,7 @@ async def unified_ws(websocket: WebSocket, serial: str):
 
 
 def get_harmony_mjpeg_server(serial: str):
-    from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
+    # from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
     logger.info("create harmony mjpeg server for %s", serial)
     from hypium import UiDriver
     driver = UiDriver.connect(device_sn=serial)
