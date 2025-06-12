@@ -8,25 +8,19 @@ class UiautoException(Exception):
     pass
 
 
-class IOSDriverException(UiautoException):
+class DriverException(UiautoException):
+    """Base class for all driver-related exceptions."""
     pass
 
-
-class AndroidDriverException(UiautoException):
-    pass
-
-
-class AppiumDriverException(UiautoException):
-    pass
+class IOSDriverException(DriverException): ...
+class AndroidDriverException(DriverException): ...
+class HarmonyDriverException(DriverException): ...
+class AppiumDriverException(DriverException): ...
 
 
 class MethodError(UiautoException):
     pass
 
 
-class ElementNotFoundError(MethodError):
-    pass
-
-
-class RequestError(UiautoException):
-    pass
+class ElementNotFoundError(MethodError): ...
+class RequestError(UiautoException): ...

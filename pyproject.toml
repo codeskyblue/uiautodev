@@ -29,10 +29,10 @@ httpx = "*"
 uvicorn = ">=0.33.0"
 rich = "*"
 python-multipart = ">=0.0.18"
-xdevice = { path = "uiautodev/binaries/xdevice-5.0.7.200.tar.gz" }
-xdevice-devicetest = { path = "uiautodev/binaries/xdevice-devicetest-5.0.7.200.tar.gz" }
-xdevice-ohos = { path = "uiautodev/binaries/xdevice-ohos-5.0.7.200.tar.gz" }
-hypium = { path = "uiautodev/binaries/hypium-5.0.7.200.tar.gz" }
+xdevice = { url = "https://public.uiauto.devsleep.com/harmony/xdevice-5.0.7.200.tar.gz" }
+xdevice-devicetest = { url = "https://public.uiauto.devsleep.com/harmony/xdevice-devicetest-5.0.7.200.tar.gz" }
+xdevice-ohos = { url = "https://public.uiauto.devsleep.com/harmony/xdevice-ohos-5.0.7.200.tar.gz" }
+hypium = { url = "https://public.uiauto.devsleep.com/harmony/hypium-5.0.7.200.tar.gz" }
 
 [tool.poetry.extras]
 harmony = ["setuptools", "xdevice", "xdevice-devicetest", "xdevice-ohos", "hypium"]

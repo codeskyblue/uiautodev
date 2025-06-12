@@ -141,15 +141,8 @@ def index_redirect():
     return RedirectResponse(url)
 
 
-def get_scrcpy_server(serial: str):
-    # 这里主要是为了避免两次websocket建立建立，启动两个scrcpy进程
-    logger.info("create scrcpy server for %s", serial)
-    device = adbutils.device(serial)
-    return ScrcpyServer(device)
-
-
 @app.websocket("/ws/android/scrcpy/{serial}")
-async def unified_ws(websocket: WebSocket, serial: str):
+async def handle_android_ws(websocket: WebSocket, serial: str):
     """
     Args:
         serial: device serial
@@ -159,9 +152,8 @@ async def unified_ws(websocket: WebSocket, serial: str):
 
     try:
         logger.info(f"WebSocket serial: {serial}")
-
-        # 获取 ScrcpyServer 实例
-        server = get_scrcpy_server(serial)
+        device = adbutils.device(serial)
+        server = ScrcpyServer(device)
         await server.handle_unified_websocket(websocket, serial)
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
@@ -173,10 +165,11 @@ async def unified_ws(websocket: WebSocket, serial: str):
 
 
 def get_harmony_mjpeg_server(serial: str):
-    from uiautodev.remote.harmony_scrcpy import HarmonyMjpegServer
-    logger.info("create harmony mjpeg server for %s", serial)
     from hypium import UiDriver
+
+    from uiautodev.remote.harmony_mjpeg import HarmonyMjpegServer
     driver = UiDriver.connect(device_sn=serial)
+    logger.info("create harmony mjpeg server for %s", serial)
     logger.info(f'device wake_up_display: {driver.wake_up_display()}')
     return HarmonyMjpegServer(driver)
 
@@ -197,6 +190,9 @@ async def unified_harmony_ws(websocket: WebSocket, serial: str):
         server = get_harmony_mjpeg_server(serial)
         server.start()
         await server.handle_ws(websocket)
+    except ImportError as e:
+        logger.error(f"missing library for harmony: {e}")
+        await websocket.close(code=1000, reason="missing library, fix by \"pip install uiautodev[harmony]\"")
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
     except Exception as e:

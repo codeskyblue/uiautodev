@@ -8,6 +8,8 @@ from threading import Thread
 from fastapi import WebSocket
 from hypium import KeyCode
 
+from uiautodev.exceptions import HarmonyDriverException
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,7 +48,7 @@ class HarmonyMjpegServer:
             device = driver
         logger.info(f'device: {device}')
         if not hasattr(device, "abc_proxy") or device.abc_proxy is None:
-            raise RuntimeError("Only abc mode can support screen recorder")
+            raise HarmonyDriverException("Only abc mode can support screen recorder")
         self.device = device
         self.driver = driver
         self.abc_rpc_addr = ("127.0.0.1", device.abc_proxy.port)
