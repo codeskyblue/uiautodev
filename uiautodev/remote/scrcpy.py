@@ -16,6 +16,7 @@ from uiautodev.remote.touch_controller import ScrcpyTouchController
 
 logger = logging.getLogger(__name__)
 
+
 class ScrcpyServer:
     """
     ScrcpyServer class is responsible for managing the scrcpy server on Android devices.
@@ -30,17 +31,18 @@ class ScrcpyServer:
         Args:
             scrcpy_jar_path (str, optional): Path to the scrcpy server JAR file. Defaults to None.
         """
-        self.scrcpy_jar_path = scrcpy_jar_path or os.path.join(os.path.dirname(__file__), '../binaries/scrcpy_server.jar')
+        self.scrcpy_jar_path = scrcpy_jar_path or os.path.join(os.path.dirname(__file__),
+                                                               '../binaries/scrcpy_server.jar')
         self.device = device
         self.resolution_width = 0  # scrcpy 投屏转换宽度
         self.resolution_height = 0  # scrcpy 投屏转换高度
-        
+
         self._shell_conn: AdbConnection
         self._video_conn: socket.socket
         self._control_conn: socket.socket
 
         self._setup_connection()
-    
+
     def _setup_connection(self):
         self._shell_conn = self._start_scrcpy_server(control=True)
         self._video_conn = self._connect_scrcpy(self.device)
@@ -73,7 +75,7 @@ class ScrcpyServer:
             self._shell_conn.close()
         except:
             pass
-    
+
     def __del__(self):
         self.close()
 
@@ -108,14 +110,14 @@ class ScrcpyServer:
         )
         conn = device.shell(start_command, stream=True)
         logger.debug("scrcpy output: %s", conn.conn.recv(100))
-        return conn # type: ignore
+        return conn  # type: ignore
 
     async def handle_unified_websocket(self, websocket: WebSocket, serial=''):
         logger.info(f"[Unified] WebSocket connection from {websocket} for serial: {serial}")
 
         video_task = asyncio.create_task(self._stream_video_to_websocket(self._video_conn, websocket))
-        control_task  = asyncio.create_task(self._handle_control_websocket(websocket))
-        
+        control_task = asyncio.create_task(self._handle_control_websocket(websocket))
+
         try:
             # 不使用 return_exceptions=True，让异常能够正确传播
             await asyncio.gather(video_task, control_task)
@@ -129,14 +131,14 @@ class ScrcpyServer:
     async def _stream_video_to_websocket(self, conn: socket.socket, ws: WebSocket):
         # Set socket to non-blocking mode
         conn.setblocking(False)
-        
+
         while True:
             # check if ws closed
             if ws.client_state.name != "CONNECTED":
                 logger.info('WebSocket no longer connected. Exiting video stream.')
                 break
             # Use asyncio to read data asynchronously
-            data = await asyncio.get_event_loop().sock_recv(conn, 1024*1024)
+            data = await asyncio.get_event_loop().sock_recv(conn, 1024 * 1024)
             if not data:
                 logger.warning('No data received, connection may be closed.')
                 raise ConnectionError("Video stream ended unexpectedly")

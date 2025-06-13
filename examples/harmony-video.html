@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Video Stream</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Fill the entire viewport height */
+            background-color: #000;
+        }
+        #videoCanvasContainer {
+            position: relative;
+            width: 100vw; /* Occupy the entire viewport width */
+            height: 100vh; /* Occupy the entire viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #videoCanvas {
+            background-color: #000; /* Prevent white background on load */
+            display: block;
+            margin: auto; /* Center the canvas */
+        }
+    </style>
+</head>
+<body>
+    <div id="videoCanvasContainer">
+        <canvas id="videoCanvas"></canvas>
+    </div>
+
+    <script>
+        // Assume phone screen dimensions are 1260x2720
+        const phoneScreenWidth = 1260;
+        const phoneScreenHeight = 2720;
+
+        const canvasContainer = document.getElementById('videoCanvasContainer');
+        const canvas = document.getElementById('videoCanvas');
+        const context = canvas.getContext('2d');
+
+        const ws = new WebSocket('ws://localhost:8899'); // Ensure this URL matches your backend WS connection
+        ws.binaryType = 'arraybuffer';
+
+        ws.onmessage = function(event) {
+            const arrayBuffer = event.data;
+            const blob = new Blob([arrayBuffer], {type: 'image/jpeg'});
+            const url = URL.createObjectURL(blob);
+
+            const img = new Image();
+            img.onload = function() {
+                // Calculate aspect ratio and adjust canvas size
+                const containerWidth = canvasContainer.offsetWidth;
+                const containerHeight = canvasContainer.offsetHeight;
+                const aspectRatio = img.width / img.height;
+
+                if (containerWidth / containerHeight > aspectRatio) {
+                    canvas.height = containerHeight;
+                    canvas.width = Math.floor(containerHeight * aspectRatio);
+                } else {
+                    canvas.width = containerWidth;
+                    canvas.height = Math.floor(containerWidth / aspectRatio);
+                }
+
+                // Clear and draw the image on the canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        };
+
+        let downCoordinates = { x: 0, y: 0 }
+        let upCoordinates = { x: 0, y: 0 }
+
+        canvas.addEventListener('mousedown', function(event) {
+            // isMouseDown = true;
+            downCoordinates = calculateCoordinates(event)
+
+
+            // 按下即触发点击事件
+            // sendMouseEvent('normal', downCoordinates);
+            // endX = startX;
+            // endY = startY;
+
+            // Long press detection
+            // longPressTimer = setTimeout(function() {
+            //     if (isMouseDown) {
+            //         sendMouseEvent('long', { clientX: startX, clientY: startY });
+            //     }
+            // }, 500); // Long press time threshold in milliseconds
+        });
+
+        // canvas.addEventListener('mousemove', function(event) {
+        //     console.log('move', event.clientX, event.clientY)
+        //     if (isMouseDown) {
+        //         // Send mouse move event with both current and previous coordinates
+        //         const {startX, startY} = calculateCoordinates({ clientX: startX, clientY: startY })
+        //         const {endX, endY} = calculateCoordinates(event)
+        //         ws.send(JSON.stringify({
+        //             type: 'touch',
+        //             action: 'move',
+        //             x1: startX,
+        //             y1: startY,
+        //             x2: endX,
+        //             y2: endY
+        //         }));
+        //     }
+        // });
+
+
+        canvas.addEventListener('mouseup', function(event) {
+            // 1-up 和 down是同一个点，说明是点击事件
+            // 2-up 和 down是不同一个点，说明是滑动事件
+            console.log('down ', downCoordinates)
+            // isMouseDown = false;
+            upCoordinates = calculateCoordinates(event)
+           let { mouseX: startX, mouseY: startY } = downCoordinates;
+            let { mouseX: endX, mouseY: endY } = upCoordinates;
+            // clearTimeout(longPressTimer);
+            console.log(startX); // 输出 0
+            console.log(startY); // 输出 0
+            console.log(endX); // 输出 0
+            console.log(endY); // 输出 0
+           if (startX === endX && startY === endY) {
+                console.log("Click event detected");
+                sendMouseEvent('normal', startX, startY);
+            } else {
+                console.log("Move event detected");
+                sendMouseMoveEvent('move', startX, startY, endX, endY);
+            }
+        });
+
+        // canvas.addEventListener('click', function(event) {
+        //     sendMouseEvent('normal', event);
+        // });
+
+        // canvas.addEventListener('dblclick', function(event) {
+        //     sendMouseEvent('double', event);
+        // });
+
+        function sendMouseEvent(action, mouseX, mouseY) {
+            // Send mouse event to backend via WebSocket
+            ws.send(JSON.stringify({ type: 'touch', action: action, x: mouseX, y: mouseY }));
+        }
+        function sendMouseMoveEvent(action, startX, startY, endX, endY) {
+            ws.send(JSON.stringify({
+                type: 'touch',
+                action: action,
+                x1: startX,
+                y1: startY,
+                x2: endX,
+                y2: endY
+            }));
+        }
+
+        function calculateCoordinates(event) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseXCanvas = event.clientX - rect.left;
+            const mouseYCanvas = event.clientY - rect.top;
+
+            const scaleX = phoneScreenWidth / canvas.width;
+            const scaleY = phoneScreenHeight / canvas.height;
+            const mouseX = Math.floor(mouseXCanvas * scaleX);
+            const mouseY = Math.floor(mouseYCanvas * scaleY);
+
+            console.log(`Canvas coordinates: (${mouseXCanvas}, ${mouseYCanvas})`);
+            console.log(`Scaled coordinates: (${mouseX}, ${mouseY})`);
+
+            return { mouseX, mouseY };
+        }
+
+
+
+        ws.onopen = function() {
+            console.log('WebSocket connection opened');
+        };
+
+        ws.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+    </script>
+</body>
+</html>
