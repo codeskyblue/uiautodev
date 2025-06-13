@@ -13,7 +13,6 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-setuptools = "*"
 adbutils = ">=2.8.10,<3"
 click = "^8.1.7"
 pygments = ">=2"
@@ -29,13 +28,6 @@ httpx = "*"
 uvicorn = ">=0.33.0"
 rich = "*"
 python-multipart = ">=0.0.18"
-xdevice = { url = "https://public.uiauto.devsleep.com/harmony/xdevice-5.0.7.200.tar.gz" }
-xdevice-devicetest = { url = "https://public.uiauto.devsleep.com/harmony/xdevice-devicetest-5.0.7.200.tar.gz" }
-xdevice-ohos = { url = "https://public.uiauto.devsleep.com/harmony/xdevice-ohos-5.0.7.200.tar.gz" }
-hypium = { url = "https://public.uiauto.devsleep.com/harmony/hypium-5.0.7.200.tar.gz" }
-
-[tool.poetry.extras]
-harmony = ["setuptools", "xdevice", "xdevice-devicetest", "xdevice-ohos", "hypium"]
 
 [tool.poetry.scripts]
 "uiauto.dev" = "uiautodev.__main__:main"
