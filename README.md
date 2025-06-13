@@ -13,6 +13,12 @@ UI Inspector for Android and iOS, help inspector element properties, and auto ge
 pip install uiautodev
 ```
 
+To support harmony, run the following command
+
+```bash
+pip install "uiautodev[harmony]"
+```
+
 # Usage
 ```bash
 Usage: uiauto.dev [OPTIONS] COMMAND [ARGS]...
