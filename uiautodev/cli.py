@@ -19,6 +19,7 @@ import click
 import httpx
 import pydantic
 import uvicorn
+from retry import retry
 
 from uiautodev import __version__, command_proxy
 from uiautodev.command_types import Command
@@ -114,6 +115,25 @@ def print_version():
 def self_update():
     """ Update uiautodev to latest version """
     subprocess.run([sys.executable, '-m', "pip", "install", "--upgrade", "uiautodev"])
+
+
+@cli.command('install-harmony')
+def install_harmony():
+    for lib_url in [
+        "setuptools",
+        "https://public.uiauto.devsleep.com/harmony/xdevice-5.0.7.200.tar.gz",
+        "https://public.uiauto.devsleep.com/harmony/xdevice-devicetest-5.0.7.200.tar.gz",
+        "https://public.uiauto.devsleep.com/harmony/xdevice-ohos-5.0.7.200.tar.gz",
+        "https://public.uiauto.devsleep.com/harmony/hypium-5.0.7.200.tar.gz",
+    ]:
+        print(f"Installing {lib_url} ...")
+        pip_install(lib_url)
+
+@retry(tries=2, delay=3, backoff=2)
+def pip_install(package: str):
+    """Install a package using pip."""
+    subprocess.run([sys.executable, '-m', "pip", "install", package], check=True)
+    print(f"Successfully installed {package}")
 
 
 @cli.command(help="start uiauto.dev local server [Default]")

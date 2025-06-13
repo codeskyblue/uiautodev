@@ -4,19 +4,19 @@
 
 https://uiauto.dev
 
-> backup site: https://uiauto.devsleep.com
+> In China visit: https://uiauto.devsleep.com
 
-UI Inspector for Android and iOS, help inspector element properties, and auto generate XPath, script.
+UI Inspector for Android, iOS and Harmony help inspector element properties, and auto generate XPath, script.
 
 # Install
 ```bash
 pip install uiautodev
 ```
 
-To support harmony, run the following command
+If you want to support harmony, some dependencies need to be installed, please run the following command
 
-```bash
-pip install "uiautodev[harmony]"
+```sh
+uiautodev install-harmony
 ```
 
 # Usage
