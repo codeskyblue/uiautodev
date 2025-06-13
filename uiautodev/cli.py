@@ -30,7 +30,13 @@ from uiautodev.utils.common import convert_params_to_model, print_json
 logger = logging.getLogger(__name__)
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
+HARMONY_PACKAGES = [
+    "setuptools",
+    "https://public.uiauto.devsleep.com/harmony/xdevice-5.0.7.200.tar.gz",
+    "https://public.uiauto.devsleep.com/harmony/xdevice-devicetest-5.0.7.200.tar.gz",
+    "https://public.uiauto.devsleep.com/harmony/xdevice-ohos-5.0.7.200.tar.gz",
+    "https://public.uiauto.devsleep.com/harmony/hypium-5.0.7.200.tar.gz",
+]
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
@@ -119,21 +125,15 @@ def self_update():
 
 @cli.command('install-harmony')
 def install_harmony():
-    for lib_url in [
-        "setuptools",
-        "https://public.uiauto.devsleep.com/harmony/xdevice-5.0.7.200.tar.gz",
-        "https://public.uiauto.devsleep.com/harmony/xdevice-devicetest-5.0.7.200.tar.gz",
-        "https://public.uiauto.devsleep.com/harmony/xdevice-ohos-5.0.7.200.tar.gz",
-        "https://public.uiauto.devsleep.com/harmony/hypium-5.0.7.200.tar.gz",
-    ]:
-        print(f"Installing {lib_url} ...")
+    for lib_url in HARMONY_PACKAGES:
+        click.echo(f"Installing {lib_url} ...")
         pip_install(lib_url)
 
 @retry(tries=2, delay=3, backoff=2)
 def pip_install(package: str):
     """Install a package using pip."""
     subprocess.run([sys.executable, '-m', "pip", "install", package], check=True)
-    print(f"Successfully installed {package}")
+    click.echo(f"Successfully installed {package}")
 
 
 @cli.command(help="start uiauto.dev local server [Default]")
@@ -143,7 +143,7 @@ def pip_install(package: str):
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
 @click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
 def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
-    print("uiautodev version:", __version__)
+    click.echo(f"uiautodev version: {__version__}")
     if force:
         try:
             httpx.get(f"http://{host}:{port}/shutdown", timeout=3)
