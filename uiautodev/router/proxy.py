@@ -54,5 +54,5 @@ async def proxy_ws(websocket: WebSocket, target_url: str):
     except WebSocketDisconnect:
         pass
     except Exception as e:
-        print(f"WS Error: {e}")
+        logger.error(f"WS Error: {e}")
         await websocket.close()
