@@ -1,5 +1,4 @@
 import asyncio
-from urllib.parse import unquote
 
 import httpx
 import websockets
