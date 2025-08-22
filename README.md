@@ -43,7 +43,7 @@ uiauto.dev
 
 # DEVELOP
 
-see [DEVELOP.md]
+see [DEVELOP.md](DEVELOP.md)
 
 # Links
 - https://app.tangoapp.dev/ 基于webadb的手机远程控制项目
