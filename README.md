@@ -42,31 +42,8 @@ uiauto.dev
 ```
 
 # DEVELOP
-```bash
-# install poetry (python package manager)
-pip install poetry # pipx install poetry
 
-# install deps
-poetry install
-
-# format import
-make format
-
-# run server
-make dev
-
-# If you encounter the error NameError: name 'int2byte' is not defined,
-# try installing a stable version of the construct package to resolve it:
-# and restart: make dev
-pip install construct==2.9.45
-
-```
-
-运行测试
-
-```sh
-make test
-```
+see [DEVELOP.md]
 
 # Links
 - https://app.tangoapp.dev/ 基于webadb的手机远程控制项目
