@@ -27,6 +27,7 @@ from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, Mo
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
+from uiautodev.router.proxy import router as proxy_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
 
@@ -70,7 +71,7 @@ else:
 
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 app.include_router(android_device_router, prefix="/api/android", tags=["android"])
-
+app.include_router(proxy_router, prefix="/proxy", tags=["proxy"])
 
 @app.get('/api/{platform}/features')
 def get_features(platform: str) -> Dict[str, bool]:
