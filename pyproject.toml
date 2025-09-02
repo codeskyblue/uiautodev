@@ -8,7 +8,9 @@ license = "MIT"
 readme = "README.md"
 
 include = [
-    {path = "uiautodev/binaries/scrcpy.jar"}
+    {path = "uiautodev/binaries/scrcpy.jar"},
+#    https://soniccloudorg.github.io/saa/re-saa.html
+    {path = "uiautodev/binaries/sonic-android-apk.apk"}
 ]
 
 [tool.poetry.dependencies]
