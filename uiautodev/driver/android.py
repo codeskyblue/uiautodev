@@ -127,7 +127,7 @@ class AndroidDriver(BaseDriver):
     def volume_mute(self):
         self.adb_device.keyevent("VOLUME_MUTE")
 
-    def get_app_version(self, package_name: str) -> Optional[dict]:
+    def get_app_version(self, package_name: str) -> dict:
         """
         Get the version information of an app, including mainVersion and subVersion.
 
@@ -172,11 +172,17 @@ class AndroidDriver(BaseDriver):
 
     def open_app_file(self, package: str) -> Iterator[bytes]:
         line = self.adb_device.shell(f"pm path {package}")
+        assert isinstance(line, str)
         if not line.startswith("package:"):
             raise AndroidDriverException(f"Failed to get package path: {line}")
         remote_path = line.split(':', 1)[1]
         yield from self.adb_device.sync.iter_content(remote_path)
-
+    
+    def send_keys(self, text: str):
+        self.ud.send_keys(text)
+    
+    def clear_text(self):
+        self.ud.clear_text()
 
 
 def parse_xml(xml_data: str, wsize: WindowSize, display_id: Optional[int] = None) -> Node:
