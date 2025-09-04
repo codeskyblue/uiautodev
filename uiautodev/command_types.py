@@ -39,6 +39,8 @@ class Command(str, enum.Enum):
     VOLUME_UP = "volumeUp"
     VOLUME_DOWN = "volumeDown"
     VOLUME_MUTE = "volumeMute"
+    SEND_KEYS = "sendKeys"
+    CLEAR_TEXT = "clearText"
 
 
 class TapRequest(BaseModel):
@@ -95,3 +97,7 @@ class FindElementRequest(BaseModel):
 class FindElementResponse(BaseModel):
     count: int
     value: List[Node]
+
+
+class SendKeysRequest(BaseModel):
+    text: str

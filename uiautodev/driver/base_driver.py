@@ -102,4 +102,11 @@ class BaseDriver(abc.ABC):
     def open_app_file(self, package: str) -> Iterator[bytes]:
         """ open app file """
         raise NotImplementedError()
-        
+    
+    def send_keys(self, text: str):
+        """ send keys to device """
+        raise NotImplementedError()
+
+    def clear_text(self):
+        """ clear text input on device """
+        raise NotImplementedError()

@@ -13,7 +13,7 @@ from typing import Callable, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from uiautodev.command_types import AppLaunchRequest, AppTerminateRequest, By, Command, CurrentAppResponse, \
-    DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, TapRequest, \
+    DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, SendKeysRequest, TapRequest, \
     WindowSizeResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.exceptions import ElementNotFoundError
@@ -39,7 +39,7 @@ def get_command_params_type(command: Command) -> Optional[BaseModel]:
     return type_hints.get("params")
 
 
-def send_command(driver: BaseDriver, command: Union[str, Command], params=None):
+def send_command(driver: BaseDriver, command: Command, params=None):
     if command not in COMMANDS:
         raise NotImplementedError(f"command {command} not implemented")
     func = COMMANDS[command]
@@ -141,6 +141,14 @@ def dump(driver: BaseDriver) -> DumpResponse:
 @register(Command.WAKE_UP)
 def wake_up(driver: BaseDriver):
     driver.wake_up()
+
+@register(Command.SEND_KEYS)
+def send_keys(driver: BaseDriver, params: SendKeysRequest):
+    driver.send_keys(params.text)
+
+@register(Command.CLEAR_TEXT)
+def clear_text(driver: BaseDriver):
+    driver.clear_text()
 
 
 def node_match(node: Node, by: By, value: str) -> bool:
