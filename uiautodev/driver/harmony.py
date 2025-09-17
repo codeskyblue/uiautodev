@@ -73,7 +73,31 @@ class HDC:
     
     def get_model(self, serial: str) -> str:
         return self.shell(serial, "param get const.product.model")
-    
+
+    def get_name(self, serial: str) -> str:
+        data = self.shell(serial, "param get const.product.name")
+        return self.__split_text(data)
+
+    def wlan_ip(self, serial: str) -> Union[str, None]:
+        data = self.shell(serial, "ifconfig")
+        matches = re.findall(r'inet addr:(?!127)(\d+\.\d+\.\d+\.\d+)', data)
+        return matches[0] if matches else None
+
+    def __split_text(self, text: str) -> str:
+        return text.split("\n")[0].strip() if text else None
+
+    def sdk_version(self, serial: str) -> str:
+        data = self.shell(serial, "param get const.ohos.apiversion")
+        return self.__split_text(data)
+
+    def sys_version(self, serial: str) -> str:
+        data = self.shell(serial, "param get const.product.software.version")
+        return self.__split_text(data)
+
+    def brand(self, serial: str) -> str:
+        data = self.shell(serial, "param get const.product.brand")
+        return self.__split_text(data)
+
     def pull(self, serial: str, remote: StrOrPath, local: StrOrPath):
         if isinstance(remote, Path):
             remote = remote.as_posix()
