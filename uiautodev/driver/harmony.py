@@ -219,7 +219,7 @@ class HarmonyDriver(BaseDriver):
 
             app_info = json.loads(json_output)
         except Exception as e:
-            logger.error(f"An error occurred:{e}")
+            logger.error(f"An error occurred: {e}")
         return app_info
 
     def get_app_abilities(self, package_name: str) -> List[Dict]:
