@@ -76,7 +76,7 @@ class HarmonyProvider(BaseProvider):
 
     def list_devices(self) -> list[DeviceInfo]:
         devices = self.hdc.list_device()
-        return [DeviceInfo(serial=d, model=self.hdc.get_model(d), name=self.hdc.get_model(d)) for d in devices]
+        return [DeviceInfo(serial=d, model=self.hdc.get_model(d), name=self.hdc.get_name(d)) for d in devices]
 
     @lru_cache
     def get_device_driver(self, serial: str) -> HarmonyDriver:
