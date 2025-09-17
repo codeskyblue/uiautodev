@@ -14,6 +14,7 @@ from pydantic import BaseModel
 class DeviceInfo(BaseModel):
     serial: str
     model: str = ""
+    product: str = ""
     name: str = ""
     status: str = ""
     enabled: bool = True

@@ -46,12 +46,18 @@ class AndroidProvider(BaseProvider):
     def list_devices(self) -> list[DeviceInfo]:
         adb = adbutils.AdbClient()
         ret: list[DeviceInfo] = []
-        for d in adb.list():
+        for d in adb.list(extended=True):
             if d.state != "device":
                 ret.append(DeviceInfo(serial=d.serial, status=d.state, enabled=False))
             else:
-                dev = adb.device(d.serial)
-                ret.append(DeviceInfo(serial=d.serial, model=dev.prop.model, name=dev.prop.name))
+                ret.append(DeviceInfo(
+                    serial=d.serial,
+                    status=d.state,
+                    name=d.tags.get('device', ''),
+                    model=d.tags.get('model', ''),
+                    product=d.tags.get('product', ''),
+                    enabled=True
+                ))
         return ret
 
     @lru_cache
