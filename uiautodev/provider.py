@@ -53,6 +53,7 @@ class AndroidProvider(BaseProvider):
                 ret.append(DeviceInfo(
                     serial=d.serial,
                     status=d.state,
+                    name=d.tags.get('device', ''),
                     model=d.tags.get('model', ''),
                     product=d.tags.get('product', ''),
                     enabled=True
