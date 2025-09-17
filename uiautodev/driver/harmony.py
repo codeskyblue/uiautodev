@@ -87,7 +87,7 @@ class HDC:
         if not data or "not found" in data.lower() or "error" in data.lower():
             logger.warning(f"ifconfig command failed or returned error for serial {serial}: {data!r}")
             return ""
-            # Try multiple patterns for IP address
+        # Try multiple patterns for IP address
         matches = re.findall(r'inet addr:(?!127)(\d+\.\d+\.\d+\.\d+)', data)
         if not matches:
             matches = re.findall(r'inet (?!127)(\d+\.\d+\.\d+\.\d+)', data)
