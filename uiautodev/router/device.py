@@ -53,7 +53,7 @@ def make_router(provider: BaseProvider) -> APIRouter:
             return Response(content=str(e), media_type="text/plain", status_code=500)
 
     @router.get("/{serial}/hierarchy")
-    def dump_hierarchy(serial: str, format: str = "json") -> Node:
+    def dump_hierarchy(serial: str, format: str = "json"):
         """Dump the view hierarchy of an Android device"""
         try:
             driver = provider.get_device_driver(serial)

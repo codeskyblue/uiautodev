@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Created on Sun Feb 18 2024 13:48:55 by codeskyblue
-"""
+"""Created on Sun Feb 18 2024 13:48:55 by codeskyblue"""
 
 import logging
 import os
@@ -13,9 +12,14 @@ from typing import Dict, List
 
 import adbutils
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, WebSocket
+from fastapi import FastAPI, File, Response, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (
+    FileResponse,
+    JSONResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
 from pydantic import BaseModel
 from rich.logging import RichHandler
 from starlette.websockets import WebSocketDisconnect
@@ -80,18 +84,22 @@ app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 app.include_router(android_device_router, prefix="/api/android", tags=["android"])
 app.include_router(proxy_router, prefix="/proxy", tags=["proxy"])
 
-@app.get('/api/{platform}/features')
+
+@app.get("/api/{platform}/features")
 def get_features(platform: str) -> Dict[str, bool]:
     """Get features supported by the specified platform"""
     features = {}
     # 获取所有带有指定平台tag的路由
+    from starlette.routing import Route
+
     for route in app.routes:
-        if hasattr(route, 'tags') and platform in route.tags:
-            if route.path.startswith(f"/api/{platform}/{{serial}}/"):
+        _route: Route = route  # type: ignore
+        if hasattr(_route, "tags") and platform in _route.tags:
+            if _route.path.startswith(f"/api/{platform}/{{serial}}/"):
                 # 提取特性名称
-                parts = route.path.split('/')
+                parts = _route.path.split("/")
                 feature_name = parts[-1]
-                if not feature_name.startswith('{'):
+                if not feature_name.startswith("{"):
                     features[feature_name] = True
     return features
 
@@ -118,7 +126,7 @@ def info() -> InfoResponse:
     )
 
 
-@app.post('/api/ocr_image')
+@app.post("/api/ocr_image")
 async def _ocr_image(file: UploadFile = File(...)) -> List[Node]:
     """OCR an image"""
     image_data = await file.read()
@@ -143,10 +151,73 @@ def demo():
 
 @app.get("/")
 def index_redirect():
-    """ redirect to official homepage """
+    """redirect to official homepage"""
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
+
+
+# ref: https://stackoverflow.com/questions/74555102/how-to-forward-fastapi-requests-to-another-server
+from fastapi import Request
+import httpx
+
+
+from fastapi import BackgroundTasks
+from starlette.background import BackgroundTask
+def make_reverse_proxy(base_url: str, strip_prefix: str = ""):
+    async def _reverse_proxy(request: Request):
+        client = httpx.AsyncClient(base_url=base_url)
+        client.timeout = httpx.Timeout(30.0, read=300.0)
+        path = request.url.path
+        if strip_prefix and path.startswith(strip_prefix):
+            path = path[len(strip_prefix):]
+        target_url = httpx.URL(
+            path=path, query=request.url.query.encode("utf-8")
+        )
+        exclude_headers = [b"host", b"connection", b"accept-encoding"]
+        headers = [(k, v) for k, v in request.headers.raw if k not in exclude_headers]
+        headers.append((b'accept-encoding', b''))
+        
+        req = client.build_request(
+            request.method, target_url, headers=headers, content=request.stream()
+        )
+        print("proxy to:", req.url)
+        r = await client.send(req, stream=True)#, follow_redirects=True)
+        print("response:", r.status_code, r.headers)
+        
+        response_headers = {
+            k: v for k, v in r.headers.items()
+            if k.lower() not in {"transfer-encoding", "connection", "content-length"}
+        }
+        async def gen_content():
+            async for chunk in r.aiter_bytes(chunk_size=40960):
+                print("Chunk:", len(chunk))
+                yield chunk
+        
+        async def aclose():
+            await client.aclose()
+            print("Client closed")
+        
+        return StreamingResponse(
+            content=gen_content(),
+            status_code=r.status_code,
+            headers=response_headers,
+            background=BackgroundTask(aclose),
+        )
+
+    return _reverse_proxy
+
+
+app.add_route(
+    "/proxytest/{path:path}",
+    make_reverse_proxy("https://uiauto.devsleep.com/"),
+    methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+)
+app.add_route(
+    "/assets/{path:path}",
+    make_reverse_proxy("https://uiauto.devsleep.com/assets/", strip_prefix="/assets/"),
+    methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+)
 
 
 @app.websocket("/ws/android/scrcpy/{serial}")
@@ -176,9 +247,10 @@ def get_harmony_mjpeg_server(serial: str):
     from hypium import UiDriver
 
     from uiautodev.remote.harmony_mjpeg import HarmonyMjpegServer
+
     driver = UiDriver.connect(device_sn=serial)
     logger.info("create harmony mjpeg server for %s", serial)
-    logger.info(f'device wake_up_display: {driver.wake_up_display()}')
+    logger.info(f"device wake_up_display: {driver.wake_up_display()}")
     return HarmonyMjpegServer(driver)
 
 
@@ -200,7 +272,9 @@ async def unified_harmony_ws(websocket: WebSocket, serial: str):
         await server.handle_ws(websocket)
     except ImportError as e:
         logger.error(f"missing library for harmony: {e}")
-        await websocket.close(code=1000, reason="missing library, fix by \"pip install uiautodev[harmony]\"")
+        await websocket.close(
+            code=1000, reason='missing library, fix by "pip install uiautodev[harmony]"'
+        )
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
     except Exception as e:
@@ -210,5 +284,5 @@ async def unified_harmony_ws(websocket: WebSocket, serial: str):
         logger.info(f"WebSocket closed for serial={serial}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("uiautodev.app:app", port=4000, reload=True, use_colors=True)
