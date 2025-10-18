@@ -4,7 +4,7 @@
 
 https://uiauto.dev
 
-> In China visit: https://uiauto.devsleep.com
+> ~~In China visit: https://uiauto.devsleep.com~~
 
 UI Inspector for Android, iOS and Harmony help inspector element properties, and auto generate XPath, script.
 

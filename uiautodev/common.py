@@ -28,8 +28,9 @@ def is_chinese_language() -> bool:
     
 def get_webpage_url() -> str:
     web_url = "https://uiauto.dev"
-    if is_chinese_language():
-        web_url = "https://uiauto.devsleep.com"
+    # code will be enabled until uiauto.devsleep.com is ready
+    # if is_chinese_language():
+    #     web_url = "https://uiauto.devsleep.com"
     return web_url
 
 
