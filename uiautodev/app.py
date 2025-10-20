@@ -11,17 +11,15 @@ from pathlib import Path
 from typing import Dict, List
 
 import adbutils
+import httpx
 import uvicorn
-from fastapi import FastAPI, File, Response, UploadFile, WebSocket
+from fastapi import FastAPI, File, Request, Response, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (
-    FileResponse,
-    JSONResponse,
-    RedirectResponse,
-    StreamingResponse,
-)
+from fastapi.responses import (FileResponse, JSONResponse, RedirectResponse,
+                               StreamingResponse)
 from pydantic import BaseModel
 from rich.logging import RichHandler
+from starlette.background import BackgroundTask
 from starlette.websockets import WebSocketDisconnect
 
 from uiautodev import __version__
@@ -149,7 +147,7 @@ def demo():
     return FileResponse(static_dir / "demo.html")
 
 
-@app.get("/")
+@app.get("/redirect")
 def index_redirect():
     """redirect to official homepage"""
     url = get_webpage_url()
@@ -158,12 +156,6 @@ def index_redirect():
 
 
 # ref: https://stackoverflow.com/questions/74555102/how-to-forward-fastapi-requests-to-another-server
-from fastapi import Request
-import httpx
-
-
-from fastapi import BackgroundTasks
-from starlette.background import BackgroundTask
 def make_reverse_proxy(base_url: str, strip_prefix: str = ""):
     async def _reverse_proxy(request: Request):
         client = httpx.AsyncClient(base_url=base_url)
@@ -209,7 +201,12 @@ def make_reverse_proxy(base_url: str, strip_prefix: str = ""):
 
 
 app.add_route(
-    "/proxytest/{path:path}",
+    "/",
+    make_reverse_proxy("https://uiauto.devsleep.com/"),
+    methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+)
+app.add_route(
+    "/android/{path:path}",
     make_reverse_proxy("https://uiauto.devsleep.com/"),
     methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 )
@@ -219,6 +216,10 @@ app.add_route(
     methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 )
 
+@app.get("/api/auth/me")
+def mock_auth_me():
+    # 401 {"detail":"Authentication required"}
+    return JSONResponse(status_code=401, content={"detail": "Authentication required"})
 
 @app.websocket("/ws/android/scrcpy/{serial}")
 async def handle_android_ws(websocket: WebSocket, serial: str):
