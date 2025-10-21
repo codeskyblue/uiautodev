@@ -10,7 +10,7 @@ from functools import lru_cache
 
 import adbutils
 
-from uiautodev.driver.android import AndroidDriver
+from uiautodev.driver.android import U2AndroidDriver, ADBAndroidDriver
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.driver.harmony import HDC, HarmonyDriver
 from uiautodev.driver.ios import IOSDriver
@@ -61,8 +61,8 @@ class AndroidProvider(BaseProvider):
         return ret
 
     @lru_cache
-    def get_device_driver(self, serial: str) -> AndroidDriver:
-        return AndroidDriver(serial)
+    def get_device_driver(self, serial: str) -> BaseDriver:
+        return ADBAndroidDriver(serial)
 
 
 class IOSProvider(BaseProvider):

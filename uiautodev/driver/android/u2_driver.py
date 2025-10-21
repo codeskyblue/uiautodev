@@ -23,7 +23,7 @@ from uiautodev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)
 
-class AndroidDriver(BaseDriver):
+class U2AndroidDriver(BaseDriver):
     def __init__(self, serial: str):
         super().__init__(serial)
         self.adb_device = adbutils.device(serial)

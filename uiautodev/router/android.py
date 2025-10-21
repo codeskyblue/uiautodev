@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
 
-from uiautodev.driver.android import AndroidDriver
+from uiautodev.driver.android import U2AndroidDriver, ADBAndroidDriver
 from uiautodev.model import ShellResponse
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class AndroidShellPayload(BaseModel):
 def shell(serial: str, payload: AndroidShellPayload) -> ShellResponse:
     """Run a shell command on an Android device"""
     try:
-        driver = AndroidDriver(serial)
+        driver = ADBAndroidDriver(serial)
         return driver.shell(payload.command)
     except NotImplementedError as e:
         return Response(content="shell not implemented", media_type="text/plain", status_code=501)
@@ -34,7 +34,7 @@ def shell(serial: str, payload: AndroidShellPayload) -> ShellResponse:
 async def get_current_activity(serial: str) -> Response:
     """Get the current activity of the Android device"""
     try:
-        driver = AndroidDriver(serial)
+        driver = ADBAndroidDriver(serial)
         activity = driver.get_current_activity()
         return Response(content=activity, media_type="text/plain")
     except Exception as e:
