@@ -15,11 +15,9 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, File, Request, Response, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (FileResponse, JSONResponse, RedirectResponse,
-                               StreamingResponse)
+from fastapi.responses import (FileResponse, JSONResponse, RedirectResponse)
 from pydantic import BaseModel
 from rich.logging import RichHandler
-from starlette.background import BackgroundTask
 from starlette.websockets import WebSocketDisconnect
 
 from uiautodev import __version__
@@ -30,7 +28,7 @@ from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
-from uiautodev.router.proxy import router as proxy_router
+from uiautodev.router.proxy import make_reverse_proxy, router as proxy_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
 
@@ -80,7 +78,7 @@ else:
 
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 app.include_router(android_device_router, prefix="/api/android", tags=["android"])
-app.include_router(proxy_router, prefix="/proxy", tags=["proxy"])
+app.include_router(proxy_router, tags=["proxy"])
 
 
 @app.get("/api/{platform}/features")
@@ -154,67 +152,6 @@ def index_redirect():
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
 
-
-# ref: https://stackoverflow.com/questions/74555102/how-to-forward-fastapi-requests-to-another-server
-def make_reverse_proxy(base_url: str, strip_prefix: str = ""):
-    async def _reverse_proxy(request: Request):
-        client = httpx.AsyncClient(base_url=base_url)
-        client.timeout = httpx.Timeout(30.0, read=300.0)
-        path = request.url.path
-        if strip_prefix and path.startswith(strip_prefix):
-            path = path[len(strip_prefix):]
-        target_url = httpx.URL(
-            path=path, query=request.url.query.encode("utf-8")
-        )
-        exclude_headers = [b"host", b"connection", b"accept-encoding"]
-        headers = [(k, v) for k, v in request.headers.raw if k not in exclude_headers]
-        headers.append((b'accept-encoding', b''))
-        
-        req = client.build_request(
-            request.method, target_url, headers=headers, content=request.stream()
-        )
-        print("proxy to:", req.url)
-        r = await client.send(req, stream=True)#, follow_redirects=True)
-        print("response:", r.status_code, r.headers)
-        
-        response_headers = {
-            k: v for k, v in r.headers.items()
-            if k.lower() not in {"transfer-encoding", "connection", "content-length"}
-        }
-        async def gen_content():
-            async for chunk in r.aiter_bytes(chunk_size=40960):
-                print("Chunk:", len(chunk))
-                yield chunk
-        
-        async def aclose():
-            await client.aclose()
-            print("Client closed")
-        
-        return StreamingResponse(
-            content=gen_content(),
-            status_code=r.status_code,
-            headers=response_headers,
-            background=BackgroundTask(aclose),
-        )
-
-    return _reverse_proxy
-
-
-app.add_route(
-    "/",
-    make_reverse_proxy("https://uiauto.devsleep.com/"),
-    methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-)
-app.add_route(
-    "/android/{path:path}",
-    make_reverse_proxy("https://uiauto.devsleep.com/"),
-    methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-)
-app.add_route(
-    "/assets/{path:path}",
-    make_reverse_proxy("https://uiauto.devsleep.com/assets/", strip_prefix="/assets/"),
-    methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-)
 
 @app.get("/api/auth/me")
 def mock_auth_me():
