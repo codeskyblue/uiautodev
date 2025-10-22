@@ -28,17 +28,25 @@ Options:
   -h, --help     Show this message and exit.
 
 Commands:
+  server       start uiauto.dev local server [Default]
   android      COMMAND: tap, tapElement, installApp, currentApp,...
-  appium       COMMAND: tap, tapElement, installApp, currentApp,...
   ios          COMMAND: tap, tapElement, installApp, currentApp,...
   self-update  Update uiautodev to latest version
-  server       start uiauto.dev local server [Default]
   version      Print version
+  shutdown     Shutdown server
 ```
 
 ```bash
 # run local server and open browser
 uiauto.dev
+```
+
+# Environment
+
+```sh
+# 驱动默认为uiautomator2
+# 设置下面的环境变量可以调整为adb
+export UIAUTODEV_USE_ADB_DRIVER=1
 ```
 
 # DEVELOP

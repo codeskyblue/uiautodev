@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import abc
 from functools import lru_cache
+from typing import Type
 
 import adbutils
 
@@ -40,8 +41,8 @@ class BaseProvider(abc.ABC):
 
 
 class AndroidProvider(BaseProvider):
-    def __init__(self):
-        pass
+    def __init__(self, driver_class: Type[BaseDriver] = U2AndroidDriver):
+        self.driver_class = driver_class
 
     def list_devices(self) -> list[DeviceInfo]:
         adb = adbutils.AdbClient()
@@ -62,7 +63,8 @@ class AndroidProvider(BaseProvider):
 
     @lru_cache
     def get_device_driver(self, serial: str) -> BaseDriver:
-        return ADBAndroidDriver(serial)
+        return self.driver_class(serial)
+        
 
 
 class IOSProvider(BaseProvider):
