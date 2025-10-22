@@ -44,10 +44,26 @@ uiauto.dev
 # Environment
 
 ```sh
-# 驱动默认为uiautomator2
-# 设置下面的环境变量可以调整为adb
+# Default driver is uiautomator2
+# Set the environment variable below to switch to adb driver
 export UIAUTODEV_USE_ADB_DRIVER=1
+
+# Set the env to enable DEBUG log
+export UIAUTODEV_DEBUG=1
 ```
+
+# Offline mode
+
+Currently, the frontend is deployed on a separate server, so internet connection is required.
+However, some users have limited network environments or restricted internet access. Therefore, an offline cache mode has been added.
+Create a `cache` directory in the directory where uiautodev starts to activate frontend caching.
+
+```sh
+mkdir cache
+uiautodev
+```
+
+Visit <http://localhost:20242> once, and then disconnecting from the internet will not affect usage.
 
 # DEVELOP
 

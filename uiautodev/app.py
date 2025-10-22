@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Created on Sun Feb 18 2024 13:48:55 by codeskyblue
-"""
+"""Created on Sun Feb 18 2024 13:48:55 by codeskyblue"""
 
 import logging
 import os
@@ -12,10 +11,11 @@ from pathlib import Path
 from typing import Dict, List
 
 import adbutils
+import httpx
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, WebSocket
+from fastapi import FastAPI, File, Request, Response, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (FileResponse, JSONResponse, RedirectResponse)
 from pydantic import BaseModel
 from rich.logging import RichHandler
 from starlette.websockets import WebSocketDisconnect
@@ -28,7 +28,7 @@ from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
-from uiautodev.router.proxy import router as proxy_router
+from uiautodev.router.proxy import make_reverse_proxy, router as proxy_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
 
@@ -37,14 +37,17 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-def enable_logger_to_console():
+def enable_logger_to_console(level):
     _logger = logging.getLogger("uiautodev")
-    _logger.setLevel(logging.DEBUG)
+    _logger.setLevel(level)
     _logger.addHandler(RichHandler(enable_link_path=False))
 
 
 if os.getenv("UIAUTODEV_DEBUG"):
-    enable_logger_to_console()
+    enable_logger_to_console(level=logging.DEBUG)
+    logger.debug("verbose logger enabled")
+else:
+    enable_logger_to_console(level=logging.ERROR)
 
 app.add_middleware(
     CORSMiddleware,
@@ -78,20 +81,24 @@ else:
 
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 app.include_router(android_device_router, prefix="/api/android", tags=["android"])
-app.include_router(proxy_router, prefix="/proxy", tags=["proxy"])
+app.include_router(proxy_router, tags=["proxy"])
 
-@app.get('/api/{platform}/features')
+
+@app.get("/api/{platform}/features")
 def get_features(platform: str) -> Dict[str, bool]:
     """Get features supported by the specified platform"""
     features = {}
     # 获取所有带有指定平台tag的路由
+    from starlette.routing import Route
+
     for route in app.routes:
-        if hasattr(route, 'tags') and platform in route.tags:
-            if route.path.startswith(f"/api/{platform}/{{serial}}/"):
+        _route: Route = route  # type: ignore
+        if hasattr(_route, "tags") and platform in _route.tags:
+            if _route.path.startswith(f"/api/{platform}/{{serial}}/"):
                 # 提取特性名称
-                parts = route.path.split('/')
+                parts = _route.path.split("/")
                 feature_name = parts[-1]
-                if not feature_name.startswith('{'):
+                if not feature_name.startswith("{"):
                     features[feature_name] = True
     return features
 
@@ -118,7 +125,7 @@ def info() -> InfoResponse:
     )
 
 
-@app.post('/api/ocr_image')
+@app.post("/api/ocr_image")
 async def _ocr_image(file: UploadFile = File(...)) -> List[Node]:
     """OCR an image"""
     image_data = await file.read()
@@ -141,13 +148,18 @@ def demo():
     return FileResponse(static_dir / "demo.html")
 
 
-@app.get("/")
+@app.get("/redirect")
 def index_redirect():
-    """ redirect to official homepage """
+    """redirect to official homepage"""
     url = get_webpage_url()
     logger.debug("redirect to %s", url)
     return RedirectResponse(url)
 
+
+@app.get("/api/auth/me")
+def mock_auth_me():
+    # 401 {"detail":"Authentication required"}
+    return JSONResponse(status_code=401, content={"detail": "Authentication required"})
 
 @app.websocket("/ws/android/scrcpy/{serial}")
 async def handle_android_ws(websocket: WebSocket, serial: str):
@@ -176,9 +188,10 @@ def get_harmony_mjpeg_server(serial: str):
     from hypium import UiDriver
 
     from uiautodev.remote.harmony_mjpeg import HarmonyMjpegServer
+
     driver = UiDriver.connect(device_sn=serial)
     logger.info("create harmony mjpeg server for %s", serial)
-    logger.info(f'device wake_up_display: {driver.wake_up_display()}')
+    logger.info(f"device wake_up_display: {driver.wake_up_display()}")
     return HarmonyMjpegServer(driver)
 
 
@@ -200,7 +213,9 @@ async def unified_harmony_ws(websocket: WebSocket, serial: str):
         await server.handle_ws(websocket)
     except ImportError as e:
         logger.error(f"missing library for harmony: {e}")
-        await websocket.close(code=1000, reason="missing library, fix by \"pip install uiautodev[harmony]\"")
+        await websocket.close(
+            code=1000, reason='missing library, fix by "pip install uiautodev[harmony]"'
+        )
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
     except Exception as e:
@@ -210,5 +225,5 @@ async def unified_harmony_ws(websocket: WebSocket, serial: str):
         logger.info(f"WebSocket closed for serial={serial}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("uiautodev.app:app", port=4000, reload=True, use_colors=True)
