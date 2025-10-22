@@ -160,6 +160,14 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
         th.start()
     uvicorn.run("uiautodev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
 
+@cli.command(help="shutdown uiauto.dev local server")
+@click.option("--port", default=20242, help="port number", show_default=True)
+def shutdown(port: int):
+    try:
+        httpx.get(f"http://127.0.0.1:{port}/shutdown", timeout=3)
+    except httpx.HTTPError:
+        pass
+
 
 def open_browser_when_server_start(server_url: str):
     deadline = time.time() + 10

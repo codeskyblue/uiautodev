@@ -24,6 +24,7 @@ from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
+from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
@@ -53,7 +54,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-android_router = make_router(AndroidProvider())
+android_default_driver = U2AndroidDriver
+if os.getenv("UIAUTODEV_USE_ADB_DRIVER") in ("1", "true", "True"):
+    android_default_driver = ADBAndroidDriver
+
+android_router = make_router(AndroidProvider(driver_class=android_default_driver))
+android_adb_router = make_router(AndroidProvider(driver_class=ADBAndroidDriver))
 ios_router = make_router(IOSProvider())
 harmony_router = make_router(HarmonyProvider())
 mock_router = make_router(MockProvider())
@@ -66,6 +72,7 @@ if Environment.UIAUTODEV_MOCK:
     app.include_router(mock_router, prefix="/api/harmony", tags=["mock"])
 else:
     app.include_router(android_router, prefix="/api/android", tags=["android"])
+    app.include_router(android_adb_router, prefix="/api/android_adb", tags=["android_adb"])
     app.include_router(ios_router, prefix="/api/ios", tags=["ios"])
     app.include_router(harmony_router, prefix="/api/harmony", tags=["harmony"])
 

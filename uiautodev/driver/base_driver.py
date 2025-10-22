@@ -4,11 +4,9 @@
 """Created on Fri Mar 01 2024 14:18:30 by codeskyblue
 """
 import abc
-from io import FileIO
 from typing import Iterator, List, Tuple
 
 from PIL import Image
-from pydantic import BaseModel
 
 from uiautodev.command_types import CurrentAppResponse
 from uiautodev.model import AppInfo, Node, ShellResponse, WindowSize

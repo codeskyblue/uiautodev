@@ -7,30 +7,23 @@
 import logging
 import re
 import time
-from functools import cached_property, partial
 from typing import Iterator, List, Optional, Tuple
-from xml.etree import ElementTree
 
 import adbutils
-import uiautomator2 as u2
 from PIL import Image
 
 from uiautodev.command_types import CurrentAppResponse
+from uiautodev.driver.android.common import parse_xml
 from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.exceptions import AndroidDriverException, RequestError
+from uiautodev.exceptions import AndroidDriverException
 from uiautodev.model import AppInfo, Node, Rect, ShellResponse, WindowSize
-from uiautodev.utils.common import fetch_through_socket
 
 logger = logging.getLogger(__name__)
 
-class AndroidDriver(BaseDriver):
+class ADBAndroidDriver(BaseDriver):
     def __init__(self, serial: str):
         super().__init__(serial)
         self.adb_device = adbutils.device(serial)
-
-    @cached_property
-    def ud(self) -> u2.Device:
-        return u2.connect_usb(self.serial)
 
     def get_current_activity(self) -> str:
         ret = self.adb_device.shell2(["dumpsys", "activity", "activities"], rstrip=True, timeout=5)
@@ -44,7 +37,7 @@ class AndroidDriver(BaseDriver):
     def screenshot(self, id: int) -> Image.Image:
         if id > 0:
             raise AndroidDriverException("multi-display is not supported yet for uiautomator2")
-        return self.ud.screenshot()
+        return self.adb_device.screenshot(display_id=id)
 
     def shell(self, command: str) -> ShellResponse:
         try:
@@ -61,8 +54,11 @@ class AndroidDriver(BaseDriver):
     def dump_hierarchy(self, display_id: Optional[int] = 0) -> Tuple[str, Node]:
         """returns xml string and hierarchy object"""
         start = time.time()
-        xml_data = self._dump_hierarchy_raw()
-        logger.debug("dump_hierarchy cost: %s", time.time() - start)
+        try:
+            xml_data = self._dump_hierarchy_raw()
+            logger.debug("dump_hierarchy cost: %s", time.time() - start)
+        except Exception as e:
+            raise AndroidDriverException(f"Failed to dump hierarchy: {str(e)}")
 
         wsize = self.adb_device.window_size()
         logger.debug("window size: %s", wsize)
@@ -78,10 +74,24 @@ class AndroidDriver(BaseDriver):
         - ERROR: could not get idle state.
         """
         try:
-            return self.ud.dump_hierarchy()
-        except Exception as e:
-            raise AndroidDriverException(f"Failed to dump hierarchy: {str(e)}")
+            return self.adb_device.dump_hierarchy()
+        except adbutils.AdbError as e:
+            if "Killed" in str(e):
+                self.kill_app_process()
+            return self.adb_device.dump_hierarchy()
     
+    def kill_app_process(self):
+        logger.debug("Killing app_process")
+        pids = []
+        for line in self.adb_device.shell("ps -A || ps").splitlines():
+            if "app_process" in line:
+                fields = line.split()
+                if len(fields) >= 2:
+                    pids.append(int(fields[1]))
+                    logger.debug(f"App process PID: {fields[1]}")
+        for pid in set(pids):
+            self.adb_device.shell(f"kill {pid}")
+
     def tap(self, x: int, y: int):
         self.adb_device.click(x, y)
 
@@ -179,61 +189,8 @@ class AndroidDriver(BaseDriver):
         yield from self.adb_device.sync.iter_content(remote_path)
     
     def send_keys(self, text: str):
-        self.ud.send_keys(text)
+        self.adb_device.send_keys(text)
     
     def clear_text(self):
-        self.ud.clear_text()
-
-
-def parse_xml(xml_data: str, wsize: WindowSize, display_id: Optional[int] = None) -> Node:
-    root = ElementTree.fromstring(xml_data)
-    node = parse_xml_element(root, wsize, display_id)
-    if node is None:
-        raise AndroidDriverException("Failed to parse xml")
-    return node
-
-
-def parse_xml_element(element, wsize: WindowSize, display_id: Optional[int], indexes: List[int] = [0]) -> Optional[Node]:
-    """
-    Recursively parse an XML element into a dictionary format.
-    """
-    name = element.tag
-    if name == "node":
-        name = element.attrib.get("class", "node")
-    if display_id is not None:
-        elem_display_id = int(element.attrib.get("display-id", display_id))
-        if elem_display_id != display_id:
-            return
-
-    bounds = None
-    rect = None
-    # eg: bounds="[883,2222][1008,2265]"
-    if "bounds" in element.attrib:
-        bounds = element.attrib["bounds"]
-        bounds = list(map(int, re.findall(r"\d+", bounds)))
-        assert len(bounds) == 4
-        rect = Rect(x=bounds[0], y=bounds[1], width=bounds[2] - bounds[0], height=bounds[3] - bounds[1])
-        bounds = (
-            bounds[0] / wsize.width,
-            bounds[1] / wsize.height,
-            bounds[2] / wsize.width,
-            bounds[3] / wsize.height,
-        )
-        bounds = map(partial(round, ndigits=4), bounds)
-        
-    elem = Node(
-        key="-".join(map(str, indexes)),
-        name=name,
-        bounds=bounds,
-        rect=rect,
-        properties={key: element.attrib[key] for key in element.attrib},
-        children=[],
-    )
-
-    # Construct xpath for children
-    for index, child in enumerate(element):
-        child_node = parse_xml_element(child, wsize, display_id, indexes + [index])
-        if child_node:
-            elem.children.append(child_node)
-
-    return elem
+        for _ in range(3):
+            self.adb_device.shell2("input keyevent DEL --longpress")
