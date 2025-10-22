@@ -54,16 +54,15 @@ export UIAUTODEV_DEBUG=1
 
 # Offline mode
 
-Currently, the frontend is deployed on a separate server, so internet connection is required.
-However, some users have limited network environments or restricted internet access. Therefore, an offline cache mode has been added.
-Create a `cache` directory in the directory where uiautodev starts to activate frontend caching.
+Start with
 
 ```sh
-mkdir cache
-uiautodev
+uiautodev server --offline
 ```
 
 Visit <http://localhost:20242> once, and then disconnecting from the internet will not affect usage.
+
+> All frontend resources will be saved to cache/ dir.
 
 # DEVELOP
 
