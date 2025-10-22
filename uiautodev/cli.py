@@ -185,16 +185,16 @@ def shutdown(port: int):
         pass
 
 
-def open_browser_when_server_start(server_url: str, offline: bool = False):
+def open_browser_when_server_start(local_server_url: str, offline: bool = False):
     deadline = time.time() + 10
     while time.time() < deadline:
         try:
-            httpx.get(f"{server_url}/api/info", timeout=1)
+            httpx.get(f"{local_server_url}/api/info", timeout=1)
             break
         except Exception as e:
             time.sleep(0.5)
     import webbrowser
-    web_url = get_webpage_url(server_url if offline else None)
+    web_url = get_webpage_url(local_server_url if offline else None)
     logger.info("open browser: %s", web_url)
     webbrowser.open(web_url)
 
