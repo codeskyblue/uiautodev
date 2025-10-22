@@ -47,9 +47,6 @@ uiauto.dev
 # Default driver is uiautomator2
 # Set the environment variable below to switch to adb driver
 export UIAUTODEV_USE_ADB_DRIVER=1
-
-# Set the env to enable DEBUG log
-export UIAUTODEV_DEBUG=1
 ```
 
 # Offline mode
