@@ -15,39 +15,26 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, File, Request, Response, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (FileResponse, JSONResponse, RedirectResponse)
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
-from rich.logging import RichHandler
 from starlette.websockets import WebSocketDisconnect
 
 from uiautodev import __version__
 from uiautodev.common import convert_bytes_to_image, get_webpage_url, ocr_image
+from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.model import Node
 from uiautodev.provider import AndroidProvider, HarmonyProvider, IOSProvider, MockProvider
-from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.remote.scrcpy import ScrcpyServer
 from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
-from uiautodev.router.proxy import make_reverse_proxy, router as proxy_router
+from uiautodev.router.proxy import make_reverse_proxy
+from uiautodev.router.proxy import router as proxy_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-
-
-def enable_logger_to_console(level):
-    _logger = logging.getLogger("uiautodev")
-    _logger.setLevel(level)
-    _logger.addHandler(RichHandler(enable_link_path=False))
-
-
-if os.getenv("UIAUTODEV_DEBUG"):
-    enable_logger_to_console(level=logging.DEBUG)
-    logger.debug("verbose logger enabled")
-else:
-    enable_logger_to_console(level=logging.ERROR)
 
 app.add_middleware(
     CORSMiddleware,

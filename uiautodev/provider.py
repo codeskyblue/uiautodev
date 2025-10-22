@@ -11,7 +11,7 @@ from typing import Type
 
 import adbutils
 
-from uiautodev.driver.android import U2AndroidDriver, ADBAndroidDriver
+from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.driver.harmony import HDC, HarmonyDriver
 from uiautodev.driver.ios import IOSDriver

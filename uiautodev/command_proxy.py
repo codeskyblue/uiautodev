@@ -13,8 +13,8 @@ from typing import Callable, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from uiautodev.command_types import AppLaunchRequest, AppTerminateRequest, By, Command, CurrentAppResponse, \
-    DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, SendKeysRequest, TapRequest, \
-    WindowSizeResponse
+    DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, SendKeysRequest, \
+    TapRequest, WindowSizeResponse
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.exceptions import ElementNotFoundError
 from uiautodev.model import AppInfo, Node
