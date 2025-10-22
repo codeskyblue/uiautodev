@@ -83,7 +83,7 @@ class ADBAndroidDriver(BaseDriver):
             return self.adb_device.dump_hierarchy()
     
     def kill_app_process(self):
-        logger.debug("杀掉app_process进程")
+        logger.debug("Killing app_process")
         pids = []
         for line in self.adb_device.shell("ps -A || ps").splitlines():
             if "app_process" in line:
