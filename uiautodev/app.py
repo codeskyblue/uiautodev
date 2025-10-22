@@ -37,14 +37,17 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-def enable_logger_to_console():
+def enable_logger_to_console(level):
     _logger = logging.getLogger("uiautodev")
-    _logger.setLevel(logging.DEBUG)
+    _logger.setLevel(level)
     _logger.addHandler(RichHandler(enable_link_path=False))
 
 
 if os.getenv("UIAUTODEV_DEBUG"):
-    enable_logger_to_console()
+    enable_logger_to_console(level=logging.DEBUG)
+    logger.debug("verbose logger enabled")
+else:
+    enable_logger_to_console(level=logging.ERROR)
 
 app.add_middleware(
     CORSMiddleware,

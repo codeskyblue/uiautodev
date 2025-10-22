@@ -7,13 +7,13 @@ from typing import Optional
 
 import httpx
 import websockets
-from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response, StreamingResponse
 from starlette.background import BackgroundTask
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
+cache_dir = Path("./cache")
 
 # HTTP 转发
 @router.api_route("/proxy/http/{target_url:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
@@ -39,7 +39,7 @@ async def proxy_http(request: Request, target_url: str):
 @router.get("/demo/{path:path}")
 @router.get("/harmony/{path:path}")
 async def proxy_html(request: Request):
-    target_url = "https://uiauto.devsleep.com/"
+    target_url = "https://uiauto.dev/"
     cache = HTTPCache(cache_dir, target_url, key='homepage')
     response = await cache.proxy_request(request, update_cache=True)
     return response
@@ -48,11 +48,10 @@ async def proxy_html(request: Request):
 @router.get("/assets/{path:path}")
 @router.get('/favicon.ico')
 async def proxy_assets(request: Request, path: str = ""):
-    target_url = f"https://uiauto.devsleep.com{request.url.path}"
+    target_url = f"https://uiauto.dev{request.url.path}"
     cache = HTTPCache(cache_dir, target_url)
     return await cache.proxy_request(request)
 
-cache_dir = Path("./cache")
 
 class HTTPCache:
     def __init__(self, cache_dir: Path, target_url: str, key: Optional[str] = None):
@@ -77,7 +76,8 @@ class HTTPCache:
             logger.info(f"Cache hit: {self.file_body}")
             headers = {}
             if self.file_headers.exists():
-                headers = json.load(open(self.file_headers))
+                with self.file_headers.open('rb') as f:
+                    headers = json.load(f)
             body_fd = self.file_body.open("rb")
             return StreamingResponse(
                 content=body_fd,
@@ -91,7 +91,7 @@ class HTTPCache:
         try:
             await self.proxy_and_save_response(request)
         except Exception as e:
-            print("Update cache failed")
+            logger.error("Update cache failed")
 
     async def proxy_and_save_response(self, request: Request) -> Response:
         logger.debug(f"Proxying request... {request.url.path}")

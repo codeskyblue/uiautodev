@@ -184,10 +184,6 @@ def open_browser_when_server_start(server_url: str):
 
 
 def main():
-    # set logger level to INFO
-    # logging.basicConfig(level=logging.INFO)
-    logger.setLevel(logging.INFO)
-
     has_command = False
     for name in sys.argv[1:]:
         if not name.startswith("-"):
