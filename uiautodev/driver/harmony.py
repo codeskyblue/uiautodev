@@ -10,7 +10,7 @@ import tempfile
 import time
 import uuid
 from pathlib import Path
-from typing import List, Optional, Tuple, Union, final, Dict
+from typing import Dict, List, Optional, Tuple, Union, final
 
 from PIL import Image
 

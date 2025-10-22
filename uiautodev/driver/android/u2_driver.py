@@ -7,21 +7,16 @@
 import logging
 import re
 import time
-from functools import cached_property, partial
-from typing import Iterator, List, Optional, Tuple
-from xml.etree import ElementTree
+from functools import cached_property
+from typing import Optional, Tuple
 
-import adbutils
 import uiautomator2 as u2
 from PIL import Image
 
-from uiautodev.command_types import CurrentAppResponse
-from uiautodev.driver.base_driver import BaseDriver
-from uiautodev.exceptions import AndroidDriverException, RequestError
-from uiautodev.model import AppInfo, Node, Rect, ShellResponse, WindowSize
-from uiautodev.utils.common import fetch_through_socket
-from uiautodev.driver.android.adb_driver import ADBAndroidDriver, parse_xml
-
+from uiautodev.driver.android.adb_driver import ADBAndroidDriver
+from uiautodev.driver.android.common import parse_xml
+from uiautodev.exceptions import AndroidDriverException
+from uiautodev.model import AppInfo, Node, WindowSize
 
 logger = logging.getLogger(__name__)
 
