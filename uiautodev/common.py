@@ -8,7 +8,7 @@
 import io
 import locale
 import logging
-from typing import List
+from typing import List, Optional
 
 from PIL import Image
 
@@ -26,8 +26,9 @@ def is_chinese_language() -> bool:
         return False
     
     
-def get_webpage_url() -> str:
-    web_url = "https://uiauto.dev"
+def get_webpage_url(web_url: Optional[str] = None) -> str:
+    if not web_url:
+        web_url = "https://uiauto.dev"
     # code will be enabled until uiauto.devsleep.com is ready
     # if is_chinese_language():
     #     web_url = "https://uiauto.devsleep.com"

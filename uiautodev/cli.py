@@ -20,6 +20,7 @@ import httpx
 import pydantic
 import uvicorn
 from retry import retry
+from rich.logging import RichHandler
 
 from uiautodev import __version__, command_proxy
 from uiautodev.command_types import Command
@@ -38,12 +39,21 @@ HARMONY_PACKAGES = [
     "https://public.uiauto.devsleep.com/harmony/hypium-5.0.7.200.tar.gz",
 ]
 
+
+def enable_logger_to_console(level):
+    _logger = logging.getLogger("uiautodev")
+    _logger.setLevel(level)
+    _logger.addHandler(RichHandler(enable_link_path=False))
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
 def cli(verbose: bool):
     if verbose:
-        os.environ['UIAUTODEV_DEBUG'] = '1'
+        enable_logger_to_console(level=logging.DEBUG)
         logger.debug("Verbose mode enabled")
+    else:
+        enable_logger_to_console(level=logging.INFO)
 
 
 def run_driver_command(provider: BaseProvider, command: Command, params: list[str] = None):
@@ -142,7 +152,8 @@ def pip_install(package: str):
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
 @click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
-def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
+@click.option("--offline", is_flag=True, default=False, help="offline mode, do not use internet")
+def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, offline: bool):
     click.echo(f"uiautodev version: {__version__}")
     if force:
         try:
@@ -154,8 +165,13 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool):
     if platform.system() == 'Windows':
         use_color = False
 
+    if offline:
+        from uiautodev.router.proxy import cache_dir
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        logger.info("offline mode enabled, cache dir: %s", cache_dir)
+
     if not no_browser:
-        th = threading.Thread(target=open_browser_when_server_start, args=(f"http://{host}:{port}",))
+        th = threading.Thread(target=open_browser_when_server_start, args=(f"http://{host}:{port}", offline))
         th.daemon = True
         th.start()
     uvicorn.run("uiautodev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
@@ -169,16 +185,16 @@ def shutdown(port: int):
         pass
 
 
-def open_browser_when_server_start(server_url: str):
+def open_browser_when_server_start(local_server_url: str, offline: bool = False):
     deadline = time.time() + 10
     while time.time() < deadline:
         try:
-            httpx.get(f"{server_url}/api/info", timeout=1)
+            httpx.get(f"{local_server_url}/api/info", timeout=1)
             break
         except Exception as e:
             time.sleep(0.5)
     import webbrowser
-    web_url = get_webpage_url()
+    web_url = get_webpage_url(local_server_url if offline else None)
     logger.info("open browser: %s", web_url)
     webbrowser.open(web_url)
 

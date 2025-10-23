@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
 
-from uiautodev.driver.android import U2AndroidDriver, ADBAndroidDriver
+from uiautodev.driver.android import ADBAndroidDriver, U2AndroidDriver
 from uiautodev.model import ShellResponse
 
 logger = logging.getLogger(__name__)
