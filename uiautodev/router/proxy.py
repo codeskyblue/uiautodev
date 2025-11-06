@@ -160,3 +160,19 @@ def make_reverse_proxy(base_url: str, strip_prefix: str = ""):
         )
 
     return _reverse_proxy
+
+
+async def proxy_http(request: Request, target_url: str):
+    logger.info(f"HTTP target_url: {target_url}")
+
+    async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
+        body = await request.body() if request.method in {"POST", "PUT", "PATCH", "DELETE"} else None
+        headers = {k: v for k, v in request.headers.items() if k.lower() not in {"host", "x-target-url"}}
+        headers['accept-encoding'] = ''  # disable gzip
+        resp = await client.request(
+            request.method,
+            target_url,
+            content=body,
+            headers=headers,
+        )
+        return Response(content=resp.content, status_code=resp.status_code, headers=dict(resp.headers))
