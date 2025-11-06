@@ -150,7 +150,7 @@ def pip_install(package: str):
 @click.option("--port", default=20242, help="port number", show_default=True)
 @click.option("--host", default="127.0.0.1", help="host", show_default=True)
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
-@click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
+@click.option("-f", "--force", is_flag=True, default=False, help="shutdown already running server")
 @click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
 @click.option("--offline", is_flag=True, default=False, help="offline mode, do not use internet")
 @click.option("--server-url", default="https://uiauto.dev", help="uiauto.dev server url", show_default=True)
