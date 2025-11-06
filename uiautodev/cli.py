@@ -153,7 +153,8 @@ def pip_install(package: str):
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown alrealy runningserver")
 @click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
 @click.option("--offline", is_flag=True, default=False, help="offline mode, do not use internet")
-def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, offline: bool):
+@click.option("--server-url", default="https://uiauto.dev", help="uiauto.dev server url", show_default=True)
+def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, offline: bool, server_url: str):
     click.echo(f"uiautodev version: {__version__}")
     if force:
         try:
@@ -165,10 +166,13 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, of
     if platform.system() == 'Windows':
         use_color = False
 
+    server_url = server_url.rstrip('/')
+    from uiautodev.router import proxy
+    proxy.base_url = server_url
+
     if offline:
-        from uiautodev.router.proxy import cache_dir
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        logger.info("offline mode enabled, cache dir: %s", cache_dir)
+        proxy.cache_dir.mkdir(parents=True, exist_ok=True)
+        logger.info("offline mode enabled, cache dir: %s, server url: %s", proxy.cache_dir, proxy.base_url)
 
     if not no_browser:
         th = threading.Thread(target=open_browser_when_server_start, args=(f"http://{host}:{port}", offline))
