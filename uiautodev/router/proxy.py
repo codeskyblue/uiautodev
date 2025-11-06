@@ -7,31 +7,14 @@ from typing import Optional
 
 import httpx
 import websockets
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response, StreamingResponse
 from starlette.background import BackgroundTask
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 cache_dir = Path("./cache")
-
-# HTTP 转发
-@router.api_route("/proxy/http/{target_url:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
-async def proxy_http(request: Request, target_url: str):
-    logger.info(f"HTTP target_url: {target_url}")
-
-    async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
-        body = await request.body() if request.method in {"POST", "PUT", "PATCH", "DELETE"} else None
-        headers = {k: v for k, v in request.headers.items() if k.lower() not in {"host", "x-target-url"}}
-        headers['accept-encoding'] = ''  # disable gzip
-        resp = await client.request(
-            request.method,
-            target_url,
-            content=body,
-            headers=headers,
-        )
-        return Response(content=resp.content, status_code=resp.status_code, headers=dict(resp.headers))
-
+base_url = 'https://uiauto.dev'
 
 @router.get("/")
 @router.get("/android/{path:path}")
@@ -39,8 +22,7 @@ async def proxy_http(request: Request, target_url: str):
 @router.get("/demo/{path:path}")
 @router.get("/harmony/{path:path}")
 async def proxy_html(request: Request):
-    target_url = "https://uiauto.dev/"
-    cache = HTTPCache(cache_dir, target_url, key='homepage')
+    cache = HTTPCache(cache_dir, base_url, key='homepage')
     response = await cache.proxy_request(request, update_cache=True)
     return response
     # update
@@ -48,7 +30,7 @@ async def proxy_html(request: Request):
 @router.get("/assets/{path:path}")
 @router.get('/favicon.ico')
 async def proxy_assets(request: Request, path: str = ""):
-    target_url = f"https://uiauto.dev{request.url.path}"
+    target_url = f"{base_url}{request.url.path}"
     cache = HTTPCache(cache_dir, target_url)
     return await cache.proxy_request(request)
 
