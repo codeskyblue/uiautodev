@@ -32,31 +32,10 @@ make dev
 # try installing a stable version of the construct package to resolve it:
 # and restart: make dev
 pip install construct==2.9.45
-
 ```
 
 运行测试
 
 ```sh
 make test
-```
-
-## 代理转发
-
-由于服务端是写在https外部网站上的，访问非localhost的http服务时会由于安全问题，禁止访问。
-比如A机器访问B机器的服务，就不行。
-所以需要本地转发，才能连接到其他的uiautodev客户端上。
-
-测试WebSocket转发
-
-```sh
-wscat -c "ws://localhost:20242/proxy/ws/wss://echo.websocket.events"
-```
-
-> npm i -g wscat
-
-测试HTTP转发
-
-```sh
-curl http://localhost:20242/proxy/http/https://httpbin.org/get
 ```
