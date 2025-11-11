@@ -4,6 +4,7 @@ import logging
 import os
 import socket
 import struct
+from pathlib import Path
 from typing import Optional
 
 import retry
@@ -24,16 +25,18 @@ class ScrcpyServer:
     including video streaming and touch control.
     """
 
-    def __init__(self, device: AdbDevice, scrcpy_jar_path: Optional[str] = None):
+    def __init__(self, device: AdbDevice, version: Optional[str] = "2.7"):
         """
         Initializes the ScrcpyServer instance.
 
         Args:
             scrcpy_jar_path (str, optional): Path to the scrcpy server JAR file. Defaults to None.
         """
-        self.scrcpy_jar_path = scrcpy_jar_path or os.path.join(os.path.dirname(__file__),
-                                                               '../binaries/scrcpy_server.jar')
+        self.scrcpy_jar_path = Path(__file__).parent.joinpath(f'../binaries/scrcpy-server-v{version}.jar')
+        if self.scrcpy_jar_path.exists() is False:
+            raise FileNotFoundError(f"Scrcpy server JAR not found: {self.scrcpy_jar_path}")
         self.device = device
+        self.version = version
         self.resolution_width = 0  # scrcpy 投屏转换宽度
         self.resolution_height = 0  # scrcpy 投屏转换高度
 
@@ -59,6 +62,9 @@ class ScrcpyServer:
         if not dummy_byte or dummy_byte != b"\x00":
             raise ConnectionError("Did not receive Dummy Byte!")
         logger.debug('Received Dummy Byte!')
+        # print('Received Dummy Byte!')
+        if self.version == '3.3.3': # 临时处理一下, 3.3.3使用WebCodec来接码，前端解析分辨率
+            return
         device_name = conn.recv(64).decode('utf-8').rstrip('\x00')
         logger.debug(f'Device name: {device_name}')
         codec = conn.recv(4)
@@ -100,10 +106,10 @@ class ScrcpyServer:
         start_command = (
             'CLASSPATH=/data/local/tmp/scrcpy_server.jar '
             'app_process / '
-            'com.genymobile.scrcpy.Server 2.7 '
+            f'com.genymobile.scrcpy.Server {self.version} '
             'log_level=info max_size=1024 max_fps=30 '
             'video_bit_rate=8000000 tunnel_forward=true '
-            'send_frame_meta=false '
+            'send_frame_meta=true '
             f'control={"true" if control else "false"} '
             'audio=false show_touches=false stay_awake=false '
             'power_off_on_close=false clipboard_autosync=false'
