@@ -155,12 +155,13 @@ async def handle_android_ws(websocket: WebSocket, serial: str):
         serial: device serial
         websocket: WebSocket
     """
+    scrcpy_version = websocket.query_params.get("version", "2.7")
     await websocket.accept()
 
     try:
         logger.info(f"WebSocket serial: {serial}")
         device = adbutils.device(serial)
-        server = ScrcpyServer(device)
+        server = ScrcpyServer(device, version=scrcpy_version)
         await server.handle_unified_websocket(websocket, serial)
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected by client.")
