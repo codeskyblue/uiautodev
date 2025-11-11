@@ -30,7 +30,8 @@ class ScrcpyServer:
         Initializes the ScrcpyServer instance.
 
         Args:
-            scrcpy_jar_path (str, optional): Path to the scrcpy server JAR file. Defaults to None.
+            device (AdbDevice): The ADB device instance to use.
+            version (str, optional): Scrcpy server version to use. Defaults to "2.7".
         """
         self.scrcpy_jar_path = Path(__file__).parent.joinpath(f'../binaries/scrcpy-server-v{version}.jar')
         if self.scrcpy_jar_path.exists() is False:
