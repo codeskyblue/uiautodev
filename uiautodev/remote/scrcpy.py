@@ -104,18 +104,18 @@ class ScrcpyServer:
         logger.info('scrcpy server JAR pushed to device')
 
         # 构建启动 scrcpy 服务器的命令
-        start_command = (
-            'CLASSPATH=/data/local/tmp/scrcpy_server.jar '
-            'app_process / '
-            f'com.genymobile.scrcpy.Server {self.version} '
-            'log_level=info max_size=1024 max_fps=30 '
-            'video_bit_rate=8000000 tunnel_forward=true '
-            'send_frame_meta=true '
-            f'control={"true" if control else "false"} '
-            'audio=false show_touches=false stay_awake=false '
-            'power_off_on_close=false clipboard_autosync=false'
-        )
-        conn = device.shell(start_command, stream=True)
+        cmds = [
+            'CLASSPATH=/data/local/tmp/scrcpy_server.jar',
+            'app_process', '/',
+            f'com.genymobile.scrcpy.Server', self.version,
+            'log_level=info', 'max_size=1024', 'max_fps=30',
+            'video_bit_rate=8000000', 'tunnel_forward=true',
+            'send_frame_meta='+('true' if self.version == '3.3.3' else 'false'),
+            f'control={"true" if control else "false"}',
+            'audio=false', 'show_touches=false', 'stay_awake=false',
+            'power_off_on_close=false', 'clipboard_autosync=false'
+        ]
+        conn = device.shell(' '.join(cmds), stream=True)
         logger.debug("scrcpy output: %s", conn.conn.recv(100))
         return conn  # type: ignore
 
