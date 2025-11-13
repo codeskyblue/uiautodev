@@ -68,7 +68,7 @@ def tap(driver: BaseDriver, params: TapRequest):
         wsize = driver.window_size()
         x = int(wsize[0] * params.x)
         y = int(wsize[1] * params.y)
-    driver.tap(x, y)
+    driver.tap(int(x), int(y))
 
 
 @register(Command.APP_INSTALL)

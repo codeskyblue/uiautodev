@@ -1,7 +1,7 @@
 # prefix for /api/android/{serial}/shell
 
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
@@ -18,7 +18,7 @@ class AndroidShellPayload(BaseModel):
     command: str
     
 @router.post("/{serial}/shell")
-def shell(serial: str, payload: AndroidShellPayload) -> ShellResponse:
+def shell(serial: str, payload: AndroidShellPayload) -> Union[ShellResponse, Response]:
     """Run a shell command on an Android device"""
     try:
         driver = ADBAndroidDriver(serial)
