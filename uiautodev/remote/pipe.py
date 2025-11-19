@@ -37,44 +37,60 @@ async def _pipe_oneway(src: AsyncDuplex, dst: AsyncDuplex, name: str):
     finally:
         await dst.close()
         
-        
-        
-class SocketDuplex:
-    """封装 socket.socket 为 AsyncDuplex 接口"""
-    def __init__(self, sock: socket.socket, loop: Optional[asyncio.AbstractEventLoop] = None):
-        self.sock = sock
-        self.loop = loop or asyncio.get_event_loop()
+class RWSocketDuplex:
+    def __init__(self, rsock: socket.socket, wsock: socket.socket, loop=None):
+        self.rsock = rsock
+        self.wsock = wsock
+        self._same = rsock is wsock
+        self.loop = loop or asyncio.get_running_loop()
         self._closed = False
-        self.sock.setblocking(False)
 
-    async def read(self, n: int = 4096) -> bytes:
+        self.rsock.setblocking(False)
+        if not self._same:
+            self.wsock.setblocking(False)
+
+    async def read(self, n=4096):
+        if self._closed:
+            return None
         try:
-            return await self.loop.sock_recv(self.sock, n)
+            data = await self.loop.sock_recv(self.rsock, n)
+            if not data:
+                await self.close()
+                return None
+            return data
         except (ConnectionResetError, OSError):
-            return b''
+            await self.close()
+            return None
 
     async def write(self, data: bytes):
         if not data or self._closed:
             return
         try:
-            await self.loop.sock_sendall(self.sock, data)
+            await self.loop.sock_sendall(self.wsock, data)
         except (ConnectionResetError, OSError):
-            self._closed = True
+            await self.close()
 
     async def close(self):
-        if not self._closed:
-            self._closed = True
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            self.rsock.close()
+        except:
+            pass
+        if not self._same:
             try:
-                self.sock.shutdown(socket.SHUT_RDWR)
-            except OSError:
+                self.wsock.close()
+            except:
                 pass
-            self.sock.close()
 
-    def fileno(self):
-        return self.sock.fileno()
-
-    def is_closed(self) -> bool:
+    def is_closed(self):
         return self._closed
+    
+class SocketDuplex(RWSocketDuplex):
+    """封装 socket.socket 为 AsyncDuplex 接口"""
+    def __init__(self, sock: socket.socket, loop: Optional[asyncio.AbstractEventLoop] = None):
+        super().__init__(sock, sock, loop)
 
 
 class WebSocketDuplex:
