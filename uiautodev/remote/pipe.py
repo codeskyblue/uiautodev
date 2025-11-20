@@ -76,12 +76,12 @@ class RWSocketDuplex:
         self._closed = True
         try:
             self.rsock.close()
-        except:
+        except Exception:
             pass
         if not self._same:
             try:
                 self.wsock.close()
-            except:
+            except Exception:
                 pass
 
     def is_closed(self):
