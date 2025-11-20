@@ -49,19 +49,19 @@ class RWSocketDuplex:
         if not self._same:
             self.wsock.setblocking(False)
 
-    async def read(self, n=4096):
+    async def read(self, n: int = 4096) -> bytes:
         if self._closed:
-            return None
+            return b''
         try:
             data = await self.loop.sock_recv(self.rsock, n)
             if not data:
                 await self.close()
-                return None
+                return b''
             return data
         except (ConnectionResetError, OSError):
             await self.close()
-            return None
-
+            return b''
+        
     async def write(self, data: bytes):
         if not data or self._closed:
             return

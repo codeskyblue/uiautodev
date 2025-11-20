@@ -18,7 +18,7 @@ class AndroidShellPayload(BaseModel):
     command: str
     
 @router.post("/{serial}/shell")
-def shell(serial: str, payload: AndroidShellPayload) -> Union[ShellResponse, Response]:
+def shell(serial: str, payload: AndroidShellPayload):
     """Run a shell command on an Android device"""
     try:
         driver = ADBAndroidDriver(serial)
