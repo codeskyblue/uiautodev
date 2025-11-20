@@ -20,6 +20,8 @@ async def pipe_duplex(a: AsyncDuplex, b: AsyncDuplex, label_a="A", label_b="B"):
     )
     for t in pending:
         t.cancel()
+    if pending:
+        await asyncio.gather(*pending, return_exceptions=True)
 
 
 async def _pipe_oneway(src: AsyncDuplex, dst: AsyncDuplex, name: str):
