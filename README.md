@@ -11,12 +11,11 @@ UI Inspector for Android, iOS and Harmony help inspector element properties, and
 # Install
 ```bash
 pip install uiautodev
-```
 
-To enable Harmony support, run the following command to install its dependencies:
-
-```sh
-uiautodev install-harmony
+# or with Harmony support
+pip install "uiautodev[harmony]"
+# ref
+# https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/hypium-python-guidelines
 ```
 
 # Usage

@@ -135,9 +135,7 @@ def self_update():
 
 @cli.command('install-harmony')
 def install_harmony():
-    for lib_url in HARMONY_PACKAGES:
-        click.echo(f"Installing {lib_url} ...")
-        pip_install(lib_url)
+    pip_install("hypium")
 
 @retry(tries=2, delay=3, backoff=2)
 def pip_install(package: str):
