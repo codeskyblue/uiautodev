@@ -148,6 +148,27 @@ def mock_auth_me():
     # 401 {"detail":"Authentication required"}
     return JSONResponse(status_code=401, content={"detail": "Authentication required"})
 
+@app.websocket('/ws/android/scrcpy3/{serial}')
+async def handle_android_scrcpy3_ws(websocket: WebSocket, serial: str):
+    await websocket.accept()
+    try:
+        logger.info(f"WebSocket serial: {serial}")
+        device = adbutils.device(serial)
+        from uiautodev.remote.scrcpy3 import ScrcpyServer3
+        scrcpy = ScrcpyServer3(device)
+        try:
+            await scrcpy.stream_to_websocket(websocket)
+        finally:
+            scrcpy.close()
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected by client.")
+    except Exception as e:
+        logger.exception(f"WebSocket error for serial={serial}: {e}")
+        reason = str(e).replace("\n", " ")
+        await websocket.close(code=1000, reason=reason)
+    finally:
+        logger.info(f"WebSocket closed for serial={serial}")
+
 @app.websocket("/ws/android/scrcpy/{serial}")
 async def handle_android_ws(websocket: WebSocket, serial: str):
     """

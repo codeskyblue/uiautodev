@@ -52,6 +52,7 @@ class ScrcpyServer:
         self._video_conn = self._connect_scrcpy(self.device)
         self._control_conn = self._connect_scrcpy(self.device)
         self._parse_scrcpy_info(self._video_conn)
+        
         self.controller = ScrcpyTouchController(self._control_conn)
 
     @retry.retry(exceptions=AdbError, tries=20, delay=0.1)
