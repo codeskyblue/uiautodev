@@ -30,6 +30,11 @@ router = APIRouter()
 STORAGE_DIR = Path.home() / ".uiautodev" / "records"
 STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 
+# Timing constants for script execution
+ACTION_DELAY = 0.5  # Delay between actions (seconds)
+KEYBOARD_WAIT = 0.3  # Wait time for keyboard to appear (seconds)
+APP_LAUNCH_WAIT = 2.0  # Wait time for app to fully launch (seconds)
+
 
 class RecordListResponse(BaseModel):
     """Response model for listing scripts"""
@@ -609,7 +614,7 @@ def execute_event(driver, event: RecordEvent, step_index: int) -> ScriptExecutio
                 
                 if center_x is not None and center_y is not None:
                     driver.tap(center_x, center_y)
-                time.sleep(0.3)  # Wait for keyboard
+                time.sleep(KEYBOARD_WAIT)  # Wait for keyboard
                 
                 # Clear existing text and input new text
                 print(f"[execute_script] Inputting text: {event.value}")
@@ -672,7 +677,7 @@ def execute_event(driver, event: RecordEvent, step_index: int) -> ScriptExecutio
             )
         
         # Wait a bit between actions
-        time.sleep(0.5)
+        time.sleep(ACTION_DELAY)
         
         print(f"[execute_script] Step {step_index + 1} completed successfully")
         logger.info(f"Step {step_index + 1} completed successfully")
@@ -745,7 +750,7 @@ def execute_script(script_id: str, device_serial: Optional[str] = Query(None)):
             from uiautodev.command_proxy import app_launch
             from uiautodev.command_types import AppLaunchRequest
             app_launch(driver, AppLaunchRequest(package=script.appPackage, stop=True))
-            time.sleep(2)  # Wait for app to fully launch
+            time.sleep(APP_LAUNCH_WAIT)  # Wait for app to fully launch
         
         # Execute events
         results = []
