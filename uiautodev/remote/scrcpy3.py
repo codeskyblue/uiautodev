@@ -23,7 +23,6 @@ class ScrcpyServer3:
     
     def _start_scrcpy3(self):
         device = self._device
-        version = self.VERSION
         jar_path = Path(__file__).parent.joinpath(f'../binaries/scrcpy-server-v{self.VERSION}.jar')
         device.sync.push(jar_path, '/data/local/tmp/scrcpy_server.jar', check=True)
         logger.info(f'{jar_path.name} pushed to device')
