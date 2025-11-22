@@ -12,7 +12,7 @@ UI Inspector for Android, iOS and Harmony help inspector element properties, and
 ```bash
 pip install uiautodev
 
-# or with harmony support
+# or with Harmony support
 pip install "uiautodev[harmony]"
 # ref
 # https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/hypium-python-guidelines
