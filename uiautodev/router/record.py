@@ -46,6 +46,38 @@ class ScriptGenerator:
     """Generate scripts in different formats"""
     
     @staticmethod
+    def escape_python_string(s: str) -> str:
+        """Escape special characters for Python string literals"""
+        if s is None:
+            return ""
+        # Escape backslashes first, then quotes
+        return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+    
+    @staticmethod
+    def escape_js_string(s: str) -> str:
+        """Escape special characters for JavaScript string literals"""
+        if s is None:
+            return ""
+        # Escape backslashes first, then quotes
+        return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+    
+    @staticmethod
+    def escape_java_string(s: str) -> str:
+        """Escape special characters for Java string literals"""
+        if s is None:
+            return ""
+        # Escape backslashes first, then quotes
+        return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+    
+    @staticmethod
+    def escape_swift_string(s: str) -> str:
+        """Escape special characters for Swift string literals"""
+        if s is None:
+            return ""
+        # Escape backslashes first, then quotes
+        return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+    
+    @staticmethod
     def generate_appium_python(script: RecordScript) -> str:
         """Generate Appium Python script"""
         lines = [
@@ -56,11 +88,14 @@ class ScriptGenerator:
         ]
         
         if script.deviceSerial:
-            lines.append(f'    "deviceName": "{script.deviceSerial}",')
+            escaped_serial = ScriptGenerator.escape_python_string(script.deviceSerial)
+            lines.append(f'    "deviceName": "{escaped_serial}",')
         if script.appPackage:
-            lines.append(f'    "appPackage": "{script.appPackage}",')
+            escaped_package = ScriptGenerator.escape_python_string(script.appPackage)
+            lines.append(f'    "appPackage": "{escaped_package}",')
         if script.appActivity:
-            lines.append(f'    "appActivity": "{script.appActivity}"')
+            escaped_activity = ScriptGenerator.escape_python_string(script.appActivity)
+            lines.append(f'    "appActivity": "{escaped_activity}"')
         
         lines.append("})")
         lines.append("")
@@ -68,16 +103,22 @@ class ScriptGenerator:
         for event in script.events:
             if event.action == "tap":
                 if event.selector and event.selector.id:
-                    lines.append(f'driver.find_element("id", "{event.selector.id}").click()')
+                    escaped_id = ScriptGenerator.escape_python_string(event.selector.id)
+                    lines.append(f'driver.find_element("id", "{escaped_id}").click()')
                 elif event.selector and event.selector.text:
-                    lines.append(f'driver.find_element("xpath", "//*[@text=\'{event.selector.text}\']").click()')
+                    escaped_text = ScriptGenerator.escape_python_string(event.selector.text)
+                    lines.append(f'driver.find_element("xpath", "//*[@text=\'{escaped_text}\']").click()')
                 elif event.x is not None and event.y is not None:
                     lines.append(f'driver.tap([({event.x}, {event.y})])')
             elif event.action == "input":
                 if event.selector and event.selector.id:
-                    lines.append(f'driver.find_element("id", "{event.selector.id}").send_keys("{event.value or ""}")')
+                    escaped_id = ScriptGenerator.escape_python_string(event.selector.id)
+                    escaped_value = ScriptGenerator.escape_python_string(event.value or "")
+                    lines.append(f'driver.find_element("id", "{escaped_id}").send_keys("{escaped_value}")')
                 elif event.selector and event.selector.text:
-                    lines.append(f'driver.find_element("xpath", "//*[@text=\'{event.selector.text}\']").send_keys("{event.value or ""}")')
+                    escaped_text = ScriptGenerator.escape_python_string(event.selector.text)
+                    escaped_value = ScriptGenerator.escape_python_string(event.value or "")
+                    lines.append(f'driver.find_element("xpath", "//*[@text=\'{escaped_text}\']").send_keys("{escaped_value}")')
             elif event.action == "swipe":
                 if event.x1 is not None and event.y1 is not None and event.x2 is not None and event.y2 is not None:
                     lines.append(f'driver.swipe({event.x1}, {event.y1}, {event.x2}, {event.y2}, {event.duration or 1000})')
@@ -102,11 +143,14 @@ class ScriptGenerator:
         ]
         
         if script.deviceSerial:
-            lines.append(f'        deviceName: "{script.deviceSerial}",')
+            escaped_serial = ScriptGenerator.escape_js_string(script.deviceSerial)
+            lines.append(f'        deviceName: "{escaped_serial}",')
         if script.appPackage:
-            lines.append(f'        appPackage: "{script.appPackage}",')
+            escaped_package = ScriptGenerator.escape_js_string(script.appPackage)
+            lines.append(f'        appPackage: "{escaped_package}",')
         if script.appActivity:
-            lines.append(f'        appActivity: "{script.appActivity}"')
+            escaped_activity = ScriptGenerator.escape_js_string(script.appActivity)
+            lines.append(f'        appActivity: "{escaped_activity}"')
         
         lines.append("    });")
         lines.append("")
@@ -114,12 +158,16 @@ class ScriptGenerator:
         for event in script.events:
             if event.action == "tap":
                 if event.selector and event.selector.id:
-                    lines.append(f'    await driver.$("#{event.selector.id}").click();')
+                    escaped_id = ScriptGenerator.escape_js_string(event.selector.id)
+                    lines.append(f'    await driver.$("#{escaped_id}").click();')
                 elif event.selector and event.selector.text:
-                    lines.append(f'    await driver.$("//*[@text=\'{event.selector.text}\']").click();')
+                    escaped_text = ScriptGenerator.escape_js_string(event.selector.text)
+                    lines.append(f'    await driver.$("//*[@text=\'{escaped_text}\']").click();')
             elif event.action == "input":
                 if event.selector and event.selector.id:
-                    lines.append(f'    await driver.$("#{event.selector.id}").setValue("{event.value or ""}");')
+                    escaped_id = ScriptGenerator.escape_js_string(event.selector.id)
+                    escaped_value = ScriptGenerator.escape_js_string(event.value or "")
+                    lines.append(f'    await driver.$("#{escaped_id}").setValue("{escaped_value}");')
             elif event.action == "back":
                 lines.append('    await driver.back();')
         
@@ -143,15 +191,19 @@ class ScriptGenerator:
         for event in script.events:
             if event.action == "tap":
                 if event.selector and event.selector.id:
-                    lines.append(f'UiObject element = device.findObject(new UiSelector().resourceId("{event.selector.id}"));')
+                    escaped_id = ScriptGenerator.escape_java_string(event.selector.id)
+                    lines.append(f'UiObject element = device.findObject(new UiSelector().resourceId("{escaped_id}"));')
                     lines.append("element.click();")
                 elif event.selector and event.selector.text:
-                    lines.append(f'UiObject element = device.findObject(new UiSelector().text("{event.selector.text}"));')
+                    escaped_text = ScriptGenerator.escape_java_string(event.selector.text)
+                    lines.append(f'UiObject element = device.findObject(new UiSelector().text("{escaped_text}"));')
                     lines.append("element.click();")
             elif event.action == "input":
                 if event.selector and event.selector.id:
-                    lines.append(f'UiObject element = device.findObject(new UiSelector().resourceId("{event.selector.id}"));')
-                    lines.append(f'element.setText("{event.value or ""}");')
+                    escaped_id = ScriptGenerator.escape_java_string(event.selector.id)
+                    escaped_value = ScriptGenerator.escape_java_string(event.value or "")
+                    lines.append(f'UiObject element = device.findObject(new UiSelector().resourceId("{escaped_id}"));')
+                    lines.append(f'element.setText("{escaped_value}");')
         
         return "\n".join(lines)
     
@@ -176,12 +228,16 @@ class ScriptGenerator:
         for event in script.events:
             if event.action == "tap":
                 if event.selector and event.selector.id:
-                    lines.append(f'        app.buttons["{event.selector.id}"].tap()')
+                    escaped_id = ScriptGenerator.escape_swift_string(event.selector.id)
+                    lines.append(f'        app.buttons["{escaped_id}"].tap()')
                 elif event.selector and event.selector.text:
-                    lines.append(f'        app.staticTexts["{event.selector.text}"].tap()')
+                    escaped_text = ScriptGenerator.escape_swift_string(event.selector.text)
+                    lines.append(f'        app.staticTexts["{escaped_text}"].tap()')
             elif event.action == "input":
                 if event.selector and event.selector.id:
-                    lines.append(f'        app.textFields["{event.selector.id}"].typeText("{event.value or ""}")')
+                    escaped_id = ScriptGenerator.escape_swift_string(event.selector.id)
+                    escaped_value = ScriptGenerator.escape_swift_string(event.value or "")
+                    lines.append(f'        app.textFields["{escaped_id}"].typeText("{escaped_value}")')
         
         lines.append("    }")
         lines.append("}")
@@ -349,7 +405,7 @@ class ScriptExecutionResult(BaseModel):
 
 class ExecuteScriptResponse(BaseModel):
     """Response model for script execution"""
-    script_id: str
+    script_id: Optional[str] = None  # May be None for frontend scripts
     total_steps: int
     executed_steps: int
     success: bool
@@ -422,14 +478,47 @@ def execute_event(driver, event: RecordEvent, step_index: int) -> ScriptExecutio
                             print(f"[execute_script] [U2] Clicking element by resource-id: {event.selector.id}")
                             logger.info(f"[U2] Clicking element by resource-id: {event.selector.id}")
                             ud(resourceId=event.selector.id).click()
+                            # U2 click successful, return immediately
+                            print(f"[execute_script] [U2] Direct element click successful")
+                            logger.info("[U2] Direct element click successful")
+                            # Wait a bit between actions
+                            time.sleep(ACTION_DELAY)
+                            return ScriptExecutionResult(
+                                step=step_index + 1,
+                                action=event.action,
+                                success=True,
+                                message=f"Action '{event.action}' executed successfully via U2 direct click"
+                            )
                         elif event.selector.text:
                             print(f"[execute_script] [U2] Clicking element by text: {event.selector.text}")
                             logger.info(f"[U2] Clicking element by text: {event.selector.text}")
                             ud(text=event.selector.text).click()
+                            # U2 click successful, return immediately
+                            print(f"[execute_script] [U2] Direct element click successful")
+                            logger.info("[U2] Direct element click successful")
+                            # Wait a bit between actions
+                            time.sleep(ACTION_DELAY)
+                            return ScriptExecutionResult(
+                                step=step_index + 1,
+                                action=event.action,
+                                success=True,
+                                message=f"Action '{event.action}' executed successfully via U2 direct click"
+                            )
                         elif event.selector.contentDesc:
                             print(f"[execute_script] [U2] Clicking element by description: {event.selector.contentDesc}")
                             logger.info(f"[U2] Clicking element by description: {event.selector.contentDesc}")
                             ud(description=event.selector.contentDesc).click()
+                            # U2 click successful, return immediately
+                            print(f"[execute_script] [U2] Direct element click successful")
+                            logger.info("[U2] Direct element click successful")
+                            # Wait a bit between actions
+                            time.sleep(ACTION_DELAY)
+                            return ScriptExecutionResult(
+                                step=step_index + 1,
+                                action=event.action,
+                                success=True,
+                                message=f"Action '{event.action}' executed successfully via U2 direct click"
+                            )
                         else:
                             # Fallback to coordinate-based approach
                             raise ValueError("No valid selector found")
@@ -547,21 +636,6 @@ def execute_event(driver, event: RecordEvent, step_index: int) -> ScriptExecutio
                         message=error_msg,
                         error=error_msg
                     )
-            if event.x is not None and event.y is not None:
-                print(f"[execute_script] [COORDINATE] Tapping at recorded coordinates ({event.x}, {event.y})")
-                logger.info(f"[COORDINATE] Tapping at recorded coordinates ({event.x}, {event.y})")
-                driver.tap(int(event.x), int(event.y))
-            else:
-                error_msg = "No selector or coordinates provided for tap action"
-                print(f"[execute_script] {error_msg}")
-                logger.error(error_msg)
-                return ScriptExecutionResult(
-                    step=step_index + 1,
-                    action=event.action,
-                    success=False,
-                    message=error_msg,
-                    error=error_msg
-                )
         
         elif event.action == "input":
             if not event.selector:
@@ -701,22 +775,55 @@ def execute_event(driver, event: RecordEvent, step_index: int) -> ScriptExecutio
         )
 
 
-@router.post("/{script_id}/execute", response_model=ExecuteScriptResponse)
-def execute_script(script_id: str, device_serial: Optional[str] = Query(None)):
-    """Execute a recorded script"""
-    print(f"[execute_script] Starting execution of script {script_id}")
-    logger.info(f"Starting execution of script {script_id}")
+class ExecuteScriptRequest(BaseModel):
+    """Request model for executing script"""
+    script: Optional[RecordScript] = None  # Script data from frontend
+    script_id: Optional[str] = None  # Script ID to load from file system
+    device_serial: Optional[str] = None  # Override device serial
+
+
+@router.post("/execute", response_model=ExecuteScriptResponse)
+def execute_script(request: ExecuteScriptRequest):
+    """Execute a recorded script
     
-    script = load_script_from_file(script_id)
-    if not script:
-        error_msg = f"Script {script_id} not found"
+    Supports two modes:
+    1. Execute script from frontend: provide 'script' in request body
+    2. Execute script from file: provide 'script_id' in request body
+    """
+    script = None
+    
+    # Mode 1: Script data from frontend
+    if request.script:
+        print(f"[execute_script] Starting execution of script from frontend (name: {request.script.name})")
+        logger.info(f"Starting execution of script from frontend (name: {request.script.name})")
+        script = request.script
+    
+    # Mode 2: Load script from file system
+    elif request.script_id:
+        print(f"[execute_script] Starting execution of script {request.script_id}")
+        logger.info(f"Starting execution of script {request.script_id}")
+        script = load_script_from_file(request.script_id)
+        if not script:
+            error_msg = f"Script {request.script_id} not found"
+            print(f"[execute_script] {error_msg}")
+            logger.error(error_msg)
+            raise HTTPException(status_code=404, detail=error_msg)
+    
+    else:
+        error_msg = "Either 'script' or 'script_id' must be provided"
         print(f"[execute_script] {error_msg}")
         logger.error(error_msg)
-        raise HTTPException(status_code=404, detail=error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
+    
+    if not script:
+        error_msg = "Script data is required"
+        print(f"[execute_script] {error_msg}")
+        logger.error(error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
     
     try:
-        # Get device serial
-        serial = device_serial or script.deviceSerial
+        # Get device serial (from request, script, or error)
+        serial = request.device_serial or script.deviceSerial
         if not serial:
             error_msg = "Device serial is required for script execution"
             print(f"[execute_script] {error_msg}")
@@ -774,7 +881,7 @@ def execute_script(script_id: str, device_serial: Optional[str] = Query(None)):
         logger.info(f"Script execution completed: {executed_count}/{len(script.events)} steps successful")
         
         return ExecuteScriptResponse(
-            script_id=script_id,
+            script_id=script.id or request.script_id or "frontend_script",
             total_steps=len(script.events),
             executed_steps=executed_count,
             success=success,
