@@ -29,6 +29,7 @@ from uiautodev.router.android import router as android_device_router
 from uiautodev.router.device import make_router
 from uiautodev.router.proxy import make_reverse_proxy
 from uiautodev.router.proxy import router as proxy_router
+from uiautodev.router.record import router as record_router
 from uiautodev.router.xml import router as xml_router
 from uiautodev.utils.envutils import Environment
 
@@ -40,7 +41,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "DELETE", "PUT"],
     allow_headers=["*"],
 )
 
@@ -69,6 +70,7 @@ else:
 app.include_router(xml_router, prefix="/api/xml", tags=["xml"])
 app.include_router(android_device_router, prefix="/api/android", tags=["android"])
 app.include_router(proxy_router, tags=["proxy"])
+app.include_router(record_router, prefix="/api/record", tags=["record"])
 
 
 @app.get("/api/{platform}/features")

@@ -6,11 +6,14 @@
 
 from __future__ import annotations
 
+import logging
 import time
 import typing
 from typing import Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from uiautodev.command_types import AppLaunchRequest, AppTerminateRequest, By, Command, CurrentAppResponse, \
     DumpResponse, FindElementRequest, FindElementResponse, InstallAppRequest, InstallAppResponse, SendKeysRequest, \
@@ -86,8 +89,13 @@ def app_current(driver: BaseDriver) -> CurrentAppResponse:
 
 @register(Command.APP_LAUNCH)
 def app_launch(driver: BaseDriver, params: AppLaunchRequest):
-    if params.stop:
-        driver.app_terminate(params.package)
+    """
+    Launch an app.
+    
+    Args:
+        driver: BaseDriver instance
+        params: AppLaunchRequest with package
+    """
     driver.app_launch(params.package)
 
 
