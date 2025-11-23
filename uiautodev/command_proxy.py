@@ -90,37 +90,12 @@ def app_current(driver: BaseDriver) -> CurrentAppResponse:
 @register(Command.APP_LAUNCH)
 def app_launch(driver: BaseDriver, params: AppLaunchRequest):
     """
-    Launch an app. By default, stops the app first to ensure clean launch.
-    
-    This ensures the app is brought to foreground reliably.
+    Launch an app.
     
     Args:
         driver: BaseDriver instance
-        params: AppLaunchRequest with package and optional stop flag
+        params: AppLaunchRequest with package
     """
-    # Use stop parameter from request (default is True in AppLaunchRequest)
-    # This ensures app is brought to foreground reliably
-    stop_first = params.stop
-    
-    # Check if driver's app_launch supports stop_first parameter
-    import inspect
-    try:
-        sig = inspect.signature(driver.app_launch)
-        if 'stop_first' in sig.parameters:
-            # Driver supports stop_first parameter
-            driver.app_launch(params.package, stop_first=stop_first)
-            return
-    except (TypeError, AttributeError):
-        pass
-    
-    # Fallback: manually stop then launch
-    if stop_first:
-        try:
-            driver.app_terminate(params.package)
-            time.sleep(0.3)  # Brief wait for app to stop
-        except Exception as e:
-            logger.warning(f"Failed to stop app before launch: {e}")
-    
     driver.app_launch(params.package)
 
 

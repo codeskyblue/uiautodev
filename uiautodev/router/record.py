@@ -34,6 +34,7 @@ STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 ACTION_DELAY = 0.5  # Delay between actions (seconds)
 KEYBOARD_WAIT = 0.3  # Wait time for keyboard to appear (seconds)
 APP_LAUNCH_WAIT = 2.0  # Wait time for app to fully launch (seconds)
+APP_STOP_WAIT = 0.5  # Wait time for app to fully stop (seconds)
 
 
 class RecordListResponse(BaseModel):
@@ -852,11 +853,24 @@ def execute_script(request: ExecuteScriptRequest):
         
         # Launch app if appPackage is specified
         if script.appPackage:
+            print(f"[execute_script] Stopping app: {script.appPackage}")
+            logger.info(f"Stopping app: {script.appPackage}")
+            from uiautodev.command_proxy import app_terminate
+            from uiautodev.command_types import AppTerminateRequest
+            try:
+                app_terminate(driver, AppTerminateRequest(package=script.appPackage))
+                time.sleep(APP_STOP_WAIT)  # Wait for app to fully stop
+                print(f"[execute_script] App {script.appPackage} stopped successfully")
+                logger.info(f"App {script.appPackage} stopped successfully")
+            except Exception as e:
+                print(f"[execute_script] Failed to stop {script.appPackage}: {e}")
+                logger.warning(f"Failed to stop {script.appPackage} before launch: {e}")
+            
             print(f"[execute_script] Launching app: {script.appPackage}")
             logger.info(f"Launching app: {script.appPackage}")
             from uiautodev.command_proxy import app_launch
             from uiautodev.command_types import AppLaunchRequest
-            app_launch(driver, AppLaunchRequest(package=script.appPackage, stop=True))
+            app_launch(driver, AppLaunchRequest(package=script.appPackage))
             time.sleep(APP_LAUNCH_WAIT)  # Wait for app to fully launch
         
         # Execute events

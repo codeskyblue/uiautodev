@@ -108,39 +108,23 @@ class ADBAndroidDriver(BaseDriver):
             package=info.package, activity=info.activity, pid=info.pid
         )
 
-    def app_launch(self, package: str, stop_first: bool = True):
+    def app_launch(self, package: str):
         """
         Launch an app and bring it to foreground.
         
         This method:
         1. Checks if the app is installed
-        2. Optionally stops the app first to ensure clean launch (default: True)
-        3. Uses 'am start' command with resolved main activity to launch the app
+        2. Uses 'monkey' command to launch the app
         
-        Note: By default, this method stops the app first to ensure a clean launch.
-        This is more reliable than just starting an app that may already be running in background.
+        Note: To ensure a clean launch, call app_terminate() first before calling this method.
         
         Args:
             package: Package name of the app to launch
-            stop_first: Whether to stop the app before launching (default: True)
         """
         if self.adb_device.package_info(package) is None:
             raise AndroidDriverException(f"App not installed: {package}")
         
-        # Step 1: Stop the app first to ensure clean launch
-        if stop_first:
-            print(f"[app_launch] Stopping app {package} before launch")
-            logger.info(f"Stopping app {package} before launch")
-            try:
-                self.app_terminate(package)
-                time.sleep(0.5)  # Wait for app to fully stop
-                print(f"[app_launch] App {package} stopped successfully")
-                logger.info(f"App {package} stopped successfully")
-            except Exception as e:
-                print(f"[app_launch] Failed to stop {package}: {e}")
-                logger.warning(f"Failed to stop {package} before launch: {e}")
-        
-        # Step 2: Use monkey command to launch the app
+        # Use monkey command to launch the app
         print(f"[app_launch] Launching app {package} using monkey command")
         logger.info(f"Launching app {package} using monkey command")
         try:
