@@ -108,10 +108,134 @@ class ADBAndroidDriver(BaseDriver):
             package=info.package, activity=info.activity, pid=info.pid
         )
 
-    def app_launch(self, package: str):
+    def app_launch(self, package: str, stop_first: bool = True):
+        """
+        Launch an app and bring it to foreground.
+        
+        This method:
+        1. Checks if the app is installed
+        2. Optionally stops the app first to ensure clean launch (default: True)
+        3. Uses 'am start' command with resolved main activity to launch the app
+        
+        Note: By default, this method stops the app first to ensure a clean launch.
+        This is more reliable than just starting an app that may already be running in background.
+        
+        Args:
+            package: Package name of the app to launch
+            stop_first: Whether to stop the app before launching (default: True)
+        """
         if self.adb_device.package_info(package) is None:
             raise AndroidDriverException(f"App not installed: {package}")
-        self.adb_device.app_start(package)
+        
+        # Step 1: Stop the app first to ensure clean launch
+        if stop_first:
+            print(f"[app_launch] Stopping app {package} before launch")
+            logger.info(f"Stopping app {package} before launch")
+            try:
+                self.app_terminate(package)
+                time.sleep(0.5)  # Wait for app to fully stop
+                print(f"[app_launch] App {package} stopped successfully")
+                logger.info(f"App {package} stopped successfully")
+            except Exception as e:
+                print(f"[app_launch] Failed to stop {package}: {e}")
+                logger.warning(f"Failed to stop {package} before launch: {e}")
+        
+        # Step 2: Use monkey command to launch the app
+        print(f"[app_launch] Launching app {package} using monkey command")
+        logger.info(f"Launching app {package} using monkey command")
+        try:
+            result = self.adb_device.shell2([
+                "monkey", "-p", package, "-c", "android.intent.category.LAUNCHER", "1"
+            ], timeout=10)
+            
+            if result.returncode == 0:
+                print(f"[app_launch] Successfully launched {package} using monkey command")
+                logger.info(f"Successfully launched {package} using monkey command")
+                time.sleep(0.5)  # Wait for app to appear
+                return
+            else:
+                error_msg = f"monkey command failed for {package}, returncode={result.returncode}, output={result.output}"
+                print(f"[app_launch] {error_msg}")
+                logger.error(error_msg)
+                raise AndroidDriverException(f"Failed to launch app {package}: {result.output}")
+        except Exception as e:
+            error_msg = f"Failed to launch {package} using monkey: {e}"
+            print(f"[app_launch] {error_msg}")
+            logger.error(error_msg)
+            raise AndroidDriverException(f"Failed to launch app {package}: {e}")
+        
+        # Old code below (kept for reference, but should not be reached)
+        # Get the main activity using 'cmd package resolve-activity'
+        # This is more reliable than package_info.main_activity
+        try:
+            # Use 'cmd package resolve-activity' to get the launcher activity
+            result = self.adb_device.shell2([
+                "cmd", "package", "resolve-activity", "--brief", package
+            ], rstrip=True, timeout=5)
+            
+            if result.returncode == 0 and result.output:
+                # Parse the output to get activity name
+                # Output format is:
+                #   priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+                #   com.package/.Activity
+                # The activity is usually on the last line
+                lines = [line.strip() for line in result.output.strip().split('\n') if line.strip()]
+                activity_line = None
+                
+                # Try to find activity in output (usually the last line that contains package name and '/')
+                for line in reversed(lines):  # Check from last line first
+                    if '/' in line and package in line and not line.startswith('priority'):
+                        # Remove "name=" prefix if present
+                        activity_line = line.replace('name=', '').strip()
+                        break
+                
+                if activity_line and '/' in activity_line:
+                    # Launch using the resolved activity
+                    logger.info(f"Attempting to launch {package} with activity: {activity_line}")
+                    launch_result = self.adb_device.shell2([
+                        "am", "start", "-n", activity_line
+                    ], timeout=5)
+                    if launch_result.returncode == 0:
+                        logger.info(f"Successfully launched {package} using activity: {activity_line}")
+                        # Wait a moment for app to appear
+                        time.sleep(0.3)
+                        return
+                    else:
+                        logger.warning(f"am start failed for {activity_line}, returncode={launch_result.returncode}, output={launch_result.output}")
+                else:
+                    logger.warning(f"Could not parse activity from resolve-activity output. Lines: {lines}, Output: {result.output}")
+            
+            # Fallback: try using package_info if resolve-activity fails
+            logger.warning(f"Could not resolve activity for {package}, trying package_info")
+            package_info = self.adb_device.package_info(package)
+            if isinstance(package_info, dict):
+                main_activity = package_info.get('main_activity')
+            else:
+                main_activity = getattr(package_info, 'main_activity', None)
+            
+            if main_activity:
+                activity_name = main_activity if main_activity.startswith(".") else f"{package}/{main_activity}"
+                launch_result = self.adb_device.shell2([
+                    "am", "start", "-n", activity_name
+                ], timeout=5)
+                if launch_result.returncode == 0:
+                    logger.info(f"Successfully launched {package} using main activity: {activity_name}")
+                    time.sleep(0.3)
+                    return
+                else:
+                    logger.warning(f"am start failed for {activity_name}: {launch_result.output}")
+        except Exception as e:
+            logger.warning(f"Failed to launch using resolved activity: {e}, falling back to app_start")
+        
+        # Final fallback: use app_start
+        logger.info(f"Using app_start as fallback for {package}")
+        try:
+            self.adb_device.app_start(package)
+            logger.info(f"app_start completed for {package}")
+            time.sleep(0.3)
+        except Exception as e:
+            logger.error(f"app_start failed for {package}: {e}")
+            raise AndroidDriverException(f"Failed to launch app {package}: {e}")
     
     def app_terminate(self, package: str):
         self.adb_device.app_stop(package)

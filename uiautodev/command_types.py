@@ -66,7 +66,7 @@ class CurrentAppResponse(BaseModel):
 
 class AppLaunchRequest(BaseModel):
     package: str
-    stop: bool = False
+    stop: bool = True  # Default to True: stop app before launch for clean start
 
 
 class AppTerminateRequest(BaseModel):
