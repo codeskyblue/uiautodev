@@ -48,7 +48,9 @@ android_default_driver = U2AndroidDriver
 if os.getenv("UIAUTODEV_USE_ADB_DRIVER") in ("1", "true", "True"):
     android_default_driver = ADBAndroidDriver
 
-android_router = make_router(AndroidProvider(driver_class=android_default_driver))
+android_router = make_router(
+    AndroidProvider(driver_class=android_default_driver, port=Environment.UIAUTODEV_U2_PORT)
+)
 android_adb_router = make_router(AndroidProvider(driver_class=ADBAndroidDriver))
 ios_router = make_router(IOSProvider())
 harmony_router = make_router(HarmonyProvider())

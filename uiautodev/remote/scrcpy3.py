@@ -1,6 +1,7 @@
 import logging
-from pathlib import Path
 import socket
+from pathlib import Path
+
 from adbutils import AdbConnection, AdbDevice, AdbError, Network
 from fastapi import WebSocket
 from retry import retry
@@ -54,7 +55,7 @@ class ScrcpyServer3:
         return sock
     
     def stream_to_websocket(self, ws: WebSocket):
-        from .pipe import RWSocketDuplex, WebSocketDuplex, AsyncDuplex, pipe_duplex
+        from .pipe import AsyncDuplex, RWSocketDuplex, WebSocketDuplex, pipe_duplex
         socket_duplex = RWSocketDuplex(self._video_sock, self._control_sock)
         websocket_duplex = WebSocketDuplex(ws)
         return pipe_duplex(socket_duplex, websocket_duplex)

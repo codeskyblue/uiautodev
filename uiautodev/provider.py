@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 import abc
+import logging
 from functools import lru_cache
-from typing import Type
+from typing import Optional, Type
 
 import adbutils
 
@@ -19,6 +20,8 @@ from uiautodev.driver.mock import MockDriver
 from uiautodev.exceptions import UiautoException
 from uiautodev.model import DeviceInfo
 from uiautodev.utils.usbmux import MuxDevice, list_devices
+
+logger = logging.getLogger(__name__)
 
 
 class BaseProvider(abc.ABC):
@@ -41,8 +44,9 @@ class BaseProvider(abc.ABC):
 
 
 class AndroidProvider(BaseProvider):
-    def __init__(self, driver_class: Type[BaseDriver] = U2AndroidDriver):
+    def __init__(self, driver_class: Type[BaseDriver] = U2AndroidDriver, port: Optional[int] = None):
         self.driver_class = driver_class
+        self.port = port
 
     def list_devices(self) -> list[DeviceInfo]:
         adb = adbutils.AdbClient()
@@ -63,8 +67,16 @@ class AndroidProvider(BaseProvider):
 
     @lru_cache
     def get_device_driver(self, serial: str) -> BaseDriver:
+        if self.port is not None:
+            if issubclass(self.driver_class, U2AndroidDriver):
+                return self.driver_class(serial, port=self.port)
+            logger.warning(
+                "A custom uiautomator2 port (%s) was provided but %s does not support a custom port; ignoring",
+                self.port,
+                self.driver_class.__name__,
+            )
         return self.driver_class(serial)
-        
+
 
 
 class IOSProvider(BaseProvider):

@@ -14,6 +14,7 @@ from uiautodev import command_proxy
 from uiautodev.command_types import Command
 from uiautodev.driver.base_driver import BaseDriver
 from uiautodev.provider import AndroidProvider
+from uiautodev.utils.envutils import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,7 @@ def run():
             }
         ),
     ]
-    provider = AndroidProvider()
+    provider = AndroidProvider(port=Environment.UIAUTODEV_U2_PORT)
     driver = provider.get_single_device_driver()
     local_vars: Dict[str, str] = {}
     for step in steps:
