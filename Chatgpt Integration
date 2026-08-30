@@ -1,0 +1,7 @@
+git clone https://github.com/0utshining/saas-metrics-dashboard.git
+cd saas-metrics-dashboard
+git checkout -b feat/chatgpt-integration
+# Copy all the files from above
+git add .
+git commit -m "Add ChatGPT API integration for SaaS metrics analysis"
+git push origin feat/chatgpt-integration
