@@ -14,7 +14,7 @@ from starlette.background import BackgroundTask
 logger = logging.getLogger(__name__)
 router = APIRouter()
 cache_dir = Path("./cache")
-base_url = 'https://uiauto.dev'
+base_url = 'https://web.uiauto.dev'
 
 @router.get("/")
 @router.get("/android/{path:path}")

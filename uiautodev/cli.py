@@ -151,7 +151,7 @@ def pip_install(package: str):
 @click.option("-f", "--force", is_flag=True, default=False, help="shutdown already running server")
 @click.option("-s", "--no-browser", is_flag=True, default=False, help="silent mode, do not open browser")
 @click.option("--offline", is_flag=True, default=False, help="offline mode, do not use internet")
-@click.option("--server-url", default="https://uiauto.dev", help="uiauto.dev server url", show_default=True)
+@click.option("--server-url", default="https://web.uiauto.dev", help="uiauto.dev server url", show_default=True)
 def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, offline: bool, server_url: str):
     click.echo(f"uiautodev version: {__version__}")
     if force:
