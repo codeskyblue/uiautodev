@@ -2,14 +2,11 @@
 name = "uiautodev"
 version = "0.0.0"
 description = "Mobile UI Automation, include UI hierarchy inspector, script recorder"
-homepage = "https://uiauto.dev"
+homepage = "https://web.uiauto.dev"
 authors = ["codeskyblue <codeskyblue@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
-include = [
-    {path = "uiautodev/binaries/scrcpy.jar"}
-]
 
 [tool.poetry.dependencies]
 python = "^3.8"

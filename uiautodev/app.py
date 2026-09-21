@@ -104,7 +104,7 @@ def info() -> InfoResponse:
     """Information about the application"""
     return InfoResponse(
         version=__version__,
-        description="client for https://uiauto.dev",
+        description="client for https://web.uiauto.dev",
         platform=platform.system(),  # Linux | Darwin | Windows
         code_language="Python",
         cwd=os.getcwd(),

@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/codeskyblue/appinspector/graph/badge.svg?token=aLTg4VOyQH)](https://codecov.io/gh/codeskyblue/appinspector)
 [![PyPI version](https://badge.fury.io/py/uiautodev.svg)](https://badge.fury.io/py/uiautodev)
 
-https://uiauto.dev
+https://web.uiauto.dev
 
 > ~~In China visit: https://uiauto.devsleep.com~~
 
@@ -56,7 +56,7 @@ Start with
 uiautodev server --offline
 
 # Specify server url (optional)
-uiautodev server --offline --server-url https://uiauto.dev
+uiautodev server --offline --server-url https://web.uiauto.dev
 ```
 
 Visit <http://localhost:20242> once, and then disconnecting from the internet will not affect usage.
