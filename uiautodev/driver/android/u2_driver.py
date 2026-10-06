@@ -5,7 +5,6 @@
 """
 
 import logging
-import re
 import time
 from functools import cached_property
 from typing import Optional, Tuple
@@ -20,14 +19,19 @@ from uiautodev.model import AppInfo, Node, WindowSize
 
 logger = logging.getLogger(__name__)
 
+
 class U2AndroidDriver(ADBAndroidDriver):
-    def __init__(self, serial: str):
+    def __init__(self, serial: str, port: Optional[int] = None):
         super().__init__(serial)
+        self.port = port
 
     @cached_property
     def ud(self) -> u2.Device:
-        return u2.connect_usb(self.serial)
-    
+        if self.port is None:
+            return u2.connect_usb(self.serial)
+
+        return u2.connect_usb(self.serial, port=self.port)
+
     def screenshot(self, id: int) -> Image.Image:
         if id > 0:
             # u2 is not support multi-display yet
@@ -57,12 +61,12 @@ class U2AndroidDriver(ADBAndroidDriver):
             return self.ud.dump_hierarchy()
         except Exception as e:
             raise AndroidDriverException(f"Failed to dump hierarchy: {str(e)}")
-    
+
     def tap(self, x: int, y: int):
         self.ud.click(x, y)
-    
+
     def send_keys(self, text: str):
         self.ud.send_keys(text)
-    
+
     def clear_text(self):
         self.ud.clear_text()

@@ -27,6 +27,7 @@ from uiautodev.command_types import Command
 from uiautodev.common import get_webpage_url
 from uiautodev.provider import AndroidProvider, BaseProvider, IOSProvider
 from uiautodev.utils.common import convert_params_to_model, print_json
+from uiautodev.utils.envutils import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ def run_driver_command(provider: BaseProvider, command: Command, params: list[st
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def android(command: Command, params: list[str] = None):
-    provider = AndroidProvider()
+    provider = AndroidProvider(port=Environment.UIAUTODEV_U2_PORT)
     run_driver_command(provider, command, params)
 
 

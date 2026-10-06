@@ -46,6 +46,9 @@ uiauto.dev
 # Default driver is uiautomator2
 # Set the environment variable below to switch to adb driver
 export UIAUTODEV_USE_ADB_DRIVER=1
+
+# Use a custom uiautomator2 server port
+export UIAUTODEV_U2_PORT=9009
 ```
 
 # Offline mode
