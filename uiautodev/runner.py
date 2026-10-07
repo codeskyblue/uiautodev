@@ -181,8 +181,6 @@ def download_to(url: str, dest: Path, expected_size: Optional[int] = None) -> No
             raise RuntimeError(
                 f"Size mismatch for {url}: expected {expected_size} bytes, got {size} bytes"
             )
-        if dest.exists():
-            dest.unlink()
         tmp_path.replace(dest)
     except BaseException:
         if tmp_path.exists():
