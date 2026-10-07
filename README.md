@@ -24,20 +24,47 @@ Usage: uiauto.dev [OPTIONS] COMMAND [ARGS]...
 
 Options:
   -v, --verbose  verbose mode
+  --debug        enable debug output
+  --version TEXT server binary version (default: latest)
+  -f, --force    force re-download even if cached
   -h, --help     Show this message and exit.
 
 Commands:
-  server       start uiauto.dev local server [Default]
-  android      COMMAND: tap, tapElement, installApp, currentApp,...
-  ios          COMMAND: tap, tapElement, installApp, currentApp,...
+  run          download (if needed) and run the server binary [Default]
+  download     download the server binary only and print its path
+  path         print the path to the server binary without downloading
+  server       start uiauto.dev local server (deprecated)
   self-update  Update uiautodev to latest version
   version      Print version
-  shutdown     Shutdown server
+  shutdown     Shutdown server (deprecated)
 ```
 
 ```bash
-# run local server and open browser
+# download the latest server binary and run it (opens the browser)
 uiauto.dev
+
+# start the local Python server instead (deprecated, old default)
+uiauto.dev server
+```
+
+# Run prebuilt server binary
+
+Running `uiauto.dev` without a command downloads the prebuilt server binary for
+the current platform and executes it as `run -open`. The binary is cached at
+`~/.cache/uiautodev/<version>/` (override with `UIAUTODEV_CACHE_DIR`), and
+everything after `run` is passed through to the binary as-is.
+
+> Note: the old local-server default is now the explicit `uiauto.dev server` command.
+
+```bash
+uiauto.dev                          # download latest binary and run it (open browser)
+uiauto.dev run                      # same as above, without opening the browser
+uiauto.dev run -addr :8000          # pass args through to the binary
+uiauto.dev --version 0.10.5 run     # use a specific version
+uiauto.dev download                 # only download, print the binary path
+uiauto.dev download --force         # force re-download
+uiauto.dev path                     # only print the binary path, no download
+uiauto.dev --debug download         # debug logging (request/redirect info)
 ```
 
 # Environment
