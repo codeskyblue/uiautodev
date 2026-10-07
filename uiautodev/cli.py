@@ -22,7 +22,7 @@ import uvicorn
 from retry import retry
 from rich.logging import RichHandler
 
-from uiautodev import __version__, command_proxy
+from uiautodev import __version__, command_proxy, runner
 from uiautodev.command_types import Command
 from uiautodev.common import get_webpage_url
 from uiautodev.provider import AndroidProvider, BaseProvider, IOSProvider
@@ -46,14 +46,30 @@ def enable_logger_to_console(level):
     _logger.addHandler(RichHandler(enable_link_path=False))
 
 
+RUN_OPTIONS = [
+    click.option("--version", "binary_version", default=None, help="server binary version (default: latest)"),
+    click.option("-f", "--force", is_flag=True, default=False, help="force re-download even if cached"),
+]
+
+
+def add_run_options(func):
+    for option in reversed(RUN_OPTIONS):
+        func = option(func)
+    return func
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option("--verbose", "-v", is_flag=True, default=False, help="verbose mode")
-def cli(verbose: bool):
-    if verbose:
+@click.option("--debug", is_flag=True, default=False, help="enable debug output")
+@add_run_options
+@click.pass_context
+def cli(ctx: click.Context, verbose: bool, debug: bool, binary_version: str, force: bool):
+    if verbose or debug:
         enable_logger_to_console(level=logging.DEBUG)
         logger.debug("Verbose mode enabled")
     else:
         enable_logger_to_console(level=logging.INFO)
+    ctx.obj = {"version": binary_version, "force": force}
 
 
 def run_driver_command(provider: BaseProvider, command: Command, params: list[str] = None):
@@ -85,18 +101,20 @@ def run_driver_command(provider: BaseProvider, command: Command, params: list[st
         pprint(model.model_json_schema()["properties"])
 
 
-@cli.command(help="COMMAND: " + ", ".join(c.value for c in Command))
+@cli.command(hidden=True, help="(deprecated) COMMAND: " + ", ".join(c.value for c in Command))
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def android(command: Command, params: list[str] = None):
+    click.echo("Warning: `uiauto.dev android` is deprecated.", err=True)
     provider = AndroidProvider()
     run_driver_command(provider, command, params)
 
 
-@cli.command(help="COMMAND: " + ", ".join(c.value for c in Command))
+@cli.command(hidden=True, help="(deprecated) COMMAND: " + ", ".join(c.value for c in Command))
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def ios(command: Command, params: list[str] = None):
+    click.echo("Warning: `uiauto.dev ios` is deprecated.", err=True)
     provider = IOSProvider()
     run_driver_command(provider, command, params)
 
@@ -107,7 +125,7 @@ def case():
     run()
 
 
-@cli.command(help="COMMAND: " + ", ".join(c.value for c in Command))
+@cli.command(hidden=True, help="COMMAND: " + ", ".join(c.value for c in Command))
 @click.argument("command", type=Command, required=True)
 @click.argument("params", required=False, nargs=-1)
 def appium(command: Command, params: list[str] = None):
@@ -144,7 +162,50 @@ def pip_install(package: str):
     click.echo(f"Successfully installed {package}")
 
 
-@cli.command(help="start uiauto.dev local server [Default]")
+def _resolve_and_download(version: str, force: bool):
+    resolved_version, binary, _ = runner.resolve_target(version)
+    bin_path = runner.ensure_binary(binary, resolved_version, force)
+    return resolved_version, binary, bin_path
+
+
+@cli.command(
+    "run",
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+        help_option_names=[],
+    ),
+    add_help_option=False,
+    help="download (if needed) and run the server binary (default); extra args are passed through",
+)
+@click.argument("binary_args", nargs=-1, type=click.UNPROCESSED)
+@click.pass_context
+def run(ctx: click.Context, binary_args: tuple):
+    version = ctx.obj.get("version")
+    force = ctx.obj.get("force")
+    _, _, bin_path = _resolve_and_download(version, force)
+    runner.run_binary(bin_path, list(binary_args))
+
+
+@cli.command("download", help="download the server binary only and print its path")
+@add_run_options
+@click.pass_context
+def download(ctx: click.Context, binary_version: str, force: bool):
+    version = binary_version or ctx.obj.get("version")
+    force = force or ctx.obj.get("force")
+    _, _, bin_path = _resolve_and_download(version, force)
+    click.echo(str(bin_path))
+
+
+@cli.command("path", help="print the path to the server binary without downloading")
+@click.pass_context
+def path(ctx: click.Context):
+    version = ctx.obj.get("version")
+    _, _, bin_path = runner.resolve_target(version)
+    click.echo(str(bin_path))
+
+
+@cli.command(help="start uiauto.dev local server (deprecated)")
 @click.option("--port", default=20242, help="port number", show_default=True)
 @click.option("--host", default="127.0.0.1", help="host", show_default=True)
 @click.option("--reload", is_flag=True, default=False, help="auto reload, dev only")
@@ -153,6 +214,10 @@ def pip_install(package: str):
 @click.option("--offline", is_flag=True, default=False, help="offline mode, do not use internet")
 @click.option("--server-url", default="https://web.uiauto.dev", help="uiauto.dev server url", show_default=True)
 def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, offline: bool, server_url: str):
+    click.echo(
+        "Warning: `uiauto.dev server` is deprecated, use `uiauto.dev` instead.",
+        err=True,
+    )
     click.echo(f"uiautodev version: {__version__}")
     if force:
         try:
@@ -178,9 +243,10 @@ def server(port: int, host: str, reload: bool, force: bool, no_browser: bool, of
         th.start()
     uvicorn.run("uiautodev.app:app", host=host, port=port, reload=reload, use_colors=use_color)
 
-@cli.command(help="shutdown uiauto.dev local server")
+@cli.command(help="shutdown uiauto.dev local server (deprecated)")
 @click.option("--port", default=20242, help="port number", show_default=True)
 def shutdown(port: int):
+    click.echo("Warning: `uiauto.dev shutdown` is deprecated.", err=True)
     try:
         httpx.get(f"http://127.0.0.1:{port}/shutdown", timeout=3)
     except httpx.HTTPError:
@@ -202,15 +268,19 @@ def open_browser_when_server_start(local_server_url: str, offline: bool = False)
 
 
 def main():
-    has_command = False
-    for name in sys.argv[1:]:
-        if not name.startswith("-"):
-            has_command = True
+    args = sys.argv[1:]
+    has_command = any(name in cli.commands for name in args)
+    wants_help = any(name in ("-h", "--help") for name in args)
 
-    if not has_command:
-        cli.main(args=sys.argv[1:] + ["server"], prog_name="uiauto.dev")
-    else:
+    if has_command or wants_help:
         cli()
+    else:
+        click.echo(
+            "Tip: `uiauto.dev` now downloads and runs the server binary. "
+            "The old local-server usage is `uiauto.dev server`.",
+            err=True,
+        )
+        cli.main(args=args + ["run", "-open"], prog_name="uiauto.dev")
 
 
 if __name__ == "__main__":
