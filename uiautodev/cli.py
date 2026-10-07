@@ -184,7 +184,7 @@ def run(ctx: click.Context, binary_args: tuple):
     version = ctx.obj.get("version")
     force = ctx.obj.get("force")
     _, _, bin_path = _resolve_and_download(version, force)
-    runner.run_binary(bin_path, list(binary_args))
+    ctx.exit(runner.run_binary(bin_path, list(binary_args)))
 
 
 @cli.command("download", help="download the server binary only and print its path")
