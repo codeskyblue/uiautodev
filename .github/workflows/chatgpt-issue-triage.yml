@@ -1,0 +1,113 @@
+name: ChatGPT Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install openai
+
+      - name: Analyze issue with ChatGPT
+        id: analysis
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python << 'EOF'
+          import os
+          import json
+          from openai import OpenAI
+          
+          client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+          
+          issue_content = f"Title: {os.getenv('ISSUE_TITLE')}\n\nBody: {os.getenv('ISSUE_BODY')}"
+          
+          response = client.chat.completions.create(
+              model="gpt-4",
+              messages=[
+                  {
+                      "role": "system",
+                      "content": """Analyze this GitHub issue and provide:
+                      1. Issue Type (bug, feature-request, documentation, question, etc.)
+                      2. Priority (critical, high, medium, low)
+                      3. Suggested Labels (comma-separated)
+                      4. Brief Summary (2-3 sentences)
+                      
+                      Format as JSON."""
+                  },
+                  {
+                      "role": "user",
+                      "content": issue_content
+                  }
+              ],
+              temperature=0.7,
+              max_tokens=300
+          )
+          
+          analysis = response.choices[0].message.content
+          
+          try:
+              result = json.loads(analysis)
+          except:
+              result = {"analysis": analysis}
+          
+          with open('/tmp/analysis.json', 'w') as f:
+              json.dump(result, f)
+          
+          print(json.dumps(result, indent=2))
+          EOF
+
+      - name: Add labels and comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let analysis = {};
+            
+            try {
+              analysis = JSON.parse(fs.readFileSync('/tmp/analysis.json', 'utf8'));
+            } catch (e) {
+              analysis = { error: 'Analysis failed' };
+            }
+            
+            // Create comment
+            let comment = '## 🔍 Issue Triage Analysis\n\n';
+            comment += `**Type:** ${analysis['Issue Type'] || 'unknown'}\n`;
+            comment += `**Priority:** ${analysis['Priority'] || 'unknown'}\n`;
+            comment += `**Summary:** ${analysis['Brief Summary'] || 'No summary available'}\n`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+            // Add labels
+            const labels = (analysis['Suggested Labels'] || '').split(',').map(l => l.trim()).filter(l => l);
+            if (labels.length > 0) {
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: labels
+              });
+            }
