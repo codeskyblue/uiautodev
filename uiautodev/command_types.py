@@ -66,7 +66,6 @@ class CurrentAppResponse(BaseModel):
 
 class AppLaunchRequest(BaseModel):
     package: str
-    stop: bool = False
 
 
 class AppTerminateRequest(BaseModel):
